@@ -1,0 +1,43 @@
+# Dépendances
+/node_modules
+/client/node_modules
+/server/node_modules
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.*.local
+
+# Fichiers de cache et de logs
+npm-debug.log*
+/.pnp
+.pnp.js
+# fichiers de log
+*.log
+# Répertoire de cache npm
+.npm
+
+# Dossiers de build / dist
+/dist
+/build
+/client/dist
+/client/build
+/server/dist
+/server/build
+
+# Dossiers et fichiers spécifiques de l'IDE et de l'éditeur
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Fichiers de verrouillage des dépendances
+/package-lock.json
+/client/package-lock.json
+/server/package-lock.json
+
+# Dossiers temporaires
+/tmp
+/.cache
