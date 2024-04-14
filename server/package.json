@@ -1,15 +1,19 @@
 {
   "name": "server",
   "version": "0.0.0",
+  "type": "module",
   "private": true,
+
   "scripts": {
-    "dev": "node --watch ./bin/www"
+    "dev": "node --watch ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
+    "jest": "^29.7.0",
     "mongoose": "^8.3.0",
     "morgan": "~1.9.1",
     "pg": "^8.11.5",
