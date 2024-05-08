@@ -1,5 +1,5 @@
 // contactController.js
-import Contact from "../models/contactModel.js"; // Assurez-vous que le chemin est correct
+import Contact from "../models/contactModel.js";
 
 // Get all contacts
 export const getContacts = async (req, res) => {
