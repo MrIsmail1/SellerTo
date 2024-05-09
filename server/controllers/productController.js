@@ -1,10 +1,10 @@
-const products = require('../models/product')
+const products = require('../models/productModel.js')
 
-const getProducts = ((req, res) => {
+export const getProducts = ((req, res) => {
     res.json(products)
 })
 
-const getProduct = ((req, res) => {
+export const getProduct = ((req, res) => {
     const productResult = products.filter(product => product.id == req.params.id);
 
     if (!productResult) {
@@ -13,7 +13,7 @@ const getProduct = ((req, res) => {
     res.json(productResult)
 })
 
-const createProduct = ((req, res) => {
+export const createProduct = ((req, res) => {
     const newProduct = {
         id: products.length + 1,
         name: req.body.name,
@@ -25,7 +25,7 @@ const createProduct = ((req, res) => {
     res.status(201).json(newProduct)
 })
 
-const updateProduct = ((req, res) => {
+export const updateProduct = ((req, res) => {
     const id = Number(req.params.id)
     const index = products.update(req.id)
     const updatedProduct = {
@@ -38,7 +38,7 @@ const updateProduct = ((req, res) => {
     res.status(200).json('Product updated')
 })
 
-const deleteProduct = ((req, res) => {
+export const deleteProduct = ((req, res) => {
     const id = Number(req.params.id)
     const index = products.findIndex(product => product.id === id)
     products.splice(index,1)

@@ -67,5 +67,5 @@ const productSchema = new connection.Schema({
         default: Date.now,
     },
 });
-const Product = connection.model("Product");
-module.exports = Product;
+const ProductModel = connection.model("Product");
+module.exports = ProductModel;
