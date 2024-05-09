@@ -1,19 +1,19 @@
 const products = require('../models/productModel.js')
 
-export const getProducts = ((req, res) => {
+export const getProducts = async (req, res) => {
     res.json(products)
-})
+};
 
-export const getProduct = ((req, res) => {
+export const getProduct = async (req, res) => {
     const productResult = products.filter(product => product.id == req.params.id);
 
     if (!productResult) {
         return res.status(404).send('Product not found')
     }
     res.json(productResult)
-})
+};
 
-export const createProduct = ((req, res) => {
+export const createProduct = async (req, res) => {
     const newProduct = {
         id: products.length + 1,
         name: req.body.name,
@@ -23,9 +23,9 @@ export const createProduct = ((req, res) => {
     }
     products.create(newProduct)
     res.status(201).json(newProduct)
-})
+};
 
-export const updateProduct = ((req, res) => {
+export const updateProduct = async (req, res) => {
     const id = Number(req.params.id)
     const index = products.update(req.id)
     const updatedProduct = {
@@ -36,14 +36,14 @@ export const updateProduct = ((req, res) => {
 
     products[index] = updatedProduct
     res.status(200).json('Product updated')
-})
+};
 
-export const deleteProduct = ((req, res) => {
+export const deleteProduct = async (req, res) => {
     const id = Number(req.params.id)
     const index = products.findIndex(product => product.id === id)
     products.splice(index,1)
     res.status(200).json('Product deleted')
-})
+};
 
 module.exports = {
     getProducts,
