@@ -1,9 +1,14 @@
+<script setup lang="ts">
+import Register from '@/components/Register.vue';
+</script>
+
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div>
+    <Register />
   </div>
 </template>
 
+<!-- 
 <style>
 @media (min-width: 1024px) {
   .about {
@@ -12,4 +17,4 @@
     align-items: center;
   }
 }
-</style>
+</style> -->
