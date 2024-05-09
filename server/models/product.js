@@ -67,6 +67,5 @@ const productSchema = new connection.Schema({
         default: Date.now,
     },
 });
-// Create the User model from the schema
 const Product = connection.model("Product");
 module.exports = Product;
