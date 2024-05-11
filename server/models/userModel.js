@@ -29,7 +29,6 @@ const userSchema = new mongoose.Schema({
       },
       message: props => `Votre mot de passe doit contenir au moins 12 caractères, une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.`
     },
-    select: false
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,

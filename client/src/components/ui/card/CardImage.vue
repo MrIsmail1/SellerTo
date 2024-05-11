@@ -3,16 +3,14 @@ import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<{
-  class?: HTMLAttributes['class']
+  class?: HTMLAttributes['class'],
+  cardImage: String,
 }>()
+
 </script>
 
 <template>
-  <h6
-    :class="
-      cn('', props.class)
-    "
-  >
-    <slot />
-  </h6>
+  <div :class="cn('flex justify-center', props.class)">
+    <slot/>
+  </div>
 </template>

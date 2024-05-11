@@ -2,10 +2,12 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useRoute } from 'vue-router';
 
 const authStore = useAuthStore();
+const route = useRoute();
+const token = route.params.token
 </script>
 
 
@@ -13,10 +15,10 @@ const authStore = useAuthStore();
   <Card class="mx-auto max-w-sm">
     <CardHeader>
       <CardTitle class="text-2xl">
-        Mot de passe oublié ?
+        Créez un mot de passe fort
       </CardTitle>
       <CardDescription>
-        Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+        Votre mot de passe doit contenir au moins 12 caractères ainsi qu’une combinaison de chiffres, de lettres et de caractères spéciaux ( !$@%).
       </CardDescription>
     </CardHeader>
     <CardContent>
@@ -24,24 +26,17 @@ const authStore = useAuthStore();
         <div class="grid gap-2">
           <div class="flex items-center">
             <Input
-            v-model="authStore.email"
-            id="email"
-            type="email"
-            placeholder="hamza.mahmood@exemple.com"
+            v-model="authStore.password"
+            id="password"
+            type="password"
             required
           />
           </div>
         </div>
-        <Button @click="authStore.forgotPassword" type="submit" class="w-full">
-          Envoyer
+        <Button @click="authStore.resetPassword(token)" type="submit" class="w-full">
+          Réinitialiser votre mot de passe
         </Button>
         <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
-      </div>
-      <div class="mt-4 text-center text-sm">
-        Vous n'avez pas de compte ?
-        <a href="/register" class="underline">
-          Inscrivez-vous
-        </a>
       </div>
     </CardContent>
   </Card>

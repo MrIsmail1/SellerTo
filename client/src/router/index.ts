@@ -1,16 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/LoginView.vue'
-import Register from '../views/RegisterView.vue'
-import ForgotPassword from '../views/ForgotPasswordView.vue'
-import ResetPassword from '../views/ResetPasswordView.vue'
+import Login from '@/views/auth/LoginView.vue'
+import Register from '@/views/auth/RegisterView.vue'
+import ForgotPassword from '@/views/auth/ForgotPasswordView.vue'
+import ResetPassword from '@/views/auth/ResetPasswordView.vue'
+import Homepage from '@/views/home/HomepageView.vue'
+import Category from '@/views/category/CategoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      name: 'Homepage',
+      component: Homepage,
+    },
+    {
       path: '/login',
       name: 'Login',
       component: Login,
+      props: true
     },
     {
       path: '/register',
@@ -27,6 +35,11 @@ const router = createRouter({
       name: 'ResetPassword',
       component: ResetPassword,
       props: true
+    },
+    {
+      path: '/category/:categoryName',
+      name: 'Category',
+      component: Category,
     }
   ]
 })

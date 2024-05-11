@@ -2,8 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 const authStore = useAuthStore();
 </script>
@@ -13,42 +12,29 @@ const authStore = useAuthStore();
   <Card class="mx-auto max-w-sm">
     <CardHeader>
       <CardTitle class="text-2xl">
-        Connexion
+        Mot de passe oublié ?
       </CardTitle>
       <CardDescription>
-        Entrez votre email ci-dessous pour vous connecter à votre compte
+        Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.
       </CardDescription>
     </CardHeader>
     <CardContent>
       <div class="grid gap-4">
         <div class="grid gap-2">
-          <Label for="email">Email</Label>
-          <Input
+          <div class="flex items-center">
+            <Input
             v-model="authStore.email"
             id="email"
             type="email"
-            placeholder="m@exemple.com"
+            placeholder="hamza.mahmood@exemple.com"
             required
           />
-        </div>
-        <div class="grid gap-2">
-          <div class="flex items-center">
-            <Label for="password">Mot de passe</Label>
-            <a href="/forgotpassword" class="ml-auto inline-block text-sm underline">
-              Mot de passe oublié ?
-            </a>
           </div>
-          <Input v-model="authStore.password" id="password" type="password" required />
         </div>
-        <Button @click="authStore.login" type="submit" class="w-full">
-          Se connecter
+        <Button @click="authStore.forgotPassword" type="submit" class="w-full">
+          Envoyer
         </Button>
         <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
-        <!-- Optionnellement, ajouter un bouton pour la connexion via Google ou autre méthode
-        <Button variant="outline" class="w-full">
-          Se connecter avec Google
-        </Button>
-        -->
       </div>
       <div class="mt-4 text-center text-sm">
         Vous n'avez pas de compte ?
