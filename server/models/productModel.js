@@ -1,71 +1,54 @@
-const { Sequelize, FLOAT} = require("sequelize");
+import { Sequelize, DataTypes } from "sequelize";
 
-const connection = new Sequelize(process.env.DATABASE_URL, {
+// Create a new Sequelize instance
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
 });
-// Define the User schema
-const productSchema = new connection.Schema({
+
+const Product = sequelize.define('Product', {
     id: {
-        type: Number,
-        required: true,
-        unique: true,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
-    name: {
-        type: String,
-        required: true,
+    product_title: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    description: {
-        type: String,
-        required: true,
+    product_price: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
     },
-    color: {
-        type: String,
-        required: true,
+    product_star_rating: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
     },
-    weight: {
-        type: String,
-        required: true,
+    product_url: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    inches: {
-        type: Number,
-        required: true,
+    product_photo: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    ram: {
-        type: Number,
+    product_minimum_offer_price: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
     },
-    storage: {
-        type: Number,
+    product_category: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    price: {
-        type: Number,
-        required: true,
+    is_best_seller: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
     },
-    processor: {
-        type: String,
-    },
-    brand: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-    },
-    keyboard: {
-        type: String,
-    },
-    year: {
-        type: Number,
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now,
-    },
+    delivery: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    }
+}, {
+    timestamps: true
 });
-const ProductModel = connection.model("Product");
-module.exports = ProductModel;
+
+export default Product;

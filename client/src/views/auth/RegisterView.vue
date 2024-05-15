@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,28 +54,3 @@ const authStore = useAuthStore();
     </CardContent>
   </Card>
 </template>
-
-
-
-
-
-
-
-
-<!-- <script setup lang="ts">
-import { useAuthStore } from '../stores/authStore';
-
-const authStore = useAuthStore();
-</script>
-
-<template>
-  <div>
-    <input v-model="authStore.firstname" type="text" placeholder="First Name">
-    <input v-model="authStore.lastname" type="text" placeholder="Last Name">
-    <input v-model="authStore.email" type="email" placeholder="Email">
-    <input v-model="authStore.password" type="password" placeholder="Password">
-    <button @click="authStore.register">Register</button>
-    <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
-  </div>
-</template>
- -->
