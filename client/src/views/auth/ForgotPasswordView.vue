@@ -38,9 +38,9 @@ const authStore = useAuthStore();
       </div>
       <div class="mt-4 text-center text-sm">
         Vous n'avez pas de compte ?
-        <a href="/register" class="underline">
+        <RouterLink to="/register" class="underline">
           Inscrivez-vous
-        </a>
+        </RouterLink>
       </div>
     </CardContent>
   </Card>

@@ -11,7 +11,6 @@ const productStore = useProductsStore();
 
 onMounted(() => {
   productStore.fetchProducts();
-  console.log(productStore.ramdomProducts)
 });
 
 </script>

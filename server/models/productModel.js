@@ -1,9 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
-
-// Create a new Sequelize instance
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: "postgres",
-});
+import sequelize from '../config/database.js';
 
 const Product = sequelize.define('Product', {
     id: {
@@ -46,7 +42,12 @@ const Product = sequelize.define('Product', {
     delivery: {
         type: DataTypes.STRING,
         allowNull: true,
-    }
+    },
+     product_stock: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 }, {
     timestamps: true
 });

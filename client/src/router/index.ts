@@ -5,6 +5,8 @@ import ForgotPassword from '@/views/auth/ForgotPasswordView.vue'
 import ResetPassword from '@/views/auth/ResetPasswordView.vue'
 import Homepage from '@/views/home/HomepageView.vue'
 import Category from '@/views/category/CategoryView.vue'
+import Product from '@/views/product/ProductView.vue'
+import Cart from '@/views/cart/CartView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,7 +42,17 @@ const router = createRouter({
       path: '/category/:categoryName',
       name: 'Category',
       component: Category,
-    }
+    },
+    {
+      path: '/product/:id',
+      name: 'Product',
+      component: Product,
+    },
+    {
+      path: '/cart',
+      name: 'Cart',
+      component: Cart,
+    },
   ]
 })
 

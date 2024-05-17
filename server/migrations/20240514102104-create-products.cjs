@@ -45,6 +45,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      product_stock: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

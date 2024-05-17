@@ -1,10 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
-import Product from './productModel.js'; // Assurez-vous que le chemin est correct
-
-// Create a new Sequelize instance
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: "postgres",
-});
+import Product from './productModel.js';
+import sequelize from '../config/database.js';
 
 const ProductDetail = sequelize.define('ProductDetail', {
     id: {

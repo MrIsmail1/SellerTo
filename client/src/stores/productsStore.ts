@@ -13,7 +13,7 @@ export const useProductsStore = defineStore('products', {
     },
     productCategories() {
       const categories = this.products.map(product => product.product_category);
-      return [...new Set(categories)]; // Retourne les catégories uniques
+      return [...new Set(categories)];
     },
   },
   actions: {

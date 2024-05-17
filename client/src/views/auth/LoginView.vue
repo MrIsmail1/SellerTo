@@ -34,10 +34,10 @@ const authStore = useAuthStore();
         <div class="grid gap-2">
           <div class="flex items-center">
             <Label for="password">Mot de passe</Label>
-            <a href="/forgotpassword" class="ml-auto inline-block text-sm underline">
+            <RouterLink to="/forgotpassword" class="ml-auto inline-block text-sm underline">
               Mot de passe oublié ?
-            </a>
-          </div>
+            </RouterLink>
+        </div>
           <Input v-model="authStore.password" id="password" type="password" required />
         </div>
         <Button @click="authStore.login" type="submit" class="w-full">
@@ -52,9 +52,9 @@ const authStore = useAuthStore();
       </div>
       <div class="mt-4 text-center text-sm">
         Vous n'avez pas de compte ?
-        <a href="/register" class="underline">
+        <RouterLink to="/register" class="underline">
           Inscrivez-vous
-        </a>
+        </RouterLink>
       </div>
     </CardContent>
   </Card>
