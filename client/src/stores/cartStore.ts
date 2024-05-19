@@ -26,16 +26,14 @@ export const useCartStore = defineStore('cart', {
         this.cart.push(response.data);
       } catch (error) {
         console.error(error);
-        this.error = error.message;
       }
     },
-    async removeFromCart(productId) {
+    async removeFromCart(cartItemId) {
       try {
-        await axios.post('/cart/remove', { productId });
-        this.cart = this.cart.filter(item => item.productId !== productId);
+        await axios.post('/cart/remove', { cartItemId });
+        this.cart = this.cart.filter(item => item._id !== cartItemId);
       } catch (error) {
         console.error(error);
-        this.error = error.message;
       }
     },
     async confirmPurchase(productId) {
@@ -44,7 +42,6 @@ export const useCartStore = defineStore('cart', {
         this.cart = this.cart.filter(item => item.productId !== productId);
       } catch (error) {
         console.error(error);
-        this.error = error.message;
       }
     },
   },

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema({
   product_title: {
     type: String,
-    required: true,
+    required: false,
   },
   product_price: {
     type: Number,
@@ -15,11 +15,11 @@ const productSchema = new mongoose.Schema({
   },
   product_url: {
     type: String,
-    required: true,
+    required: false,
   },
   product_photo: {
     type: String,
-    required: true,
+    required: false,
   },
   product_minimum_offer_price: {
     type: Number,
@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
   },
   product_category: {
     type: String,
-    required: true,
+    required: false,
   },
   is_best_seller: {
     type: Boolean,
@@ -39,8 +39,12 @@ const productSchema = new mongoose.Schema({
   },
   product_stock: {
     type: Number,
-    required: true,
+    required: false,
     default: 0,
+  },
+  data: {
+    type: mongoose.Schema.Types.Mixed,
+    required: false,
   },
 }, {
   timestamps: true

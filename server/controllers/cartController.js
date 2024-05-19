@@ -1,18 +1,15 @@
 import Cart from '../models/cartModel.js';
 import Product from '../models/productModel.js';
 
-
 // Ajouter un produit au panier
 export const addToCart = async (req, res) => {
-  console.log(req.body);
   const { productId } = req.body;
-  const userId = req.user._id;
+  const userId = req.user.id; // PostgreSQL user ID
 
   try {
     const product = await Product.findById(productId);
     if (!product || product.product_stock <= 0) {
-      console.error(`Product not available or out of stock: ${productId}`);
-      return res.status(404).json({ message: 'Product not available' });
+      return res.status(404).json({ message: 'Product not available or out of stock' });
     }
 
     // Réduire le stock du produit
@@ -20,29 +17,27 @@ export const addToCart = async (req, res) => {
     await product.save();
 
     // Ajouter le produit au panier
-    const cartItem = await Cart.create({ productId, userId });
+    const cartItem = await Cart.create({ productId: product._id, userId: userId.toString() });
     res.status(201).json(cartItem);
   } catch (error) {
-    console.error('Error adding to cart:', error); // Log the error for debugging
+    console.error('Error adding to cart:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-
-
 // Supprimer un produit du panier
 export const removeFromCart = async (req, res) => {
-  const { productId } = req.body;
-  const userId = req.user._id;
+  const { cartItemId } = req.body;
+  const userId = req.user.id.toString(); // Convertir userId en chaîne
 
   try {
-    const cartItem = await Cart.findOne({ productId, userId });
+    const cartItem = await Cart.findOne({ _id: cartItemId, userId });
     if (!cartItem) {
       return res.status(404).json({ message: 'Product not in cart' });
     }
 
     // Rétablir le stock du produit
-    const product = await Product.findById(productId);
+    const product = await Product.findById(cartItem.productId);
     if (product) {
       product.product_stock++;
       await product.save();
@@ -51,20 +46,20 @@ export const removeFromCart = async (req, res) => {
     await Cart.deleteOne({ _id: cartItem._id });
     res.status(200).json({ message: 'Product removed from cart' });
   } catch (error) {
-    console.error('Error removing from cart:', error); // Log the error for debugging
+    console.error('Error removing from cart:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-
 // Récupérer les produits du panier
 export const getCart = async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.id.toString(); // Convertir userId en chaîne
 
   try {
     const carts = await Cart.find({ userId }).populate('productId');
     res.status(200).json(carts);
   } catch (error) {
+    console.error('Error getting cart items:', error);
     res.status(500).json({ message: error.message });
   }
 };

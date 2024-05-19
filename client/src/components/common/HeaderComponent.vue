@@ -6,13 +6,11 @@ import { Input } from '@/components/ui/input';
 import { useProductsStore } from '@/stores/productsStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, computed } from 'vue';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
-const router = useRouter();
 
 onMounted(() => {
   productStore.fetchProducts();
@@ -22,6 +20,8 @@ const handleLogout = async () => {
   await authStore.logout();
   router.push('/'); // Rediriger vers la page d'accueil après la déconnexion
 };
+
+const isLoggedIn = computed(() => authStore.user !== null);
 </script>
 
 <template>
@@ -44,13 +44,15 @@ const handleLogout = async () => {
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="secondary" size="icon" class="rounded-full">
-              <CircleUser class="h-5 w-5" />
-            </Button>
+            <RouterLink :to="isLoggedIn ? '' : '/login'">
+              <Button variant="secondary" size="icon" class="rounded-full">
+                <CircleUser class="h-5 w-5" />
+              </Button>
+            </RouterLink>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent v-if="isLoggedIn">
             <DropdownMenuItem>
-              <RouterLink to="/login">Mon compte</RouterLink>
+              <RouterLink to="/account">Mon compte</RouterLink>
             </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />

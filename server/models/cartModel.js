@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import Product from './productModel.js';
-import User from './userModel.js';
 
 const cartSchema = new mongoose.Schema({
   productId: {
@@ -9,8 +7,7 @@ const cartSchema = new mongoose.Schema({
     required: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true,
   },
   addedAt: {
