@@ -1,18 +1,27 @@
 <script setup lang="ts">
-import { CircleUser, Search, ShoppingBasket } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { useProductsStore } from '@/stores/productsStore'
-import { useCartStore } from '@/stores/cartStore'
-import { onMounted } from 'vue'
+import { CircleUser, Search, ShoppingBasket } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { useProductsStore } from '@/stores/productsStore';
+import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
+const authStore = useAuthStore();
+const router = useRouter();
 
 onMounted(() => {
   productStore.fetchProducts();
 });
+
+const handleLogout = async () => {
+  await authStore.logout();
+  router.push('/'); // Rediriger vers la page d'accueil après la déconnexion
+};
 </script>
 
 <template>
@@ -45,8 +54,8 @@ onMounted(() => {
             </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <RouterLink to="/logout">Déconnexion</RouterLink>
+            <DropdownMenuItem @click="handleLogout">
+              Déconnexion
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

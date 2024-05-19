@@ -1,36 +1,20 @@
-import { Sequelize, DataTypes } from "sequelize";
+import mongoose from 'mongoose';
 import Product from './productModel.js';
-import sequelize from '../config/database.js';
 
-const ProductDetail = sequelize.define('ProductDetail', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    product_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Product,
-            key: 'id'
-        },
-        allowNull: false
-    },
-    data: {
-        type: DataTypes.JSONB,
-        allowNull: false
-    }
+const productDetailSchema = new mongoose.Schema({
+  product_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
+  data: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  }
 }, {
-    timestamps: true
+  timestamps: true
 });
 
-Product.hasOne(ProductDetail, {
-    foreignKey: 'product_id',
-    as: 'details'
-});
-ProductDetail.belongsTo(Product, {
-    foreignKey: 'product_id',
-    as: 'product'
-});
+const ProductDetail = mongoose.model('ProductDetail', productDetailSchema);
 
 export default ProductDetail;

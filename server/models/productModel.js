@@ -1,55 +1,51 @@
-import { Sequelize, DataTypes } from "sequelize";
-import sequelize from '../config/database.js';
+import mongoose from "mongoose";
 
-const Product = sequelize.define('Product', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    product_title: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    product_price: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
-    },
-    product_star_rating: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
-    },
-    product_url: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    product_photo: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    product_minimum_offer_price: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
-    },
-    product_category: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    is_best_seller: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true,
-    },
-    delivery: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-     product_stock: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
+const productSchema = new mongoose.Schema({
+  product_title: {
+    type: String,
+    required: true,
+  },
+  product_price: {
+    type: Number,
+    required: false,
+  },
+  product_star_rating: {
+    type: Number,
+    required: false,
+  },
+  product_url: {
+    type: String,
+    required: true,
+  },
+  product_photo: {
+    type: String,
+    required: true,
+  },
+  product_minimum_offer_price: {
+    type: Number,
+    required: false,
+  },
+  product_category: {
+    type: String,
+    required: true,
+  },
+  is_best_seller: {
+    type: Boolean,
+    required: false,
+  },
+  delivery: {
+    type: String,
+    required: false,
+  },
+  product_stock: {
+    type: Number,
+    required: true,
+    default: 0,
   },
 }, {
-    timestamps: true
+  timestamps: true
 });
+
+const Product = mongoose.model("Product", productSchema);
 
 export default Product;

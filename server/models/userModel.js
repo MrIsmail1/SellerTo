@@ -1,91 +1,100 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import { Sequelize, DataTypes } from 'sequelize';
+import bcrypt from 'bcrypt';
+import sequelize from '../config/database.js';
 
-const userSchema = new mongoose.Schema({
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   firstname: {
-    type: String,
-    required: [true, "Veuillez ajouter un prénom"],
-    maxlength: 50
-  },
-  lastname: {
-    type: String,
-    required: [true, "Veuillez ajouter un nom de famille"],
-    maxlength: 50
-  },
-  email: {
-    type: String,
-    required: [true, "Veuillez ajouter un email"],
-    unique: true,
-    match: [/\S+@\S+\.\S+/, "Veuillez utiliser une adresse email valide"]
-  },
-  password: {
-    type: String,
-    required: [true, "Veuillez ajouter un mot de passe"],
-    minlength: 12,
-    select: false,
+    type: DataTypes.STRING,
+    allowNull: false,
     validate: {
-      validator: function(v) {
-        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\^\$*.\[\]{}\(\)?\-\"!@#%&/\\,><':;|_~`])\S{12,}$/.test(v);
-      },
-      message: props => `Votre mot de passe doit contenir au moins 12 caractères, une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.`
+      notEmpty: true,
+      len: [1, 50],
     },
   },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  passwordChangedAt: Date,
+  lastname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [1, 50],
+    },
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+    },
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [12],
+    },
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  passwordChangedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
   role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user"
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'user',
+    validate: {
+      isIn: [['user', 'admin']],
+    },
   },
   confirmationToken: {
-    type: String,
-    required: false
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   confirmationTokenExpires: {
-    type: Date,
-    required: false
+    type: DataTypes.DATE,
+    allowNull: true,
   },
   isVerified: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
-  loginAttempts: { 
-    type: Number, 
-    required: true, 
-    default: 0 
+  loginAttempts: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
   },
   lockUntil: {
-    type: Number 
-  }
-  }, {
-    timestamps: true
-  });
-
-userSchema.virtual('isLocked').get(function() {
-  return !!(this.lockUntil && this.lockUntil > Date.now());
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+}, {
+  timestamps: true,
+  hooks: {
+    beforeSave: async (user, options) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+  },
 });
 
-// Hook pour hacher le mot de passe avant de le sauvegarder
-userSchema.pre('save', async function(next) {
-
-  // Pour les 6 mois
-  if (this.isModified('password') && !this.isNew) {
-    this.passwordChangedAt = Date.now() - 1000;
-  }
-
-  // Hacher le mot de passe si celui-ci a été modifié
-  if (this.isModified('password')) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
-  next();
-});
-
-userSchema.methods.matchPassword = async function(enteredPassword) {
+User.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-const User = mongoose.model("User", userSchema);
 
 export default User;

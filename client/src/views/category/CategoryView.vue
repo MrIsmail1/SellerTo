@@ -16,7 +16,6 @@ onMounted(() => {
 });
 
 const categoryName = computed(() => route.params.categoryName);
-console.log(categoryName.value);
 const filteredProducts = computed(() => {
   return productStore.products.filter(product => product.product_category === categoryName.value);
 });
