@@ -7,10 +7,12 @@ import { useProductsStore } from '@/stores/productsStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import { onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const router = useRouter();
 
 onMounted(() => {
   productStore.fetchProducts();
