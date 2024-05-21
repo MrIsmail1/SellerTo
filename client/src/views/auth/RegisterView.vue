@@ -47,9 +47,9 @@ const authStore = useAuthStore();
       <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
       <div class="mt-4 text-center text-sm">
         Vous avez déjà un compte ?
-        <a href="/login" class="underline">
+        <RouterLink to="/login" class="underline">
           Connectez-vous
-        </a>
+        </RouterLink>
       </div>
     </CardContent>
   </Card>
