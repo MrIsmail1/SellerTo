@@ -2,5 +2,7 @@
 </script>
 
 <template>
-    Tu es connecté 
+    <main>
+        Tu es connecté 
+    </main>
 </template>

@@ -5,7 +5,6 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findByPk(req.user.id, {
       attributes: { exclude: ['password'] } // Exclure le mot de passe des informations renvoyées
     });
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

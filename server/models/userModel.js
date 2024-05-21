@@ -2,7 +2,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../config/database.js';
 
-const User = sequelize.define('User', {
+const Users = sequelize.define('Users', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -55,9 +55,9 @@ const User = sequelize.define('User', {
   role: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'user',
+    defaultValue: 'users',
     validate: {
-      isIn: [['user', 'admin']],
+      isIn: [['users', 'admin']],
     },
   },
   confirmationToken: {
@@ -81,20 +81,40 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  country: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  phoneNumber: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  postalCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   hooks: {
-    beforeSave: async (user, options) => {
-      if (user.changed('password')) {
+    beforeSave: async (users, options) => {
+      if (users.changed('password')) {
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
+        users.password = await bcrypt.hash(users.password, salt);
       }
     },
   },
 });
 
-User.prototype.matchPassword = async function (enteredPassword) {
+Users.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default User;
+export default Users;
