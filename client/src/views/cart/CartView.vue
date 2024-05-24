@@ -1,13 +1,18 @@
 <script setup lang='ts'>
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import Button from '@/components/ui/button/Button.vue';
+import CartComponent from '@/components/cart/CartComponent.vue';
 
 const cartStore = useCartStore();
-const cart = computed(() => cartStore.cart);
+const cart = computed(() => cartStore.groupedCart);
 
 const removeItem = async (cartItemId) => {
   await cartStore.removeFromCart(cartItemId);
+};
+
+const updateQuantity = async (productId, quantity) => {
+  await cartStore.updateQuantity(productId, quantity);
 };
 
 const handleCheckout = async () => {
@@ -17,19 +22,66 @@ const handleCheckout = async () => {
 onMounted(async () => {
   await cartStore.fetchCart();
 });
+
+const subTotal = computed(() => cartStore.subTotal);
+const total = computed(() => cartStore.total);
 </script>
 
 <template>
-  <main>
-    <h1>Mon Panier</h1>
-    <div v-if="!cart.length">Votre panier est vide</div>
-    <div v-else>
-      <div class="mb-6" v-for="item in cart" :key="item._id">
-        <h2>{{ item.productId.product_title }}</h2>
-        <p>Price: {{ item.productId.product_price }} €</p>
-        <Button @click="removeItem(item._id)">Supprimer</Button>
+  <div v-if="!cart.length" class="text-center text-lg">Votre panier est vide</div>
+  <main v-else class="flex flex-col md:flex-row gap-4 container mx-auto p-4">
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
+      <div >
+        <div class="mt-4">
+          <CartComponent
+            v-for="item in cart"
+            :key="item.productId._id"
+            :productImage="item.productId.product_photo"
+            :productCategory="item.productId.product_category"
+            :productDescription="item.productId.product_title"
+            :productPrice="item.productId.product_price"
+            :productQuantity="item.quantity"
+            :cardLink="`/product/${item.productId._id}`"
+            @update="updateQuantity(item.productId._id, $event)"
+          >
+            <template #actions>
+              <Button @click="() => removeItem(item._id)" variant="secondary" class="mt-2 mb-auto">Supprimer</Button>
+            </template>
+          </CartComponent>
+        </div>
       </div>
-      <Button @click="handleCheckout">Passer commande</Button>
+    </div>
+    <div class="w-96 absolute right-11">
+      <div class="w-full max-w-md p-4 bg-white shadow-md rounded-lg">
+        <h2 class="text-2xl font-bold mb-4">Récapitulatif</h2>
+        <div v-for="item in cart" :key="item.productId._id" class="flex justify-between mb-2">
+          <span>{{ item.productId.product_title }} x{{ item.quantity }}</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-2">
+          <span>Livraison</span>
+          <span>Offert</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-2">
+          <span>Sous-total</span>
+          <span>{{ subTotal }} €</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-2">
+          <span>Frais de service SellerTo</span>
+          <span>{{ 6.49 }} €</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-2 font-bold">
+          <span>Total TTC</span>
+          <span>{{ total }} €</span>
+        </div>
+        <div class="mt-4 text-sm">
+          <p>Paiement sécurisé</p>
+          <p>En passant commande vous acceptez nos Conditions générales d'utilisation, nos Conditions générales de vente et notre politique de protection des données</p>
+        </div>
+        <div class="flex justify-center mt-4">
+          <Button @click="handleCheckout" size="medium">Passer commande</Button>
+        </div>
+      </div>
     </div>
   </main>
 </template>

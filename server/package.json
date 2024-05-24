@@ -5,7 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "node --watch ./bin/www",
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "jest": {
+    "transform": {}
   },
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.40",
@@ -28,6 +31,8 @@
     "stripe": "^15.7.0"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.2"
+    "jest-mock-extended": "^3.0.7",
+    "sequelize-cli": "^6.6.2",
+    "supertest": "^7.0.0"
   }
 }

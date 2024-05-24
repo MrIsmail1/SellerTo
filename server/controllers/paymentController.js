@@ -23,7 +23,7 @@ export const createPaymentSession = async (req, res) => {
       cancel_url: `${process.env.APP_BASE_URL_CLIENT}/cancel`,
       client_reference_id: userId
     });
-    res.status(200).json({ sessionId: session.id });
+    res.status(200).json({sessionId: session.id});
   } catch (error) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({ message: 'Internal Server Error' });
