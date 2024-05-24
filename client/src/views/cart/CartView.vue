@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import Button from '@/components/ui/button/Button.vue';
 import CartComponent from '@/components/cart/CartComponent.vue';
@@ -19,8 +19,17 @@ const handleCheckout = async () => {
   await cartStore.handleCheckout();
 };
 
+let cleanInterval;
+
 onMounted(async () => {
   await cartStore.fetchCart();
+  cleanInterval = setInterval(async () => {
+    await cartStore.fetchCart();
+  }, 15000);
+});
+
+onUnmounted(() => {
+  clearInterval(cleanInterval);
 });
 
 const subTotal = computed(() => cartStore.subTotal);
@@ -29,7 +38,8 @@ const total = computed(() => cartStore.total);
 
 <template>
   <div v-if="!cart.length" class="text-center text-lg">Votre panier est vide</div>
-  <main v-else class="flex flex-col md:flex-row gap-4 container mx-auto p-4">
+  <main v-else
+   class="flex flex-col md:flex-row gap-4 container mx-auto p-4">
     <div class="flex-1">
       <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
       <div >

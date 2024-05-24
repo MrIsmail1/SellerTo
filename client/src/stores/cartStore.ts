@@ -10,7 +10,6 @@ export const useCartStore = defineStore('cart', {
     cart: [],
     loading: false,
     error: null,
-    cleanTimeouts: [], // Ajouter cette ligne pour stocker les timeouts
   }),
   getters: {
     groupedCart: (state) => {
@@ -44,7 +43,6 @@ export const useCartStore = defineStore('cart', {
         const response = await axios.get('/cart');
         this.cart = response.data.filter(item => item.productId);
         this.error = null;
-        this.scheduleCleanExpiredItems(); // Planifier le nettoyage après récupération du panier
       } catch (error) {
         this.error = error.message;
       } finally {
@@ -65,7 +63,6 @@ export const useCartStore = defineStore('cart', {
         } else {
           this.cart.push(cartItem);
         }
-        this.scheduleCleanExpiredItems(); // Planifier le nettoyage après ajout
       } catch (error) {
         console.error(error);
       }
@@ -74,7 +71,6 @@ export const useCartStore = defineStore('cart', {
       try {
         await axios.post('/cart/remove', { cartItemId });
         this.cart = this.cart.filter(item => item._id !== cartItemId);
-        this.scheduleCleanExpiredItems(); // Planifier le nettoyage après suppression
       } catch (error) {
         console.error(error);
       }
@@ -85,8 +81,7 @@ export const useCartStore = defineStore('cart', {
         if (existingItem) {
           const response = await axios.put('/cart/update', { cartItemId: existingItem._id, quantity });
           existingItem.quantity = quantity;
-          this.cart = [...this.cart];
-          this.scheduleCleanExpiredItems(); // Planifier le nettoyage après mise à jour
+          this.cart = [...this.cart]; 
         }
       } catch (error) {
         console.error(error);
@@ -96,7 +91,6 @@ export const useCartStore = defineStore('cart', {
       try {
         await axios.post('/cart/confirm', { productId });
         this.cart = this.cart.filter(item => item.productId !== productId);
-        this.scheduleCleanExpiredItems(); // Planifier le nettoyage après confirmation
       } catch (error) {
         console.error(error);
       }
@@ -134,21 +128,6 @@ export const useCartStore = defineStore('cart', {
     },
     async clearCart() {
       this.cart = [];
-      this.clearCleanTimeouts();
     },
-    scheduleCleanExpiredItems() {
-      this.clearCleanTimeouts(); // Effacer les timeouts existants
-      this.cart.forEach(item => {
-        const timeout = setTimeout(async () => {
-          await axios.post('/cart/clean-expired');
-          await this.fetchCart();
-        }, item.reservedUntil - Date.now());
-        this.cleanTimeouts.push(timeout);
-      });
-    },
-    clearCleanTimeouts() {
-      this.cleanTimeouts.forEach(timeout => clearTimeout(timeout));
-      this.cleanTimeouts = [];
-    }
   },
 });
