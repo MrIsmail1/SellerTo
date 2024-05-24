@@ -23,6 +23,10 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  refundId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   status: {
     type: DataTypes.STRING,
     allowNull: false,

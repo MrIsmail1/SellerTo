@@ -17,7 +17,7 @@ export const register = async (req, res) => {
     }
 
     if (user) {
-      return res.status(400).json({ message: 'User already exists and is verified. Please login.' });
+      return res.status(400);
     }
 
     const confirmationToken = crypto.randomBytes(20).toString('hex');
@@ -37,7 +37,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully. Please check your email to confirm.' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -48,7 +48,7 @@ export const login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401);
     }
 
     if (!user.isVerified) {

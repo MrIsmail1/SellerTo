@@ -19,6 +19,10 @@ const handleCheckout = async () => {
   await cartStore.handleCheckout();
 };
 
+const generatePaymentLink = async () => {
+  await cartStore.generatePaymentLink();
+};
+
 let cleanInterval;
 
 onMounted(async () => {
@@ -34,6 +38,7 @@ onUnmounted(() => {
 
 const subTotal = computed(() => cartStore.subTotal);
 const total = computed(() => cartStore.total);
+const paymentLink = computed(() => cartStore.paymentLink);
 </script>
 
 <template>
@@ -52,7 +57,7 @@ const total = computed(() => cartStore.total);
             :productDescription="item.productId.product_title"
             :productPrice="item.productId.product_price"
             :productQuantity="item.quantity"
-            :cardLink="`/product/${item.productId._id}`"
+            :cardLink="`/products/${item.productId._id}`"
             @update="updateQuantity(item.productId._id, $event)"
           >
             <template #actions>
@@ -88,8 +93,13 @@ const total = computed(() => cartStore.total);
           <p>Paiement sécurisé</p>
           <p>En passant commande vous acceptez nos Conditions générales d'utilisation, nos Conditions générales de vente et notre politique de protection des données</p>
         </div>
-        <div class="flex justify-center mt-4">
+        <div class="text-center">
           <Button @click="handleCheckout" size="medium">Passer commande</Button>
+          <Button @click="generatePaymentLink" size="medium">Générer un lien de paiement</Button>
+        </div>
+        <div v-if="paymentLink" class="mt-4">
+          <p>Lien de paiement :</p>
+          <a :href="paymentLink" target="_blank">{{ paymentLink }}</a>
         </div>
       </div>
     </div>

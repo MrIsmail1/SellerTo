@@ -3,12 +3,12 @@ import Product from '../models/productModel.js';
 
 export const addToCart = async (req, res) => {
   const { productId } = req.body;
-  const userId = req.user.id; // PostgreSQL user ID
+  const userId = req.user.id;
 
   try {
     const product = await Product.findById(productId);
     if (!product || product.product_stock <= 0) {
-      return res.status(404).json({ message: 'Product not available or out of stock' });
+      return res.status(404);
     }
 
     const existingCartItem = await Cart.findOne({ productId, userId });
@@ -33,7 +33,7 @@ export const addToCart = async (req, res) => {
     res.status(201).json({ message: 'Product added to cart' });
   } catch (error) {
     console.error('Error adding to cart:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -46,7 +46,7 @@ export const removeFromCart = async (req, res) => {
   try {
     const cartItem = await Cart.findOne({ _id: cartItemId, userId });
     if (!cartItem) {
-      return res.status(404).json({ message: 'Product not in cart' });
+      return res.status(404);
     }
 
     const product = await Product.findById(cartItem.productId);
@@ -59,7 +59,7 @@ export const removeFromCart = async (req, res) => {
     res.status(200).json({ message: 'Product removed from cart' });
   } catch (error) {
     console.error('Error removing from cart:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -71,7 +71,7 @@ export const getCart = async (req, res) => {
     res.status(200).json(carts);
   } catch (error) {
     console.error('Error getting cart items:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -82,7 +82,7 @@ export const updateCartQuantity = async (req, res) => {
   try {
     const cartItem = await Cart.findOne({ _id: cartItemId, userId });
     if (!cartItem) {
-      return res.status(404).json({ message: 'Cart item not found' });
+      return res.status(404);
     }
 
     cartItem.quantity = quantity;
@@ -91,7 +91,7 @@ export const updateCartQuantity = async (req, res) => {
     res.status(200).json({ message: 'Cart item quantity updated', cartItem });
   } catch (error) {
     console.error('Error updating cart item quantity:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 

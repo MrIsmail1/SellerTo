@@ -27,6 +27,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      refundId: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       status: {
         type: Sequelize.STRING,
         allowNull: false

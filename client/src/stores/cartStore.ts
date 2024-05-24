@@ -10,6 +10,7 @@ export const useCartStore = defineStore('cart', {
     cart: [],
     loading: false,
     error: null,
+    paymentLink: null,
   }),
   getters: {
     groupedCart: (state) => {
@@ -108,7 +109,7 @@ export const useCartStore = defineStore('cart', {
           quantity: item.quantity,
         }));
 
-        const response = await axios.post('/payment', {
+        const response = await axios.post('/payments', {
           items,
           userId: userId.toString(),
         });
@@ -128,6 +129,39 @@ export const useCartStore = defineStore('cart', {
     },
     async clearCart() {
       this.cart = [];
+    },
+    async generatePaymentLink() {
+      try {
+        const authStore = useAuthStore(); 
+        const userId = authStore.user.id;
+
+        const items = this.groupedCart.map(item => ({
+          name: item.productId.product_title,
+          amount: item.productId.product_price * 100,
+          quantity: item.quantity,
+        }));
+
+        const response = await axios.post('/payments/unique-payment-link', {
+          items,
+          userId: userId.toString(),
+        });
+
+        this.paymentLink = response.data.paymentUrl;
+      } catch (error) {
+        console.error('Error generating payment link:', error);
+        this.paymentLink = null;
+      }
+    },
+    async createRefund(paymentIntentId, amount) {
+      try {
+        const response = await axios.post('/payments/refund', {
+          paymentIntentId,
+          amount,
+        });
+        console.log('Refund created:', response.data);
+      } catch (error) {
+        console.error('Error creating refund:', error);
+      }
     },
   },
 });

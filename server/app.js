@@ -11,7 +11,7 @@ import paymentRouter from "./routes/paymentRoutes.js";
 import connectedDataBase from "./models/db.js";
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import stripeWebhookHandler from './controllers/stripeWebhookController.js';
+import stripeWebhookHandler from './webhooks/stripeWebhook.js';
 import cron from 'node-cron';
 import { cleanExpiredCarts } from './controllers/cartController.js';
 
@@ -34,10 +34,10 @@ app.use(cors({
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/auth", authRouter);
-app.use("/product", productRouter);
+app.use("/products", productRouter);
 app.use("/cart", cartRouter);
-app.use("/user", userRouter);
-app.use("/payment", paymentRouter);
+app.use("/users", userRouter);
+app.use("/payments", paymentRouter);
 
 // Planifier la tâche de nettoyage toutes les 15 secondes pour le panier
 cron.schedule('*/15 * * * * *', async () => {
