@@ -29,5 +29,20 @@ export const useProductsStore = defineStore('products', {
         this.loading = false;
       }
     },
+
+    async searchProductByTitle(title: string) {
+      this.loading = true;
+      try {
+        const response = await axios.get('/product/search', {
+          params: { title }
+        });
+        this.products = response.data;
+        this.error = null;
+      } catch (error) {
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

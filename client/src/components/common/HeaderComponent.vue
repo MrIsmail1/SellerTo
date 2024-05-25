@@ -6,17 +6,30 @@ import { Input } from '@/components/ui/input';
 import { useProductsStore } from '@/stores/productsStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, computed, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 
 onMounted(() => {
   productStore.fetchProducts();
+  if (route.query.title) {
+    productStore.searchProductByTitle(route.query.title);
+  }
 });
+
+const searchQuery = ref('');
+
+const handleSearch = async () => {
+  if (searchQuery.value.trim() !== '') {
+    await productStore.searchProductByTitle(searchQuery.value);
+    router.push({ path: '/', query: { title: searchQuery.value } });
+  }
+};
 
 const handleLogout = async () => {
   await authStore.logout();
@@ -38,10 +51,10 @@ const isLoggedIn = computed(() => authStore.user !== null);
         <a href="#" class="transition-colors hover:text-foreground">Products</a>
       </nav>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form class="ml-auto flex-1">
+        <form @submit.prevent="handleSearch" class="ml-auto flex-1">
           <div class="relative">
             <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full" />
+            <Input v-model="searchQuery" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full" />
           </div>
         </form>
         <DropdownMenu>
