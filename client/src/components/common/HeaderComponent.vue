@@ -1,19 +1,21 @@
 <script setup lang="ts">
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useProductsStore } from '@/stores/productsStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useCartStore } from '@/stores/cartStore';
 import { CircleUser, Search, ShoppingBasket } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { useProductsStore } from '@/stores/productsStore';
-import { useCartStore } from '@/stores/cartStore';
-import { useAuthStore } from '@/stores/authStore';
-import { onMounted, computed, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const searchQuery = ref('');
+const showSuggestions = ref(false);
 
 onMounted(() => {
   productStore.fetchProducts();
@@ -22,12 +24,10 @@ onMounted(() => {
   }
 });
 
-const searchQuery = ref('');
-
 const handleSearch = async () => {
   if (searchQuery.value.trim() !== '') {
     await productStore.searchProductByTitle(searchQuery.value);
-    router.push({ path: '/', query: { title: searchQuery.value } });
+    router.push({ path: '/search', query: { title: searchQuery.value } });
   }
 };
 
@@ -37,6 +37,20 @@ const handleLogout = async () => {
 };
 
 const isLoggedIn = computed(() => authStore.user !== null);
+
+//TODO : à supprimer plus tard
+// watch(searchQuery, (newValue) => {
+//   if (newValue.trim() === '') {
+//     showSuggestions.value = true;
+//   } else {
+//     showSuggestions.value = false;
+//   }
+// });
+
+const handleSuggestionClick = (path: string) => {
+  router.push(path);
+  showSuggestions.value = false;
+};
 </script>
 
 <template>
@@ -52,9 +66,28 @@ const isLoggedIn = computed(() => authStore.user !== null);
       </nav>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <form @submit.prevent="handleSearch" class="ml-auto flex-1">
-          <div class="relative">
+          <div class="relative" @click.stop>
             <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input v-model="searchQuery" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full" />
+            <Input v-model="searchQuery"  @focus="showSuggestions = true" @blur="showSuggestions = false" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full" />
+            <div v-if="showSuggestions" class="absolute bg-white border border-gray-200 w-full mt-1 z-10">
+              <ul>
+                <li>
+                  <RouterLink :to="`/category/macbook`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/macbook`)">
+                    MacBooks
+                  </RouterLink>
+                </li>
+                <li>
+                  <RouterLink :to="`/category/iphone`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/iphone`)">
+                    iPhone
+                  </RouterLink>
+                </li>
+                <li>
+                  <RouterLink :to="`/category/samsung`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/samsung`)">
+                    Samsung
+                  </RouterLink>
+                </li>
+              </ul>
+            </div>
           </div>
         </form>
         <DropdownMenu>
