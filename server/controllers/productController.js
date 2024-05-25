@@ -66,3 +66,15 @@ export const deleteProduct = async (req, res) => {
         res.status(500);
     }
 };
+
+export const searchProductByTitle = async (req, res) => {
+    try {
+        const { title } = req.query;
+        const products = await Product.find({
+            product_title: { $regex: title, $options: 'i' }
+        });
+        res.json(products);
+    } catch (error) {
+        res.status(500);
+    }
+};
