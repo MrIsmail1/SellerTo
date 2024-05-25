@@ -8,52 +8,62 @@ const router = createRouter({
     {
       path: '/',
       name: 'Homepage',
-      component: () => import('@/views/home/HomepageView.vue'),
+      component: () => import('@/views/front/home/HomepageView.vue'),
     },
     {
       path: '/login',
       name: 'Login',
-      component: () => import('@/views/auth/LoginView.vue'),
+      component: () => import('@/views/front/auth/LoginView.vue'),
       props: true
     },
     {
       path: '/register',
       name: 'Register',
-      component: () => import('@/views/auth/RegisterView.vue'),
+      component: () => import('@/views/front/auth/RegisterView.vue'),
     },
     {
       path: '/forgotpassword',
       name: 'ForgotPassword',
-      component: () => import('@/views/auth/ForgotPasswordView.vue'),
+      component: () => import('@/views/front/auth/ForgotPasswordView.vue'),
     },
     {
       path: '/resetpassword/:token',
       name: 'ResetPassword',
-      component: () => import('@/views/auth/ResetPasswordView.vue'),
+      component: () => import('@/views/front/auth/ResetPasswordView.vue'),
       props: true
     },
     {
       path: '/category/:categoryName',
       name: 'Category',
-      component: () => import('@/views/category/CategoryView.vue'),
+      component: () => import('@/views/front/category/CategoryView.vue'),
     },
     {
       path: '/product/:id',
       name: 'Product',
-      component: () => import('@/views/product/ProductView.vue'),
+      component: () => import('@/views/front/product/ProductView.vue'),
     },
     {
       path: '/cart',
       name: 'Cart',
-      component: () => import('@/views/cart/CartView.vue'),
+      component: () => import('@/views/front/cart/CartView.vue'),
       meta: { requiresAuth: true }
     },
     {
       path: '/account',
       name: 'Account',
-      component: () => import('@/views/AccountView.vue'),
+      component: () => import('@/views/front/user/AccountView.vue'),
       meta: { requiresAuth: true }
     },
+    {
+      path: '/success',
+      name: 'Success',
+      component: () => import('@/views/front/notif/SuccessView.vue'),
+    },
+    {
+      path: '/cancel',
+      name: 'Cancel',
+      component: () => import('@/views/front/notif/CancelView.vue'),
+  },
   ]
 });
 

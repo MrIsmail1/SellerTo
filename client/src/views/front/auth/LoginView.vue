@@ -5,14 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
 
+
+onMounted(() => {
+  authStore.clearMessages();
+});
+
 const handleLogin = async () => {
   await authStore.login();
-  if (!authStore.errorMessage) { // Si la connexion est réussie
-    router.push('/');
+  if (!authStore.errorMessage) {
+    router.push('/account');
   }
 };
 </script>

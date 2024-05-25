@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from '../plugins/axios';
-import {useRouter} from "vue-router";
+import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -9,17 +9,20 @@ export const useAuthStore = defineStore('auth', {
     email: '',
     password: '',
     errorMessage: '',
+    successMessage: '',
     user: null
   }),
   actions: {
     async register() {
+      const router = useRouter();
       try {
-        await axios.post('/auth/register', {
+        const response = await axios.post('/auth/register', {
           firstname: this.firstname,
           lastname: this.lastname,
           email: this.email,
           password: this.password
         });
+        this.successMessage = response.data.message;
         this.reset();
       } catch (error) {
         this.errorMessage = error.response.data.message;
@@ -32,7 +35,7 @@ export const useAuthStore = defineStore('auth', {
           password: this.password
         });
         this.user = response.data.user;
-        this.errorMessage = ''; // Réinitialiser le message d'erreur
+        this.errorMessage = '';
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
@@ -50,6 +53,7 @@ export const useAuthStore = defineStore('auth', {
         await axios.post('/auth/forgotpassword', {
           email: this.email,
         });
+        this.successMessage = 'Password reset successful';
         this.reset();
       } catch (error) {
         this.errorMessage = error.response.data.message;
@@ -82,6 +86,10 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         this.user = null;
       }
+    },
+    clearMessages() {
+      this.errorMessage = '';
+      this.successMessage = '';
     },
     reset() {
       this.firstname = '';

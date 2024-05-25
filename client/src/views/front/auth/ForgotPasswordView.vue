@@ -3,10 +3,28 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/stores/authStore';
+import { onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-</script>
+const router = useRouter();
 
+onMounted(() => {
+  authStore.clearMessages();
+});
+
+watch(() => authStore.successMessage, (newMessage) => {
+  if (newMessage) {
+    router.push({
+      path: '/success',
+      query: {
+        title: 'Réinitialisation réussie',
+        message: 'Un email de réinitialisation vous a été envoyé. Veuillez vérifier votre boîte de réception et suivre les instructions pour réinitialiser votre mot de passe.'
+      }
+    });
+  }
+});
+</script>
 
 <template>
   <Card class="mx-auto max-w-sm">
