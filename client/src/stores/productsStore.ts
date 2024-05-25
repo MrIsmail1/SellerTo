@@ -20,7 +20,7 @@ export const useProductsStore = defineStore('products', {
     async fetchProducts() {
       this.loading = true;
       try {
-        const response = await axios.get('/product');
+        const response = await axios.get('/products');
         this.products = response.data;
         this.error = null;
       } catch (error) {

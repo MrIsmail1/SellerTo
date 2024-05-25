@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from '../plugins/axios';
+import axios from '@/plugins/axios';
 import { loadStripe } from '@stripe/stripe-js';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -10,13 +10,39 @@ export const useCartStore = defineStore('cart', {
     cart: [],
     loading: false,
     error: null,
+    paymentLink: null,
   }),
+  getters: {
+    groupedCart: (state) => {
+      const grouped = [];
+      state.cart.forEach(item => {
+        if (item.productId && item.productId._id) {
+          const existingItem = grouped.find(groupedItem => groupedItem.productId._id === item.productId._id);
+          if (existingItem) {
+            existingItem.quantity += item.quantity;
+          } else {
+            grouped.push({ ...item });
+          }
+        } else {
+          console.error("Invalid productId in cart item", item);
+        }
+      });
+      return grouped;
+    },
+    subTotal: (state) => {
+      return state.groupedCart.reduce((total, item) => total + item.productId.product_price * item.quantity, 0);
+    },
+    total: (state) => {
+      const serviceFee = 6.49;
+      return state.groupedCart.reduce((total, item) => total + item.productId.product_price * item.quantity, 0) + serviceFee;
+    }
+  },
   actions: {
     async fetchCart() {
       this.loading = true;
       try {
         const response = await axios.get('/cart');
-        this.cart = response.data;
+        this.cart = response.data.filter(item => item.productId);
         this.error = null;
       } catch (error) {
         this.error = error.message;
@@ -25,9 +51,19 @@ export const useCartStore = defineStore('cart', {
       }
     },
     async addToCart(productId) {
+      if (!productId) {
+        console.error("Product ID is required");
+        return;
+      }
       try {
         const response = await axios.post('/cart/add', { productId });
-        this.cart.push(response.data);
+        const cartItem = response.data;
+        const existingItem = this.cart.find(item => item.productId._id === cartItem.productId._id);
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          this.cart.push(cartItem);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -36,6 +72,18 @@ export const useCartStore = defineStore('cart', {
       try {
         await axios.post('/cart/remove', { cartItemId });
         this.cart = this.cart.filter(item => item._id !== cartItemId);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async updateQuantity(productId, quantity) {
+      try {
+        const existingItem = this.cart.find(item => item.productId._id === productId);
+        if (existingItem) {
+          const response = await axios.put('/cart/update', { cartItemId: existingItem._id, quantity });
+          existingItem.quantity = quantity;
+          this.cart = [...this.cart]; 
+        }
       } catch (error) {
         console.error(error);
       }
@@ -51,18 +99,17 @@ export const useCartStore = defineStore('cart', {
     async handleCheckout() {
       try {
         const authStore = useAuthStore(); 
-        const userId = authStore.user.user.id;
-        console.log("User ID:", userId); 
+        const userId = authStore.user.id;
 
         const stripe = await stripePromise;
 
-        const items = this.cart.map(item => ({
+        const items = this.groupedCart.map(item => ({
           name: item.productId.product_title,
           amount: item.productId.product_price * 100,
-          quantity: 1,
+          quantity: item.quantity,
         }));
 
-        const response = await axios.post('/payment', {
+        const response = await axios.post('/payments', {
           items,
           userId: userId.toString(),
         });
@@ -74,7 +121,6 @@ export const useCartStore = defineStore('cart', {
         if (result.error) {
           console.error(result.error.message);
         } else {
-          // Vider le panier après le paiement réussi
           this.clearCart();
         }
       } catch (error) {
@@ -83,6 +129,39 @@ export const useCartStore = defineStore('cart', {
     },
     async clearCart() {
       this.cart = [];
+    },
+    async generatePaymentLink() {
+      try {
+        const authStore = useAuthStore(); 
+        const userId = authStore.user.id;
+
+        const items = this.groupedCart.map(item => ({
+          name: item.productId.product_title,
+          amount: item.productId.product_price * 100,
+          quantity: item.quantity,
+        }));
+
+        const response = await axios.post('/payments/unique-payment-link', {
+          items,
+          userId: userId.toString(),
+        });
+
+        this.paymentLink = response.data.paymentUrl;
+      } catch (error) {
+        console.error('Error generating payment link:', error);
+        this.paymentLink = null;
+      }
+    },
+    async createRefund(paymentIntentId, amount) {
+      try {
+        const response = await axios.post('/payments/refund', {
+          paymentIntentId,
+          amount,
+        });
+        console.log('Refund created:', response.data);
+      } catch (error) {
+        console.error('Error creating refund:', error);
+      }
     },
   },
 });

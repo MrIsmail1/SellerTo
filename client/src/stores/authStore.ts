@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async fetchUser() {
       try {
-        const response = await axios.get('/user');
+        const response = await axios.get('/users');
         this.user = response.data;
       } catch (error) {
         this.user = null;
@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async checkAuth() {
       try {
-        const response = await axios.get('/user');
+        const response = await axios.get('/users');
         this.user = response.data;
       } catch (error) {
         this.user = null;

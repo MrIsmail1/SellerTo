@@ -14,8 +14,8 @@ export default defineConfig({
       plugins: [tailwind(), autoprefixer()]
     }
   },
-  server : {
-    host : true,
+  server: {
+    host: true
   },
   plugins: [vue(), vueJsx()],
   resolve: {

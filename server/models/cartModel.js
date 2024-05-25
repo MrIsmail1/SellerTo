@@ -10,6 +10,15 @@ const cartSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  quantity: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  reservedUntil: {
+    type: Date,
+     default: () => new Date(Date.now() + 2 * 1000),
+  },
   addedAt: {
     type: Date,
     default: Date.now,

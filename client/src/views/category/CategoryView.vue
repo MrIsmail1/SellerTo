@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-import Footer from '@/components/common/FooterComponent.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { onMounted, computed } from 'vue';
 import CardSellComponent from '@/components/CardSellComponent.vue';

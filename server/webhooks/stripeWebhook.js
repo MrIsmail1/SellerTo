@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import Payment from '../models/paymentModel.js';
-import Cart from '../models/cartModel.js'; // Assurez-vous d'importer le modèle de Cart
+import Cart from '../models/cartModel.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
