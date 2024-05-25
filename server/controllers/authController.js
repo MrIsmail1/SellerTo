@@ -17,11 +17,11 @@ export const register = async (req, res) => {
     }
 
     if (user) {
-      return res.status(400);
+      return res.status(400).json({ message: 'Utilisateur déjà existant' });
     }
 
     const confirmationToken = crypto.randomBytes(20).toString('hex');
-    const confirmationTokenExpires = Date.now() + 3600000; // 1 hour
+    const confirmationTokenExpires = Date.now() + 3600000; // 1 heure
 
     user = await User.create({
       firstname,
@@ -35,9 +35,9 @@ export const register = async (req, res) => {
 
     await sendConfirmationEmail(user);
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email to confirm.' });
+    res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.' });
   } catch (error) {
-    res.status(500);
+    res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
 
@@ -48,11 +48,11 @@ export const login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(401);
+      return res.status(401).json({ message: 'Utilisateur non trouvé' });
     }
 
     if (!user.isVerified) {
-      return res.status(401).json({ message: 'User not verified. Please check your email to confirm your account.' });
+      return res.status(401).json({ message: 'Utilisateur non vérifié. Veuillez vérifier votre email pour confirmer votre compte.' });
     }
 
     if (user.isLocked) {
@@ -61,7 +61,7 @@ export const login = async (req, res) => {
 
     const passwordChangeInterval = 60 * 24 * 60 * 60 * 1000; // 60 jours
     if (user.passwordChangedAt && Date.now() - user.passwordChangedAt > passwordChangeInterval) {
-      return res.status(401).json({ message: 'Password expired. Please change your password.' });
+      return res.status(401).json({ message: 'Mot de passe expiré. Veuillez changer votre mot de passe.' });
     }
 
     if (await user.matchPassword(password)) {
@@ -74,7 +74,7 @@ export const login = async (req, res) => {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      res.json({ message: 'Login successful', user }); // Pas besoin de renvoyer le token ici
+      res.json({ message: 'Connexion réussie', user });
     } else {
       user.loginAttempts += 1;
       if (user.loginAttempts >= 3) {
@@ -82,13 +82,12 @@ export const login = async (req, res) => {
         await sendLockoutEmail(user);
       }
       await user.save();
-      res.status(401).json({ message: 'Mail ou mot de passe incorrecte. Votre compte sera bloqué après 3 tentatives' });
+      res.status(401).json({ message: 'Email ou mot de passe incorrect. Votre compte sera bloqué après 3 tentatives.' });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
-
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -97,7 +96,7 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).json({ message: 'No user with this email address' });
+      return res.status(404).json({ message: 'Aucun utilisateur trouvé avec cette adresse email' });
     }
 
     const resetToken = crypto.randomBytes(20).toString('hex');
@@ -112,10 +111,10 @@ export const forgotPassword = async (req, res) => {
     // Envoi de l'email
     await sendPasswordResetEmail(user, resetUrl);
 
-    res.status(200).json({ message: 'Email sent with reset password link' });
+    res.status(200).json({ message: 'Email envoyé avec le lien de réinitialisation du mot de passe' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Error sending email' });
+    res.status(500).json({ message: 'Erreur lors de l\'envoi de l\'email' });
   }
 };
 
@@ -130,7 +129,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return res.status(400).json({ message: 'Token invalide ou expiré' });
     }
 
     user.password = req.body.password;
@@ -138,16 +137,16 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Password reset successfully' });
+    res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Error resetting password' });
+    res.status(500).json({ message: 'Erreur lors de la réinitialisation du mot de passe' });
   }
 };
 
 export const logout = (req, res) => {
   res.clearCookie('JWT');
-  res.status(200).json({ message: 'Logout successful' });
+  res.status(200).json({ message: 'Déconnexion réussie' });
 };
 
 const generateToken = (id) => {
@@ -160,14 +159,14 @@ export const changePassword = async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!await user.matchPassword(oldPassword)) {
-      return res.status(401).json({ message: 'Your old password is incorrect.' });
+      return res.status(401).json({ message: 'Votre ancien mot de passe est incorrect' });
     }
 
     user.password = newPassword;
     await user.save();
-    res.status(200).json({ message: 'Password changed successfully.' });
+    res.status(200).json({ message: 'Mot de passe changé avec succès' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
 
@@ -184,14 +183,14 @@ async function sendConfirmationEmail(user) {
   let confirmationUrl = `${process.env.APP_BASE_URL_SERVER}/auth/confirm/${user.confirmationToken}`;
 
   let info = await transporter.sendMail({
-    from: '"Hamza Mahmood" <hamzamahmood93150@gmail.com>',
+    from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
-    subject: 'Please confirm your account',
-    html: `Please click this link to confirm your account: <a href="${confirmationUrl}">Confirm Account</a>`,
+    subject: 'Veuillez confirmer votre compte',
+    html: `Veuillez cliquer sur ce lien pour confirmer votre compte : <a href="${confirmationUrl}">Confirmer le compte</a>`,
   });
 }
 
-//Mail pour confirmer que l'email a bien été confirmé
+// Mail pour confirmer que l'email a bien été confirmé
 export const confirmEmail = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -202,7 +201,7 @@ export const confirmEmail = async (req, res) => {
     });
 
     if (!user) {
-      console.log('Invalid or expired token');
+      console.log('Token invalide ou expiré');
       return res.status(400).json({ message: 'Le token a expiré' });
     }
 
@@ -211,9 +210,9 @@ export const confirmEmail = async (req, res) => {
     user.confirmationTokenExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Email confirmed successfully. You can now login.' });
+    res.status(200).json({ message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
   } catch (error) {
-    res.status(500).json({ message: 'Error confirming email' });
+    res.status(500).json({ message: 'Erreur lors de la confirmation de l\'email' });
   }
 };
 
@@ -228,13 +227,13 @@ async function sendPasswordResetEmail(user, resetUrl) {
   });
 
   let info = await transporter.sendMail({
-    from: '"Hamza Mahmood" <hamzamahmood93150@gmail.com>',
+    from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
-    subject: 'Reset Your Password',
-    html: `Please click this link to reset your password: <a href="${resetUrl}">Reset Password</a>`,
+    subject: 'Réinitialisez votre mot de passe',
+    html: `Veuillez cliquer sur ce lien pour réinitialiser votre mot de passe : <a href="${resetUrl}">Réinitialiser le mot de passe</a>`,
   });
 
-  console.log(`Password reset email sent to: ${user.email}`, info.messageId);
+  console.log(`Email de réinitialisation du mot de passe envoyé à : ${user.email}`, info.messageId);
 }
 
 // Mail pour bloquer le compte
@@ -248,11 +247,11 @@ async function sendLockoutEmail(user) {
   });
 
   let info = await transporter.sendMail({
-    from: '"Hamza Mahmood" <hamzamahmood93150@gmail.com>',
+    from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
     subject: 'Compte bloqué',
-    html: `Your account has been locked due to multiple failed login attempts. It will be unlocked automatically in 20 minutes.`,
+    html: `Votre compte a été bloqué en raison de multiples tentatives de connexion échouées. Il sera automatiquement débloqué dans 20 minutes.`,
   });
 
-  console.log(`Lockout message sent to: ${user.email}`, info.messageId);
+  console.log(`Message de verrouillage envoyé à : ${user.email}`, info.messageId);
 }

@@ -3,7 +3,7 @@ import axios from '@/plugins/axios';
 import { loadStripe } from '@stripe/stripe-js';
 import { useAuthStore } from '@/stores/authStore';
 
-const stripePromise = loadStripe("pk_test_51PIDv1GO9b6wjgsN2GXoMsD353SOOiru1fzLBhVTIyg46HoSzsxRAk3ZQvjd7AL87aRE6LQnOHFHnKMx6SJfP9gX00AoaEwRjo");
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export const useCartStore = defineStore('cart', {
   state: () => ({

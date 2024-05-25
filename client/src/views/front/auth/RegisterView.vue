@@ -4,8 +4,27 @@ import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useRouter } from 'vue-router';
+import { watch, onMounted } from 'vue';
 
 const authStore = useAuthStore();
+const router = useRouter();
+
+onMounted(() => {
+  authStore.clearMessages();
+});
+
+watch(() => authStore.successMessage, (newMessage) => {
+  if (newMessage) {
+    router.push({
+          path: '/success',
+          query: {
+            title: 'Inscription réussie',
+            message: 'Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception et suivre les instructions pour confirmer votre compte.'
+          }
+    });
+  }
+});
 </script>
 
 <template>
