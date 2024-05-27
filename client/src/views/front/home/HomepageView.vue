@@ -19,7 +19,7 @@ onMounted(() => {
   <main>
      <Carousel>
     <CarouselContent>
-      <CarouselItem v-for="product in productStore.ramdomProducts" :key="product._id">
+      <CarouselItem class="pl-1 md:basis-1/2 lg:basis-1/4" v-for="product in productStore.ramdomProducts" :key="product._id">
         <div class="p-1">
           <CardSellComponent :product="product" />
         </div>

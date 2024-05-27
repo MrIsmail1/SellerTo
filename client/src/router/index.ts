@@ -64,11 +64,12 @@ const router = createRouter({
       name: 'Cancel',
       component: () => import('@/views/front/notif/CancelView.vue'),
     },
-        path: '/search',
-        name: 'Search',
-        component: () => import('@/views/product/SearchProductsView.vue'),
-        props: true
-      },
+    {
+      path: '/search',
+      name: 'Search',
+      component: () => import('@/views/front/product/SearchProductsView.vue'),
+      props: true
+    },
   ]
 });
 

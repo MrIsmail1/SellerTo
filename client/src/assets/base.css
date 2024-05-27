@@ -16,4 +16,8 @@
     .center {
         text-align: -webkit-center;
     }
+
+    .rotate270 {
+        transform: rotate(270deg);
+    }
   }

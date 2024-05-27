@@ -31,7 +31,7 @@ const starRating = computed(() => {
 
 <template>
   <RouterLink :to="{ name: 'Product', params: { id: product._id } }">
-    <Card :class="['w-64 h-[22.75rem] p-0', cardClass]">
+    <Card :class="['w-64 h-[22.75rem] p-0 mb-8', cardClass]">
       <CardImage>
         <img :class="['p-8 rounded-t-lg h-32', cardImageClass]" :src="product.product_photo" alt="product image" />
       </CardImage>
