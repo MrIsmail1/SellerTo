@@ -1,46 +1,58 @@
 <script setup lang="ts">
-import { useProductsStore } from '@/stores/productsStore';
-import { onMounted, computed } from 'vue';
+import {useProductsStore} from '@/stores/productsStore';
+import {computed, onMounted, watch} from 'vue';
 import CardSellComponent from '@/components/CardSellComponent.vue';
-import SelectComponent from '@/components/common/SelectComponent.vue';
-import BreadCrumbComponent from '@/components/common/BreadCrumbComponent.vue';
-import { useRoute } from 'vue-router';
+import FilterComponent from '@/components/filter/FilterComponent.vue';
+import {useRoute} from 'vue-router';
 
 const productStore = useProductsStore();
 const route = useRoute();
 
+const initializeFiltersFromURL = () => {
+  const query = route.query;
+  Object.keys(productStore.filters).forEach(filterKey => {
+    if (query[filterKey]) {
+      productStore.filters[filterKey] = query[filterKey].split(',').map(value => decodeURIComponent(value));
+    } else {
+      productStore.filters[filterKey] = [];
+    }
+  });
+};
+
 onMounted(() => {
+  initializeFiltersFromURL();
   productStore.fetchProducts();
+  if (route.query.query) {
+    productStore.searchProductByTitleOrDescription(route.query.query);
+  }
 });
 
 const categoryName = computed(() => route.params.categoryName);
 const filteredProducts = computed(() => {
-  return productStore.products.filter(product => product.product_category === categoryName.value);
+  return productStore.filteredProducts.filter(product => product.product_category === categoryName.value);
 });
+
+watch(() => route.query, (newQuery) => {
+  if (newQuery.query) {
+    productStore.searchProductByTitleOrDescription(newQuery.query);
+  } else {
+    initializeFiltersFromURL();
+  }
+}, {immediate: true});
+
 </script>
 
 <template>
   <main>
-    <div class="flex justify-between">
-      <BreadCrumbComponent />
-      <SelectComponent />
-    </div>
     <div class="mt-6 grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div class="hidden border-r bg-muted/40 md:block">
         <div class="flex h-full max-h-screen flex-col gap-2">
-          <nav class="grid items-start px-2 text-sm font-medium lg:px-4">
-            <a href="/" class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
-              Dashboard
-            </a>
-            <a href="#" class="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary">
-              Products
-            </a>
-          </nav>
+          <FilterComponent :filteredProducts="filteredProducts"/>
         </div>
       </div>
       <div class="flex flex-wrap justify-between -mt-4">
-        <template v-for="product in filteredProducts" :key="product.id">
-          <CardSellComponent :product="product" class="mt-4" />
+        <template v-for="product in filteredProducts" :key="product._id.$oid">
+          <CardSellComponent :product="product" class="mt-4"/>
         </template>
       </div>
     </div>
