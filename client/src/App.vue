@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HeaderComponent from '@/components/common/HeaderComponent.vue'
-import { onMounted } from 'vue'
-import { useAuthStore } from '@/stores/authStore'
+import { RouterLink, RouterView, useRoute } from "vue-router";
+import HeaderComponent from "@/components/common/HeaderComponent.vue";
+import SidebarComponent from "@/components/common/SidebarComponent.vue";
+import { onMounted, computed } from "vue";
+import { useAuthStore } from "@/stores/authStore";
 
 const authStore = useAuthStore();
+const route = useRoute();
 
 onMounted(() => {
   authStore.checkAuth();
 });
+
+const isAdminRoute = computed(() => {
+  return route.path.startsWith("/admin");
+});
 </script>
 
 <template>
-  <HeaderComponent/>
+  <HeaderComponent v-if="!isAdminRoute" />
+  <SidebarComponent v-if="isAdminRoute" />
   <RouterView />
 </template>
 
@@ -48,7 +55,6 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
-
   nav {
     text-align: left;
     margin-left: -1rem;
