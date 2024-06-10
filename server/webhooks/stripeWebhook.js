@@ -1,7 +1,9 @@
 import Stripe from 'stripe';
 import Payment from '../models/postgres/paymentModel.js';
 import Cart from '../models/postgres/cartModel.js'; // Assurez-vous d'importer le bon modèle de panier
+import Tracking from '../models/postgres/orderModel.js';
 import dotenv from 'dotenv';
+import { generateTrackingNumber } from '../utils/trackingGenerator.js';
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -36,7 +38,18 @@ const stripeWebhookHandler = async (req, res) => {
       });
 
       await Cart.destroy({ where: { userId: session.client_reference_id } });
-      
+
+      // Vider le panier de l'utilisateur après le paiement
+      await Cart.deleteMany({ userId: session.client_reference_id.toString() });
+
+      const trackingNumber = generateTrackingNumber();
+
+      await Tracking.create({
+        userId: session.client_reference_id,
+        paymentIntentId: session.payment_intent,
+        trackingCode: trackingNumber,
+      });
+
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);
