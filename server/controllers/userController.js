@@ -13,3 +13,18 @@ export const getUserProfile = async (req, res) => {
     res.status(500);
   }
 };
+
+export const deleteUserAccount = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.anonymize();
+    res.clearCookie('JWT');
+    res.status(200).json({ message: 'User account deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
