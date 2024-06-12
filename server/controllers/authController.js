@@ -1,9 +1,8 @@
 import User from '../models/userModel.js';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import { Op } from 'sequelize';
+import {Op} from 'sequelize';
 
 export const register = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
@@ -12,12 +11,12 @@ export const register = async (req, res) => {
     let user = await User.findOne({ where: { email } });
 
     if (user && !user.isVerified) {
-      await user.destroy();
-      user = null;
-    }
-
-    if (user) {
-      return res.status(400).json({ message: 'Utilisateur déjà existant' });
+      if (user.firstname === 'Anonyme' && user.lastname === 'Utilisateur') {
+        await user.destroy();
+        user = null;
+      } else {
+        return res.status(400);
+      }
     }
 
     const confirmationToken = crypto.randomBytes(20).toString('hex');

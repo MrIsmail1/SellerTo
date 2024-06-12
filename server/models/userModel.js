@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import {DataTypes} from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../config/database.js';
 
@@ -115,6 +115,27 @@ const Users = sequelize.define('Users', {
 
 Users.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+Users.prototype.anonymize = async function () {
+  this.firstname = 'Anonyme';
+  this.lastname = 'Utilisateur';
+  this.email = `anonymous_${this.id}@example.com`;
+  this.password = `${this.id}fdtPZtsWCiLc6Tme#87ujH#!@=YyZ915R@Y+I*QowC+gGcUI3=qEoOJvu4M@c&gj9xyv#iCgQI!9J0!4E&YP*H$PY#yyoPc+jkgx`;
+  this.resetPasswordToken = null;
+  this.resetPasswordExpire = null;
+  this.passwordChangedAt = null;
+  this.confirmationToken = null;
+  this.confirmationTokenExpires = null;
+  this.isVerified = false;
+  this.loginAttempts = 0;
+  this.lockUntil = null;
+  this.address = null;
+  this.country = null;
+  this.phoneNumber = null;
+  this.postalCode = null;
+  this.city = null;
+  await this.save();
 };
 
 export default Users;
