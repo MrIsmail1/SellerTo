@@ -7,6 +7,11 @@ export const useAuthStore = defineStore('auth', {
     firstname: '',
     lastname: '',
     email: '',
+    phoneNumber: '',
+    address: '',
+    postalCode: '',
+    city: '',
+    country: '',
     password: '',
     errorMessage: '',
     successMessage: '',
@@ -67,6 +72,36 @@ export const useAuthStore = defineStore('auth', {
         });
         this.reset();
         router.push('/login');
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+      }
+    },
+    async changePassword(oldPassword, newPassword) {
+      try {
+        const response = await axios.post('/auth/changePassword', {
+          id: this.user.id, // Assuming the user ID is stored in the user object
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+        });
+        this.successMessage = response.data.message;
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+      }
+    },
+    async deleteAccount() {
+      try {
+        const response = await axios.delete('/users/delete');
+        this.successMessage = response.data.message;
+        this.reset();
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+      }
+    },
+    async updateUser(updatedUser) {
+      try {
+        const response = await axios.put('/users/update', updatedUser);
+        this.user = response.data;
+        this.successMessage = 'User updated successfully';
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }

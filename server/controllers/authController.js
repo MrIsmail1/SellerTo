@@ -163,6 +163,7 @@ export const changePassword = async (req, res) => {
 
     user.password = newPassword;
     await user.save();
+    res.clearCookie('JWT');
     res.status(200).json({ message: 'Mot de passe changé avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur interne du serveur' });

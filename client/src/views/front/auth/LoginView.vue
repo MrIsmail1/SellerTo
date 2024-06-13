@@ -18,7 +18,7 @@ onMounted(() => {
 const handleLogin = async () => {
   await authStore.login();
   if (!authStore.errorMessage) {
-    router.push('/account');
+    router.push('/');
   }
 };
 </script>

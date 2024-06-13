@@ -18,13 +18,38 @@ export const deleteUserAccount = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404);
     }
 
     await user.anonymize();
     res.clearCookie('JWT');
-    res.status(200).json({ message: 'User account deleted' });
+    res.status(200);
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500);
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404);
+    }
+
+    const { firstname, lastname, email, phoneNumber, address, postalCode, city, country } = req.body;
+    user.firstname = firstname;
+    user.lastname = lastname;
+    user.email = email;
+    user.phoneNumber = phoneNumber;
+    user.address = address;
+    user.postalCode = postalCode;
+    user.city = city;
+    user.country = country;
+
+    await user.save();
+    res.status(200);
+  } catch (error) {
+    res.status(500);
+  }
+};
+
