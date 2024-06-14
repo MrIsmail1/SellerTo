@@ -84,10 +84,8 @@ watch(() => props.user, (newUser) => {
               </div>
             </div>
             <div class="flex justify-end space-x-4 mt-4">
-              <button type="button" @click="$emit('close')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">
-                Annuler
-              </button>
-              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enregistrer</button>
+              <Button type="button" variant="secondary" size="medium" @click="$emit('close')">Annuler</Button>
+              <Button type="submit" variant="primary" size="medium">Enregistrer</Button>
             </div>
           </form>
         </CardContent>

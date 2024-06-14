@@ -128,15 +128,16 @@ onMounted(() => {
 <template>
   <div>
     <!-- Filtre de prix -->
-    <div class="filter-section">
-      <h3>Prix</h3>
-      <div class="slider-container">
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">Prix</h3>
+      <div class="flex flex-col items-center">
         <input
             type="range"
             min="0"
             max="2000"
             v-model="minPrice"
             @input="updatePriceFilter"
+            class="w-4/5 mb-2"
         />
         <input
             type="range"
@@ -144,26 +145,28 @@ onMounted(() => {
             max="2000"
             v-model="maxPrice"
             @input="updatePriceFilter"
+            class="w-4/5 mb-2"
         />
-        <div>
+        <div class="text-sm">
           Min: {{ minPrice }} €
         </div>
-        <div>
+        <div class="text-sm">
           Max: {{ maxPrice }} €
         </div>
       </div>
     </div>
     <!-- Autres filtres -->
-    <div v-for="(options, filterKey) in availableFilters" :key="filterKey" class="filter-section">
-      <h3>{{ customTitles[filterKey] }}</h3>
-      <div v-for="option in options" :key="option" class="filter-option">
-        <label :class="{ disabled: isDisabled(filterKey, option) }">
+    <div v-for="(options, filterKey) in availableFilters" :key="filterKey" class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">{{ customTitles[filterKey] }}</h3>
+      <div v-for="option in options" :key="option" class="mb-1">
+        <label :class="{ 'cursor-not-allowed text-gray-500': isDisabled(filterKey, option) }">
           <input
               type="checkbox"
               :value="option"
               @change="updateFilter(filterKey, option)"
               :checked="isChecked(filterKey, option)"
               :disabled="isDisabled(filterKey, option)"
+              class="mr-2"
           />
           {{ option }}
         </label>
@@ -173,38 +176,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.slider-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-input[type="range"] {
-  width: 80%;
-  margin: 10px 0;
-}
-
-.filter-section {
-  margin-bottom: 20px;
-}
-
-.filter-option {
-  margin-bottom: 5px;
-}
-
-label {
-  cursor: pointer;
-}
-
-input[type="checkbox"] {
-  margin-right: 10px;
-}
-
 input[type="checkbox"]:disabled + label {
-  color: #888;
-}
-
-.disabled {
   color: #888;
 }
 </style>

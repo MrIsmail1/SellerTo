@@ -47,19 +47,16 @@ const handleSuggestionClick = (path: string) => {
 <template>
   <header class="sticky gap-4 bg-background mb-8">
     <div class="flex px-4 bg-white pt-2">
-      <nav class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+      <nav class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 mr-12">
         <RouterLink to="/">
           <img src="@/assets/SellerTo-logo.svg" class="h-32" alt="SellerTo Logo" />
         </RouterLink>
-        <a href="#" class="transition-colors hover:text-foreground">Dashboard</a>
-        <a href="#" class="transition-colors hover:text-foreground">Orders</a>
-        <a href="#" class="transition-colors hover:text-foreground">Products</a>
       </nav>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <form @submit.prevent="handleSearch" class="ml-auto flex-1">
           <div class="relative" @click.stop>
             <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input v-model="searchQuery" @focus="showSuggestions = true" @blur="showSuggestions = false" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full" />
+            <Input v-model="searchQuery" @focus="showSuggestions = true" @blur="showSuggestions = false" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-10/12" />
             <div v-if="showSuggestions" class="absolute bg-white border border-gray-200 w-full mt-1 z-10">
               <ul>
                 <li>
