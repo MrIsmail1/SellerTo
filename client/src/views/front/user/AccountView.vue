@@ -44,7 +44,7 @@ onMounted(() => {
         <p class="text-lg">{{ authStore.user?.email }}</p>
         <p class="text-lg">{{ authStore.user?.phoneNumber }}</p>
         <div class="mt-4">
-          <button @click="openChangePasswordModal" class="underline mr-4 text-lg">Modifier mon mot de passe</button>
+          <button @click="openChangePasswordModal" class="underline mr-16 text-lg ">Modifier mon mot de passe</button>
           <RouterLink to="/account/delete" class="underline text-lg">Supprimer mon compte</RouterLink>
         </div>
         <button @click="editSection('personal')" class="absolute top-4 right-4">

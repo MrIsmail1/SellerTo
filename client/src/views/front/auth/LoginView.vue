@@ -29,7 +29,7 @@ const handleLogin = async () => {
       <CardTitle class="text-2xl">
         Connexion
       </CardTitle>
-      <CardDescription>
+      <CardDescription class="mb-3">
         Entrez votre email ci-dessous pour vous connecter à votre compte
       </CardDescription>
     </CardHeader>
@@ -41,7 +41,7 @@ const handleLogin = async () => {
             v-model="authStore.email"
             id="email"
             type="email"
-            placeholder="m@exemple.com"
+            placeholder="jeanBernard@gmail.com"
             required
           />
         </div>
@@ -52,7 +52,7 @@ const handleLogin = async () => {
               Mot de passe oublié ?
             </RouterLink>
           </div>
-          <Input v-model="authStore.password" id="password" type="password" required />
+          <Input v-model="authStore.password" id="password" type="password" placeholder="••••••••••••••••" required />
         </div>
         <Button @click="handleLogin" type="submit" class="w-full">
           Se connecter

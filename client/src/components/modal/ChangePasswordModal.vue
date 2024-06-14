@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
+import {Button} from "@/components/ui/button";
 
 const emit = defineEmits(['close', 'save']);
 
@@ -52,8 +53,8 @@ const closeModal = () => {
               </div>
             </div>
             <div class="flex justify-end space-x-4 mt-4">
-              <button type="button" @click="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Annuler</button>
-              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enregistrer</button>
+              <Button type="button" variant="secondary" size="medium" @click="closeModal">Annuler</Button>
+              <Button type="submit" variant="primary" size="medium">Enregistrer</Button>
             </div>
           </form>
         </CardContent>
