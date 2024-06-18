@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^3.4.0",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.11.0",
     "axios": "^1.6.8",
     "chart.js": "^4.4.3",
     "class-variance-authority": "^0.7.0",

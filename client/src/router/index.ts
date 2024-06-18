@@ -80,17 +80,16 @@ const routes = [
       {
         path: "dashboard",
         name: "AdminDashboard",
-        displayName: "Tableau de bord",
         component: () => import("@/views/back/DashboardView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-      /*       {
+      {
         path: "products",
         name: "AdminProducts",
         component: () => import("@/views/back/ProductsView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-      {
+      /*       {
         path: "orders",
         name: "AdminOrders",
         component: () => import("@/views/back/OrdersView.vue"),
