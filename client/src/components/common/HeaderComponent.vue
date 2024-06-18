@@ -4,10 +4,11 @@ import { useRouter, useRoute } from 'vue-router';
 import { useProductsStore } from '@/stores/productsStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
-import { CircleUser, Search, ShoppingBasket } from 'lucide-vue-next';
+import { CircleUser, Search, ShoppingBasket, Menu } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetFooter } from '@/components/ui/sheet';
 
 const productStore = useProductsStore();
 const cartStore = useCartStore();
@@ -16,6 +17,11 @@ const router = useRouter();
 const route = useRoute();
 const searchQuery = ref('');
 const showSuggestions = ref(false);
+const isMenuOpen = ref(false);
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
 
 onMounted(() => {
   productStore.fetchProducts();
@@ -33,7 +39,7 @@ const handleSearch = async () => {
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/'); // Rediriger vers la page d'accueil après la déconnexion
+  router.push('/');
 };
 
 const isLoggedIn = computed(() => authStore.user !== null);
@@ -42,21 +48,52 @@ const handleSuggestionClick = (path: string) => {
   router.push(path);
   showSuggestions.value = false;
 };
+
+const closeSheet = (closeFn) => {
+  return () => {
+    closeFn();
+  };
+};
 </script>
 
 <template>
   <header class="sticky gap-4 bg-background mb-8">
-    <div class="flex px-4 bg-white pt-2">
-      <nav class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 mr-12">
+    <div class="flex px-4 bg-white pt-2 pb-2 md:pb-0 items-center">
+      <Sheet>
+        <SheetTrigger as-child>
+          <Button class="block md:hidden" variant="outline">
+            <Menu/>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left">
+          <SheetHeader>
+            <SheetTitle>
+              <SheetClose as-child>
+                <RouterLink to="/"> <img src="@/assets/SellerTo-logo.svg" class="h-20" alt="SellerTo Logo" /></RouterLink>
+              </SheetClose>
+            </SheetTitle>
+            <SheetDescription>
+              <nav class="p-2 gap-6 text-lg font-medium flex flex-col md:items-center md:gap-5 md:text-sm lg:gap-6 px-8">
+                <template v-for="category in productStore.productCategories" :key="category">
+                  <SheetClose as-child>
+                    <RouterLink :to="`/category/${category}`" class="transition-colors hover:text-foreground capitalize">{{ category }}</RouterLink>
+                  </SheetClose>
+                </template>
+              </nav>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+      <nav :class="{'flex': isMenuOpen, 'hidden': !isMenuOpen, 'flex-col': true, 'gap-6': true, 'text-lg': true, 'font-medium': true, 'md:flex': true, 'md:flex-row': true, 'md:items-center': true, 'md:gap-5': true, 'md:text-sm': true, 'lg:gap-6': true, 'mr-12': true}">
         <RouterLink to="/">
           <img src="@/assets/SellerTo-logo.svg" class="h-32" alt="SellerTo Logo" />
         </RouterLink>
       </nav>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form @submit.prevent="handleSearch" class="ml-auto flex-1">
+        <form @submit.prevent="handleSearch" class="ml-2 md:ml-auto flex-1">
           <div class="relative" @click.stop>
             <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input v-model="searchQuery" @focus="showSuggestions = true" @blur="showSuggestions = false" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-10/12" />
+            <Input v-model="searchQuery" @focus="showSuggestions = true" @blur="showSuggestions = false" type="search" placeholder="Que cherchez-vous ?" class="pl-8 w-full md:w-10/12" />
             <div v-if="showSuggestions" class="absolute bg-white border border-gray-200 w-full mt-1 z-10">
               <ul>
                 <li>
@@ -90,7 +127,6 @@ const handleSuggestionClick = (path: string) => {
             <DropdownMenuItem>
               <RouterLink to="/account">Mon compte</RouterLink>
             </DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleLogout">
               Déconnexion
@@ -104,7 +140,7 @@ const handleSuggestionClick = (path: string) => {
       </div>
     </div>
     <div>
-      <nav class="p-2 hidden bg-gray-200 flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 px-8 overflow-hidden overflow-x-scroll no-scrollbar">
+      <nav class="p-2 hidden bg-gray-200 gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 px-8 overflow-hidden overflow-x-scroll no-scrollbar">
         <template v-for="category in productStore.productCategories" :key="category">
           <RouterLink :to="`/category/${category}`" class="transition-colors hover:text-foreground capitalize">{{ category }}</RouterLink>
         </template>
@@ -112,5 +148,3 @@ const handleSuggestionClick = (path: string) => {
     </div>
   </header>
 </template>
-
-
