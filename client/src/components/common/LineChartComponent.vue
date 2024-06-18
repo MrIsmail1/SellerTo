@@ -12,6 +12,7 @@ const props = defineProps({
 
 const chartContainer = ref(null);
 let chartInstance = ref(null);
+let viewType = ref("yearly"); // Default view type
 
 const determineLineColor = (data) => {
   if (data.length < 2) return "rgb(75, 192, 192)";
@@ -24,7 +25,10 @@ const determineLineColor = (data) => {
 const createChart = () => {
   if (!chartContainer.value) return;
 
-  const labels = props.chartData.map((item) => item.year);
+  const labels =
+    viewType.value === "monthly"
+      ? props.chartData.map((item) => item.year + "-" + item.month)
+      : props.chartData.map((item) => item.year);
   const lineColor = determineLineColor(props.chartData);
 
   const config = {
@@ -34,7 +38,10 @@ const createChart = () => {
       datasets: [
         {
           label: "Revenus de ventes",
-          data: props.chartData.map((item) => item.count),
+          data:
+            viewType.value === "monthly"
+              ? props.chartData.map((item) => item.count)
+              : props.chartData.map((item) => item.count),
           fill: false,
           borderColor: lineColor, // Dynamic line color
           tension: 0.1,
@@ -65,9 +72,10 @@ const createChart = () => {
     },
   };
 
-  if (chartContainer.value) {
-    chartInstance.value = new Chart(chartContainer.value, config);
+  if (chartInstance.value) {
+    chartInstance.value.destroy();
   }
+  chartInstance.value = new Chart(chartContainer.value, config);
 };
 
 onMounted(() => {
@@ -83,15 +91,49 @@ watch(
     }
   }
 );
+
+const viewMonthly = () => {
+  viewType.value = "monthly";
+  createChart();
+};
+
+const viewYearly = () => {
+  viewType.value = "yearly";
+  createChart();
+};
 </script>
 
 <template>
   <div class="shadow-lg rounded-lg p-5 border border-accent-200">
-    <div class="flex items-center gap-3">
-      <span class="bg-bg-200 rounded-full p-3">
-        <component :is="icon" class="text-accent-100" />
-      </span>
-      <span class="text-text-200 text-md font-bold">{{ title }}</span>
+    <div class="flex justify-between">
+      <div class="flex items-center gap-3">
+        <span class="bg-bg-200 rounded-full p-3">
+          <component :is="icon" class="text-accent-100" />
+        </span>
+        <span class="text-text-200 text-md font-bold">{{ title }}</span>
+      </div>
+      <div class="flex justify-center bg-bg-200 rounded-lg mt-3 space-x-4">
+        <button
+          @click.stop="viewMonthly"
+          :class="{
+            'bg-white text-text-100 font-bold': viewType === 'monthly',
+            'text-text-200 font-bold': viewType !== 'monthly',
+          }"
+          class="rounded px-3 py-1 focus:outline-none"
+        >
+          Mois
+        </button>
+        <button
+          @click.stop="viewYearly"
+          :class="{
+            'bg-white text-text-100 font-bold': viewType === 'yearly',
+            'text-text-200 font-bold': viewType !== 'yearly',
+          }"
+          class="rounded px-3 py-1 focus:outline-none"
+        >
+          Année
+        </button>
+      </div>
     </div>
     <div class="mt-5">
       <canvas ref="chartContainer" class="lg:w-4/5 h-64"></canvas>

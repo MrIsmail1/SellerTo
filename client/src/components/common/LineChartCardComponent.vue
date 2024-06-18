@@ -87,7 +87,7 @@ watch(
 
 <template>
   <div
-    class="bg-transparent border border-accent-200 rounded-lg p-3 flex justify-around items-center"
+    class="bg-transparent border border-accent-200 rounded-lg p-3 flex justify-around items-center shadow-lg"
   >
     <div class="flex items-center gap-x-4">
       <span class="bg-bg-200 rounded-full p-3">
