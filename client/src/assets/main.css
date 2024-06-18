@@ -10,14 +10,6 @@ main {
   margin: auto;
 }
 
-
-@media (max-width: 768px) {
-  main {
-    padding: 1rem; 
-  }
-}
-
-
 a,
 .green {
   text-decoration: none;

@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HeaderComponent from '@/components/common/HeaderComponent.vue'
-import { onMounted } from 'vue'
-import { useAuthStore } from '@/stores/authStore'
-
-const authStore = useAuthStore();
-
-onMounted(() => {
-  authStore.checkAuth();
-});
+import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <HeaderComponent/>
   <RouterView />
 </template>
 
@@ -48,7 +38,6 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
-
   nav {
     text-align: left;
     margin-left: -1rem;

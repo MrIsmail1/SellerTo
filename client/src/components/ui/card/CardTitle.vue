@@ -10,7 +10,7 @@ const props = defineProps<{
 <template>
   <h6
     :class="
-      cn('capitalize', props.class)
+      cn('capitalize line-clamp-2', props.class)
     "
   >
     <slot />

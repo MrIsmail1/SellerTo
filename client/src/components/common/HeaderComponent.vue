@@ -15,7 +15,7 @@ const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
-const searchQuery = ref('');
+const searchQuery = ref("");
 const showSuggestions = ref(false);
 const isMenuOpen = ref(false);
 
@@ -31,9 +31,9 @@ onMounted(() => {
 });
 
 const handleSearch = async () => {
-  if (searchQuery.value.trim() !== '') {
+  if (searchQuery.value.trim() !== "") {
     await productStore.searchProductByTitleOrDescription(searchQuery.value);
-    router.push({ path: '/search', query: { query: searchQuery.value } });
+    router.push({ path: "/search", query: { query: searchQuery.value } });
   }
 };
 
@@ -86,7 +86,11 @@ const closeSheet = (closeFn) => {
       </Sheet>
       <nav :class="{'flex': isMenuOpen, 'hidden': !isMenuOpen, 'flex-col': true, 'gap-6': true, 'text-lg': true, 'font-medium': true, 'md:flex': true, 'md:flex-row': true, 'md:items-center': true, 'md:gap-5': true, 'md:text-sm': true, 'lg:gap-6': true, 'mr-12': true}">
         <RouterLink to="/">
-          <img src="@/assets/SellerTo-logo.svg" class="h-32" alt="SellerTo Logo" />
+          <img
+            src="@/assets/SellerTo-logo.svg"
+            class="h-32"
+            alt="SellerTo Logo"
+          />
         </RouterLink>
       </nav>
       <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
@@ -97,17 +101,35 @@ const closeSheet = (closeFn) => {
             <div v-if="showSuggestions" class="absolute bg-white border border-gray-200 w-full mt-1 z-10">
               <ul>
                 <li>
-                  <RouterLink :to="`/category/macbook`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/macbook`)">
+                  <RouterLink
+                    :to="`/category/macbook`"
+                    class="block px-4 py-2 hover:bg-gray-100"
+                    @mousedown.prevent="
+                      handleSuggestionClick(`/category/macbook`)
+                    "
+                  >
                     MacBooks
                   </RouterLink>
                 </li>
                 <li>
-                  <RouterLink :to="`/category/headphone`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/headphone`)">
+                  <RouterLink
+                    :to="`/category/headphone`"
+                    class="block px-4 py-2 hover:bg-gray-100"
+                    @mousedown.prevent="
+                      handleSuggestionClick(`/category/headphone`)
+                    "
+                  >
                     Écouteur
                   </RouterLink>
                 </li>
                 <li>
-                  <RouterLink :to="`/category/huawei`" class="block px-4 py-2 hover:bg-gray-100" @mousedown.prevent="handleSuggestionClick(`/category/huawei`)">
+                  <RouterLink
+                    :to="`/category/huawei`"
+                    class="block px-4 py-2 hover:bg-gray-100"
+                    @mousedown.prevent="
+                      handleSuggestionClick(`/category/huawei`)
+                    "
+                  >
                     Huawei
                   </RouterLink>
                 </li>
@@ -135,7 +157,9 @@ const closeSheet = (closeFn) => {
         </DropdownMenu>
         <RouterLink to="/cart">
           <ShoppingBasket class="h-5 w-5" />
-          <span v-if="cartStore.cart.length" class="text-sm">{{ cartStore.cart.length }}</span>
+          <span v-if="cartStore.cart.length" class="text-sm">{{
+            cartStore.cart.length
+          }}</span>
         </RouterLink>
       </div>
     </div>

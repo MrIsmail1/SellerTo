@@ -17,16 +17,16 @@ onMounted(() => {
 
 <template>
   <main>
-     <Carousel>
+  <Carousel class="w-96 md:w-full">
     <CarouselContent>
-      <CarouselItem class="pl-1 md:basis-1/2 lg:basis-1/4" v-for="product in productStore.ramdomProducts" :key="product._id">
+      <CarouselItem class="pl-1 md:basis-1/4" v-for="product in productStore.randomProducts" :key="product._id">
         <div class="p-1">
           <CardSellComponent :product="product" />
         </div>
       </CarouselItem>
     </CarouselContent>
-    <CarouselPrevious />
-    <CarouselNext />
+    <CarouselPrevious/>
+    <CarouselNext/>
   </Carousel>
     <h2 class="mt-16" >Catégories poids lourds</h2>
     <p>Des appareils encore plus populaires que Teddy Riner.</p>
