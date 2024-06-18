@@ -16,6 +16,7 @@
     "@stripe/stripe-js": "^3.4.0",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
+    "chart.js": "^4.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "embla-carousel": "^8.0.4",
