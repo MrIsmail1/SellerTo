@@ -31,7 +31,7 @@ const starRating = computed(() => {
 
 <template>
   <RouterLink :to="{ name: 'Product', params: { id: product._id } }">
-    <Card :class="['w-64 h-[22.75rem] p-0 mb-8', cardClass]">
+    <Card :class="['w-96 md:w-64 h-[18rem] md:h-[22.75rem] p-0 mb-2 md:mb-8', cardClass]">
       <CardImage>
         <img :class="['p-8 rounded-t-lg h-32', cardImageClass]" :src="product.product_photo" alt="product image" />
       </CardImage>
@@ -60,8 +60,8 @@ const starRating = computed(() => {
         </div>
       </CardContent>
       <CardFooter class="px-4">
-        <p>À partir de</p>
-        <h6 class="h7">{{ product.product_price }} € </h6>
+        <span></span>
+        <p>À partir de <span class="font-bold">{{ product.product_price }} €</span> </p>
       </CardFooter>
     </Card>
   </RouterLink>

@@ -35,8 +35,8 @@ watch(quantity, (newQuantity) => {
 
 
 <template>
-  <Card :class="['w-2/3 h-80 flex items-center mt-4', cardClass]">
-    <RouterLink class="flex hover:bg-inherit" :to="cardLink">
+  <Card :class="['w-full md:h-80 h-[34rem] flex flex-col md:flex-row items-center mt-4', cardClass]">
+    <RouterLink class="flex flex-col md:flex-row hover:bg-inherit" :to="cardLink">
       <img :class="['p-8 rounded-t-lg h-56']" :src="productImage" alt="product image" />
       <CardHeader class="mt-8">
         <CardTitle>{{ productCategory }}</CardTitle>

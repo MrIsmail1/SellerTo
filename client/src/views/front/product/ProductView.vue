@@ -74,13 +74,13 @@ const addToCart = async () => {
 </script>
 
 <template>
-  <main class="container mx-auto p-4">
+  <main>
     <BreadCrumbComponent />
     <div v-if="loading" class="text-center">Chargement...</div>
     <div v-else-if="error" class="text-center text-red-500">Erreur: {{ error }}</div>
     <div v-else-if="productDetail" class="flex flex-col justify-between md:flex-row gap-8 mt-8">
-      <div class="w-1/3">
-        <div class="w-full sm:w-auto">
+      <div class="w-full md:w-1/3">
+        <div class="w-full sm:w-auto center">
           <Carousel class="relative w-full max-w-xs" @init-api="(val) => (emblaMainApi = val)">
             <CarouselContent>
               <CarouselItem v-for="(photo, index) in productDetail.product_photos" :key="index">
@@ -105,7 +105,7 @@ const addToCart = async () => {
           </Carousel>
         </div>
       </div>
-      <div class="w-1/2">
+      <div class="w-full md:w-1/2">
         <h1 class="text-2xl font-bold mb-4">{{ productDetail.product_title }}</h1>
         <!-- <p class="mb-2"><strong>Catégorie:</strong> {{ productDetail.product_category }}</p> -->
         <p class="mb-2"><strong>Description:</strong> {{ productDetail.product_description }}</p>
@@ -228,7 +228,7 @@ const addToCart = async () => {
     <h2 class="text-2xl font-bold mt-8">Ça pourrait bien vous intéresser</h2>
     <div class="flex flex-wrap justify-between mt-8 gap-6">
       <template v-for="product in similarProducts" :key="product._id">
-        <CardSellComponent cardClass="w-72" :product="product" />
+        <CardSellComponent cardClass="w-[24rem]" :product="product" />
       </template>
     </div>
   </main>

@@ -6,7 +6,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
   <h2>Nos meilleures ventes</h2>
   <p>Ça part aussi vite que des petits pains (au chocolat).</p>
   <Carousel
-    class="relative w-full"
+    class="relative md:w-full"
     :opts="{
       align: 'start',
     }"

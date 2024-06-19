@@ -44,7 +44,7 @@ const paymentLink = computed(() => cartStore.paymentLink);
 <template>
   <div v-if="!cart.length" class="text-center text-lg">Votre panier est vide</div>
   <main v-else
-   class="flex flex-col md:flex-row gap-4 container mx-auto p-4">
+   class="block md:flex flex-col md:flex-row p-0 md:p-4 ml-0 md:ml-32">
     <div class="flex-1">
       <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
       <div >
@@ -57,7 +57,7 @@ const paymentLink = computed(() => cartStore.paymentLink);
             :productDescription="item.productId.product_title"
             :productPrice="item.productId.product_price"
             :productQuantity="item.quantity"
-            :cardLink="`/products/${item.productId._id}`"
+            :cardLink="`/product/${item.productId._id}`"
             @update="updateQuantity(item.productId._id, $event)"
           >
             <template #actions>
@@ -67,7 +67,7 @@ const paymentLink = computed(() => cartStore.paymentLink);
         </div>
       </div>
     </div>
-    <div class="w-96 absolute right-11">
+    <div class="w-96 absolute md:right-20 mt-4 md:mt-0">
       <div class="w-full max-w-md p-4 bg-white shadow-md rounded-lg">
         <h2 class="text-2xl font-bold mb-4">Récapitulatif</h2>
         <div v-for="item in cart" :key="item.productId._id" class="flex justify-between mb-2">
