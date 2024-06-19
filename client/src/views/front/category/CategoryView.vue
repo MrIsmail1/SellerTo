@@ -67,7 +67,7 @@ watch(() => route.query, (newQuery) => {
         </div>
       </div>
       <div class="flex flex-wrap justify-between -mt-4">
-        <template v-for="product in filteredProducts" :key="product._id.$oid">
+        <template v-for="product in filteredProducts" :key="product._id">
           <CardSellComponent :product="product" class="mt-4"/>
         </template>
       </div>

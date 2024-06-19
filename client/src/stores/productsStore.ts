@@ -1,4 +1,4 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 import axios from '../plugins/axios';
 
 export const useProductsStore = defineStore('products', {
@@ -50,9 +50,8 @@ export const useProductsStore = defineStore('products', {
         async fetchFilteredProducts() {
             this.loading = true;
             try {
-                const params = {...this.filters};
+                const params = { ...this.filters };
 
-                // TODO: Extrernalisé ça
                 Object.keys(params).forEach(key => {
                     if (Array.isArray(params[key]) && params[key].length > 0) {
                         params[key] = params[key].join(',');
@@ -61,7 +60,7 @@ export const useProductsStore = defineStore('products', {
                     }
                 });
 
-                const response = await axios.get('/products', {params});
+                const response = await axios.get('/products', { params });
                 this.filteredProducts = response.data;
                 this.error = null;
             } catch (error) {
@@ -73,9 +72,8 @@ export const useProductsStore = defineStore('products', {
 
         async searchProductByTitleOrDescription(query) {
             try {
-                const params = {query, ...this.filters};
+                const params = { query, ...this.filters };
 
-                // TODO: Extrernalisé ça
                 Object.keys(params).forEach(key => {
                     if (Array.isArray(params[key]) && params[key].length > 0) {
                         params[key] = params[key].join(',');
@@ -84,7 +82,7 @@ export const useProductsStore = defineStore('products', {
                     }
                 });
 
-                const response = await axios.get('/products/search', {params});
+                const response = await axios.get('/products/search', { params });
                 this.filteredProducts = response.data;
             } catch (error) {
                 console.error('Failed to search products:', error);

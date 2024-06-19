@@ -56,6 +56,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/account/delete',
+        name: 'Delete',
+        component: () => import('@/views/front/user/DeleteView.vue'),
+        meta: {requiresAuth: true}
+      },
+      {
         path: "success",
         name: "Success",
         component: () => import("@/views/front/notif/SuccessView.vue"),

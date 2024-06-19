@@ -2,7 +2,6 @@ import {DataTypes} from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../config/database.js';
 
-// TODO: Ajouter Adresse facturation peut-être
 const Users = sequelize.define('Users', {
   id: {
     type: DataTypes.INTEGER,

@@ -1,4 +1,4 @@
-import {DataTypes} from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const Payment = sequelize.define('Payment', {
@@ -15,6 +15,14 @@ const Payment = sequelize.define('Payment', {
       key: 'id',
     },
   },
+  productId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Products',
+      key: 'id',
+    },
+  },
   amount: {
     type: DataTypes.FLOAT,
     allowNull: false,
@@ -22,6 +30,7 @@ const Payment = sequelize.define('Payment', {
   paymentIntentId: {
     type: DataTypes.STRING,
     allowNull: true,
+    unique: true,
   },
   refundId: {
     type: DataTypes.STRING,
