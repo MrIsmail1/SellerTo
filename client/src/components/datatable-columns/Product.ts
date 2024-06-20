@@ -4,6 +4,7 @@ import { h } from "vue";
 /* import { labels, priorities, statuses } from "../data/data";
  */ import DataTableColumnHeader from "@/components/common/DataTableColumnHeaderComponent.vue";
 /* import { Badge } from "@/components/ui/badge"; */
+import DataTableRowActionsComponent from "@/components/common/DataTableRowActionsComponent.vue";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Product } from "@/z-schemas/ProductSchema";
 /* import DataTableRowActions from "./DataTableRowActions.vue"; */
@@ -31,15 +32,23 @@ export const columns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "Nom du produit",
+    accessorKey: "product_title",
     header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: "Nom du produit" }),
+      h(DataTableColumnHeader, { column: column, title: "Nom du produit" }),
 
     cell: ({ row }) => row.original.product_title,
     enableSorting: true,
   },
   {
-    accessorKey: "Prix",
+    accessorKey: "product_category",
+    header: ({ column }) =>
+      h(DataTableColumnHeader, { column: column, title: "Catégorie" }),
+
+    cell: ({ row }) => row.original.product_category,
+    enableSorting: true,
+  },
+  {
+    accessorKey: "product_price",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Prix" }),
     cell: ({ row }) => {
       const price = Number.parseFloat(row.original.product_price);
@@ -47,7 +56,11 @@ export const columns: ColumnDef<Product>[] = [
         style: "currency",
         currency: "EUR",
       }).format(price);
-      return h("div", { class: "text-right font-medium" }, formatted);
+      return h("div", { class: "text-left font-medium" }, formatted);
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => h(DataTableRowActionsComponent, { row }),
   },
 ];

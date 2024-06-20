@@ -32,6 +32,7 @@ import {
 
 interface DataTableProps {
   columns: ColumnDef<any>[];
+  filterColumn?: string;
   data: [];
 }
 const props = defineProps<DataTableProps>();
@@ -81,8 +82,12 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <!--     <DataTableToolbar :table="table" :filterColumn="columns" />
- -->
+    <DataTableToolbar
+      :table="table"
+      :filter-column="props.filterColumn"
+      filter-placeholder="Recherche..."
+      :show-reset-button="true"
+    />
     <div class="rounded-md border">
       <Table>
         <TableHeader>

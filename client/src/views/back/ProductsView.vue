@@ -5,8 +5,11 @@ import AddProductModal from "@/components/modal/AddProductModal.vue";
 import { Plus } from "lucide-vue-next";
 import { useProductsStore } from "@/stores/productsStore";
 import DataTable from "@/components/common/DataTableComponent.vue";
+import { columns } from "@/components/datatable-columns/Product";
+import type { Product } from "@/z-schemas/ProductSchema";
 
 const showModal = ref(false);
+const data = ref<Product>([]);
 const productsStore = useProductsStore();
 
 const openModal = () => {
@@ -22,8 +25,9 @@ const saveProduct = (product) => {
   closeModal();
 };
 
-onMounted(() => {
-  productsStore.fetchProducts();
+onMounted(async () => {
+  await productsStore.fetchProducts();
+  data.value = productsStore.products;
 });
 </script>
 
@@ -42,7 +46,13 @@ onMounted(() => {
     </Button>
   </div>
   <div class="flex flex-col mt-6">
-    <DataTable :columns="columns" :data="data" />
+    <DataTable :columns="columns" :data="data" filterColumn="product_title" />
   </div>
   <AddProductModal v-if="showModal" @close="closeModal" @save="saveProduct" />
 </template>
+
+<style scoped>
+.button:hover .icon {
+  color: white;
+}
+</style>
