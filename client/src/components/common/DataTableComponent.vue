@@ -82,12 +82,12 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <DataTableToolbar
+    <!--  <DataTableToolbar
       :table="table"
       :filter-column="props.filterColumn"
       filter-placeholder="Recherche..."
       :show-reset-button="true"
-    />
+    /> -->
     <div class="rounded-md border">
       <Table>
         <TableHeader>

@@ -1,9 +1,6 @@
-<!-- DataTableRowActions.vue -->
 <script setup lang="ts">
 import type { Row } from "@tanstack/vue-table";
-import { computed } from "vue";
 import { Ellipsis } from "lucide-vue-next";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,26 +10,19 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "vue-router";
 
 interface DataTableRowActionsProps<T> {
   row: Row<T>;
-  onView?: (row: Row<T>) => void;
-  onEdit?: (row: Row<T>) => void;
-  onDelete?: (row: Row<T>) => void;
+  viewRoute: string;
+  editRoute: string;
+  deleteRoute: string;
 }
 
 const props = defineProps<DataTableRowActionsProps<any>>();
-
-const handleView = () => {
-  if (props.onView) props.onView(props.row);
-};
-
-const handleEdit = () => {
-  if (props.onEdit) props.onEdit(props.row);
-};
-
-const handleDelete = () => {
-  if (props.onDelete) props.onDelete(props.row);
+const router = useRouter();
+const navigateTo = (route: string) => {
+  router.push(route);
 };
 </script>
 
@@ -48,11 +38,19 @@ const handleDelete = () => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
-      <DropdownMenuItem @click="handleView">Visualiser</DropdownMenuItem>
-      <DropdownMenuItem @click="handleEdit">Modifier</DropdownMenuItem>
+      <DropdownMenuItem
+        @click="navigateTo(props.viewRoute + '/' + props.row.id)"
+        >Visualiser</DropdownMenuItem
+      >
+      <DropdownMenuItem
+        @click="navigateTo(props.editRoute + '/' + props.row.id)"
+        >Modifier</DropdownMenuItem
+      >
       <DropdownMenuSeparator />
-      <DropdownMenuItem @click="handleDelete">
-        Delete
+      <DropdownMenuItem
+        @click="navigateTo(props.deleteRoute + '/' + props.row.id)"
+      >
+        Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
       </DropdownMenuItem>
     </DropdownMenuContent>

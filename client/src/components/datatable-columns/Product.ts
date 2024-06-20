@@ -1,13 +1,9 @@
-import type { ColumnDef } from "@tanstack/vue-table";
-import { h } from "vue";
-
-/* import { labels, priorities, statuses } from "../data/data";
- */ import DataTableColumnHeader from "@/components/common/DataTableColumnHeaderComponent.vue";
-/* import { Badge } from "@/components/ui/badge"; */
+import DataTableColumnHeader from "@/components/common/DataTableColumnHeaderComponent.vue";
 import DataTableRowActionsComponent from "@/components/common/DataTableRowActionsComponent.vue";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Product } from "@/z-schemas/ProductSchema";
-/* import DataTableRowActions from "./DataTableRowActions.vue"; */
+import type { ColumnDef } from "@tanstack/vue-table";
+import { h } from "vue";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -61,6 +57,12 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => h(DataTableRowActionsComponent, { row }),
+    cell: ({ row }) =>
+      h(DataTableRowActionsComponent, {
+        row,
+        viewRoute: `/admin/products/view`,
+        editRoute: `/admin/products/edit`,
+        deleteRoute: `/admin/products/delete`,
+      }),
   },
 ];

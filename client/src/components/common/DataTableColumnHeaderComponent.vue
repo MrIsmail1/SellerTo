@@ -3,7 +3,6 @@ import type { Column } from "@tanstack/vue-table";
 import { ArrowDownZA, ArrowUpAZ, ArrowDownUp } from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { Product } from "@/z-schemas/ProductSchema";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -14,7 +13,7 @@ import {
 import { ref } from "vue";
 
 interface DataTableColumnHeaderProps {
-  column: Column<Product, any>;
+  column: Column<any>;
   title: string;
 }
 
