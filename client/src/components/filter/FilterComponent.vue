@@ -16,18 +16,18 @@ const route = useRoute();
 const router = useRouter();
 
 const filters = {
-  series: 'Séries',
-  sizeSsd: 'Taille du disque dur',
-  sizeRam: 'Taille de la mémoire vive',
-  sizeScreen: 'Taille de l\'écran',
-  typeOfProcessor: 'Type de processeur',
-  speedOfProcessor: 'Vitesse du processeur',
-  typeOfStorage: 'Technologie du disque dur',
-  color: 'Couleur',
-  resolution: 'Résolution',
-  gpu: 'GPU',
-  weight: 'Poids du produit',
-  keyboardAndLanguage: 'Langue du clavier'
+  series: 'series',
+  sizeSsd: 'sizeSsd',
+  sizeRam: 'sizeRam',
+  sizeScreen: 'sizeScreen',
+  typeOfProcessor: 'typeOfProcessor',
+  speedOfProcessor: 'speedOfProcessor',
+  typeOfStorage: 'typeOfStorage',
+  color: 'color',
+  resolution: 'resolution',
+  gpu: 'gpu',
+  weight: 'weight',
+  keyboardAndLanguage: 'keyboardAndLanguage'
 };
 
 const customTitles = {
@@ -50,8 +50,8 @@ const availableFilters = computed(() => {
   for (const [filterKey, field] of Object.entries(filters)) {
     result[filterKey] = ['Peu importe', ...new Set(
         props.filteredProducts
-            .map(product => product.product_information?.[field])
-            .filter(value => value !== undefined)
+            .map(product => product[field])
+            .filter(value => value !== undefined && value !== null && value !== '')
     )];
   }
   return result;
@@ -91,7 +91,7 @@ const updateFilter = (filterType, value) => {
 };
 
 const updateURLWithFilters = () => {
-  const query = {...route.query};
+  const query = { ...route.query };
 
   Object.keys(productStore.filters).forEach(filterKey => {
     if (productStore.filters[filterKey].length > 0) {
@@ -104,7 +104,7 @@ const updateURLWithFilters = () => {
   query.minPrice = minPrice.value;
   query.maxPrice = maxPrice.value;
 
-  router.push({query}).catch(err => {});
+  router.push({ query }).catch(err => { });
 };
 
 const debouncedFetchFilteredProducts = debounce(() => {
@@ -117,7 +117,7 @@ const debouncedFetchFilteredProducts = debounce(() => {
 
 watch(() => productStore.filters, (newFilters) => {
   debouncedFetchFilteredProducts();
-}, {deep: true});
+}, { deep: true });
 
 onMounted(() => {
   if (route.query.minPrice) minPrice.value = route.query.minPrice;

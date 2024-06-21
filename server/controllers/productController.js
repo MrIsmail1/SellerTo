@@ -1,4 +1,5 @@
-import Product from '../models/productModel.js';
+import Product from '../models/mongo/productModel.js';
+import Products from "../models/postgres/productModel.js";
 
 export const getProducts = async (req, res) => {
     try {
@@ -24,15 +25,16 @@ export const getProduct = async (req, res) => {
     }
 };
 
+
 export const createProduct = async (req, res) => {
     try {
         const products = req.body;
+
         if (Array.isArray(products)) {
-            const newProducts = await Product.insertMany(products);
+            const newProducts = await Products.bulkCreate(products, { returning: true, individualHooks: true });
             res.status(201).json(newProducts);
         } else {
-            const newProduct = new Product(products);
-            await newProduct.save();
+            const newProduct = await Products.create(products, { returning: true, individualHooks: true });
             res.status(201).json(newProduct);
         }
     } catch (error) {
@@ -42,13 +44,29 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Products.findByPk(req.params.id);
         if (!product) {
             return res.status(404);
         }
 
         Object.assign(product, req.body);
-        await product.save();
+        await product.save({ individualHooks: true });
+
+        res.status(200).json(product);
+    } catch (error) {
+        res.status(500);
+    }
+};
+
+export const patchProduct = async (req, res) => {
+    try {
+        const product = await Products.findByPk(req.params.id);
+        if (!product) {
+            return res.status(404);
+        }
+
+        await product.update(req.body, { individualHooks: true });
+
         res.status(200).json(product);
     } catch (error) {
         res.status(500);
@@ -57,16 +75,18 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Products.findByPk(req.params.id);
         if (!product) {
             return res.status(404);
         }
-        await product.remove();
-        res.status(204).json({message: 'Product deleted'});
+        await product.destroy({ individualHooks: true });
+
+        res.status(204).json({ message: 'Product deleted' });
     } catch (error) {
         res.status(500);
     }
 };
+
 
 export const searchProductByTitleOrDescription = async (req, res) => {
     try {
@@ -95,55 +115,55 @@ const applyFilters = (filters) => {
     const query = {};
 
     if (filters.brand) {
-        query['product_information.Marque'] = filters.brand;
+        query['brand'] = filters.brand;
     }
 
     if (filters.sizeSsd) {
-        query['product_information.Taille du disque dur'] = filters.sizeSsd;
+        query['sizeSsd'] = filters.sizeSsd;
     }
 
     if (filters.sizeRam) {
-        query['product_information.Taille de la mémoire vive'] = filters.sizeRam;
+        query['sizeRam'] = filters.sizeRam;
     }
 
     if (filters.sizeScreen) {
-        query['product_information.Taille de l\'écran'] = filters.sizeScreen;
+        query['sizeScreen'] = filters.sizeScreen;
     }
 
     if (filters.typeOfProcessor) {
-        query['product_information.Type de processeur'] = filters.typeOfProcessor;
+        query['typeOfProcessor'] = filters.typeOfProcessor;
     }
 
     if (filters.speedOfProcessor) {
-        query['product_information.Vitesse du processeur'] = filters.speedOfProcessor;
+        query['speedOfProcessor'] = filters.speedOfProcessor;
     }
 
     if (filters.typeOfStorage) {
-        query['product_information.Technologie du disque dur'] = filters.typeOfStorage;
+        query['typeOfStorage'] = filters.typeOfStorage;
     }
 
     if (filters.color) {
-        query['product_information.Couleur'] = filters.color;
+        query['color'] = filters.color;
     }
 
     if (filters.series) {
-        query['product_information.Séries'] = filters.series;
+        query['series'] = filters.series;
     }
 
     if (filters.resolution) {
-        query['product_information.Résolution'] = filters.resolution;
+        query['resolution'] = filters.resolution;
     }
 
     if (filters.gpu) {
-        query['product_information.GPU'] = filters.gpu;
+        query['gpu'] = filters.gpu;
     }
 
     if (filters.weight) {
-        query['product_information.Poids du produit'] = filters.weight;
+        query['weight'] = filters.weight;
     }
 
     if (filters.keyboardAndLanguage) {
-        query['product_information.Langue du clavier'] = filters.keyboardAndLanguage;
+        query['keyboardAndLanguage'] = filters.keyboardAndLanguage;
     }
 
     if (filters.minPrice || filters.maxPrice) {
@@ -153,12 +173,12 @@ const applyFilters = (filters) => {
 
         if (filters.minPrice) {
             query.$expr.$and.push({
-                $gte: [{ $toDouble: "$product_information.Prix" }, parseFloat(filters.minPrice)]
+                $gte: [{ $toDouble: "$product_price" }, parseFloat(filters.minPrice)]
             });
         }
         if (filters.maxPrice) {
             query.$expr.$and.push({
-                $lte: [{ $toDouble: "$product_information.Prix" }, parseFloat(filters.maxPrice)]
+                $lte: [{ $toDouble: "$product_price" }, parseFloat(filters.maxPrice)]
             });
         }
 

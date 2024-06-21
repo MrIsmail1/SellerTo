@@ -1,4 +1,4 @@
-import User from '../models/userModel.js';
+import User from '../models/postgres/userModel.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
