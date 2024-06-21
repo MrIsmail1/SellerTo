@@ -75,18 +75,15 @@ export const patchProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        console.log('Request to delete product with ID:', req.params.id);
         const product = await Products.findByPk(req.params.id);
         if (!product) {
-            console.log('Product not found');
-            return res.status(404).json({ message: 'Product not found' });
+            return res.status(404);
         }
         await product.destroy({ individualHooks: true });
-        console.log('Product deleted successfully');
+
         res.status(204).json({ message: 'Product deleted' });
     } catch (error) {
-        console.error('Error deleting product:', error.message);
-        res.status(500).json({ message: error.message });
+        res.status(500);
     }
 };
 
