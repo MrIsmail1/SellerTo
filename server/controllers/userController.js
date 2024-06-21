@@ -1,4 +1,4 @@
-import User from '../models/userModel.js';
+import User from '../models/postgres/userModel.js';
 
 export const getUserProfile = async (req, res) => {
   try {

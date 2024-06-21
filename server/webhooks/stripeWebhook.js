@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
-import Payment from '../models/paymentModel.js';
-import Cart from '../models/cartModel.js';
+import Payment from '../models/postgres/paymentModel.js';
+import Cart from '../models/mongo/cartModel.js';
 import dotenv from 'dotenv';
 dotenv.config();
 

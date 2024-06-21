@@ -1,5 +1,5 @@
-import Product from '../models/productModel.js';
-import Products from "../models/productPostgresModel.js";
+import Product from '../models/mongo/productModel.js';
+import Products from "../models/postgres/productModel.js";
 
 export const getProducts = async (req, res) => {
     try {
@@ -31,29 +31,16 @@ export const createProduct = async (req, res) => {
         const products = req.body;
 
         if (Array.isArray(products)) {
-            const newProducts = await Products.bulkCreate(products, { returning: true });
-            const productsWithIds = newProducts.map(product => ({
-                ...product.dataValues,
-                _id: product.id
-            }));
-            await Product.insertMany(productsWithIds);
+            const newProducts = await Products.bulkCreate(products, { returning: true, individualHooks: true });
             res.status(201).json(newProducts);
         } else {
-            // Mongo
-            const newProduct = await Products.create(products, { returning: true });
-
-            const newProductMongo = new Product({
-                ...newProduct.dataValues,
-                _id: newProduct.id
-            });
-            await newProductMongo.save();
+            const newProduct = await Products.create(products, { returning: true, individualHooks: true });
             res.status(201).json(newProduct);
         }
     } catch (error) {
         res.status(500);
     }
 };
-
 
 export const updateProduct = async (req, res) => {
     try {
@@ -63,17 +50,7 @@ export const updateProduct = async (req, res) => {
         }
 
         Object.assign(product, req.body);
-        await product.save();
-
-        // Update in MongoDB
-        const productMongo = await Product.findById(req.params.id);
-        if (productMongo) {
-            Object.assign(productMongo, req.body);
-            await productMongo.save();
-        } else {
-            const newProductMongo = new Product({ _id: req.params.id, ...req.body });
-            await newProductMongo.save();
-        }
+        await product.save({ individualHooks: true });
 
         res.status(200).json(product);
     } catch (error) {
@@ -88,16 +65,7 @@ export const patchProduct = async (req, res) => {
             return res.status(404);
         }
 
-        await product.update(req.body);
-
-        // Patch in MongoDB
-        const productMongo = await Product.findById(req.params.id);
-        if (productMongo) {
-            await productMongo.updateOne(req.body);
-        } else {
-            const newProductMongo = new Product({ _id: req.params.id, ...req.body });
-            await newProductMongo.save();
-        }
+        await product.update(req.body, { individualHooks: true });
 
         res.status(200).json(product);
     } catch (error) {
@@ -107,23 +75,21 @@ export const patchProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
+        console.log('Request to delete product with ID:', req.params.id);
         const product = await Products.findByPk(req.params.id);
         if (!product) {
-            return res.status(404);
+            console.log('Product not found');
+            return res.status(404).json({ message: 'Product not found' });
         }
-        await product.destroy();
-
-        // Delete in MongoDB
-        const productMongo = await Product.findById(req.params.id);
-        if (productMongo) {
-            await productMongo.remove();
-        }
-
+        await product.destroy({ individualHooks: true });
+        console.log('Product deleted successfully');
         res.status(204).json({ message: 'Product deleted' });
     } catch (error) {
-        res.status(500);
+        console.error('Error deleting product:', error.message);
+        res.status(500).json({ message: error.message });
     }
 };
+
 
 export const searchProductByTitleOrDescription = async (req, res) => {
     try {

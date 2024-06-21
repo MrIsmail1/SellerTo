@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
+import sequelize from '../../config/database.js';
+import denormalizeProduct from "../../services/denormalization/product.js";
+import ProductMongo from '../../models/mongo/productModel.js';
 
 const Products = sequelize.define('Products', {
     product_title: {
@@ -150,6 +152,17 @@ const Products = sequelize.define('Products', {
 
 }, {
     timestamps: true,
+    hooks: {
+        afterCreate: async (product, options) => {
+            await denormalizeProduct({ id: product.id }, { Product: Products });
+        },
+        afterUpdate: async (product, options) => {
+            await denormalizeProduct({ id: product.id }, { Product: Products });
+        },
+        afterDestroy: async (product, options) => {
+            await ProductMongo.findByIdAndDelete(product.id);
+        }
+    }
 });
 
 export default Products;
