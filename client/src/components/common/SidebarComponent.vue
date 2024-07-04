@@ -38,7 +38,7 @@ const primaryMenuItems = [
     text: "Tableau de bord",
   },
   { route: { name: "" }, icon: FileText, text: "Commandes" },
-  { route: { name: "" }, icon: ShoppingCart, text: "Produits" },
+  { route: { name: "AdminProducts" }, icon: ShoppingCart, text: "Produits" },
   {
     route: { name: "" },
     icon: CreditCard,
