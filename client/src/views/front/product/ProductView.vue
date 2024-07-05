@@ -56,7 +56,7 @@ const accordionItems = [
   { value: 'item-3', title: 'Can it be animated?', content: 'Yes! You can use the transition prop to configure the animation.' },
 ]
 
-const productDetail = computed(() => productsStore.products.find(product => product._id === productId));
+const productDetail = computed(() => productsStore.products.find(product => product._id == productId));
 const loading = computed(() => productsStore.loading);
 const error = computed(() => productsStore.error);
 const similarProducts = computed(() => {
@@ -83,7 +83,7 @@ const addToCart = async () => {
         <div class="w-full sm:w-auto center">
           <Carousel class="relative w-full max-w-xs" @init-api="(val) => (emblaMainApi = val)">
             <CarouselContent>
-              <CarouselItem v-for="(photo, index) in productDetail.product_photos" :key="index">
+              <CarouselItem v-for="(photo, index) in productDetail.product_photo.split(',')" :key="index">
                 <img :src="photo" alt="Product Image" class="w-full h-auto object-cover rounded-lg" />
               </CarouselItem>
             </CarouselContent>
@@ -94,7 +94,7 @@ const addToCart = async () => {
           <Carousel class="relative w-full max-w-xs mt-4" @init-api="(val) => (emblaThumbnailApi = val)">
             <CarouselContent class="flex gap-1 ml-0">
               <CarouselItem
-                v-for="(photo, index) in productDetail.product_photos"
+                v-for="(photo, index) in productDetail.product_photo.split(',')"
                 :key="index"
                 class="pl-0 basis-1/4 cursor-pointer"
                 @click="onThumbClick(index)"
@@ -107,7 +107,6 @@ const addToCart = async () => {
       </div>
       <div class="w-full md:w-1/2">
         <h1 class="text-2xl font-bold mb-4">{{ productDetail.product_title }}</h1>
-        <!-- <p class="mb-2"><strong>Catégorie:</strong> {{ productDetail.product_category }}</p> -->
         <p class="mb-2"><strong>Description:</strong> {{ productDetail.product_description }}</p>
         <p class="mb-2"><strong>Prix:</strong> {{ productDetail.product_price }} €</p>
         <Button @click="addToCart" class="mt-4">Ajouter au panier</Button>
@@ -124,9 +123,32 @@ const addToCart = async () => {
                       <h4 class="mt-2">Marchand vérifié</h4>
                       <p>Tous les produits vendus sur SellerTo proviennent de reconditionneurs experts et vérifiés, qui s'engagent à tester chaque appareil selon notre charte qualité. Chaque produit est 100% fonctionnel, parfaitement nettoyé et garanti.</p>
                       <ul class="mt-4">
-                        <li v-for="(value, key) in productDetail.product_information" :key="key">
-                          <strong>{{ key }}:</strong> {{ value }} <Hr class="my-4" />
-                        </li>
+                        <li v-if="productDetail.brand"><strong>Marque:</strong> {{ productDetail.brand }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.itemModelNumber"><strong>Numéro de modèle:</strong> {{ productDetail.itemModelNumber }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.color"><strong>Couleur:</strong> {{ productDetail.color }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.operatingSystem"><strong>Système d'exploitation:</strong> {{ productDetail.operatingSystem }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.computerHardwarePlatform"><strong>Plateforme matérielle:</strong> {{ productDetail.computerHardwarePlatform }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.keyboardDescription"><strong>Description du clavier:</strong> {{ productDetail.keyboardDescription }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.processorBrand"><strong>Marque du processeur:</strong> {{ productDetail.processorBrand }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.typeOfProcessor"><strong>Type de processeur:</strong> {{ productDetail.typeOfProcessor }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.speedOfProcessor"><strong>Vitesse du processeur:</strong> {{ productDetail.speedOfProcessor }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.numberOfHearts"><strong>Nombre de coeurs:</strong> {{ productDetail.numberOfHearts }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.sizeRam"><strong>Taille de la RAM:</strong> {{ productDetail.sizeRam }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.sizeSsd"><strong>Taille du SSD:</strong> {{ productDetail.sizeSsd }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.typeOfStorage"><strong>Type de stockage:</strong> {{ productDetail.typeOfStorage }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.sizeScreen"><strong>Taille de l'écran:</strong> {{ productDetail.sizeScreen }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.gpu"><strong>GPU:</strong> {{ productDetail.gpu }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.gpuRam"><strong>RAM du GPU:</strong> {{ productDetail.gpuRam }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.connectivityType"><strong>Type de connectivité:</strong> {{ productDetail.connectivityType }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.wirelessTechnologyType"><strong>Type de technologie sans fil:</strong> {{ productDetail.wirelessTechnologyType }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.computerHardwareInterface"><strong>Interface matérielle:</strong> {{ productDetail.computerHardwareInterface }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.connectorType"><strong>Type de connecteur:</strong> {{ productDetail.connectorType }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.softwareIncluded"><strong>Logiciels inclus:</strong> {{ productDetail.softwareIncluded }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.itemDimensionsLxWxH"><strong>Dimensions:</strong> {{ productDetail.itemDimensionsLxWxH }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.weight"><strong>Poids:</strong> {{ productDetail.weight }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.resolution"><strong>Résolution:</strong> {{ productDetail.resolution }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.series"><strong>Série:</strong> {{ productDetail.series }} <Hr class="my-4" /></li>
+                        <li v-if="productDetail.keyboardAndLanguage"><strong>Clavier et langue:</strong> {{ productDetail.keyboardAndLanguage }} <Hr class="my-4" /></li>
                       </ul>
                     </SheetDescription>
                   </SheetHeader>
@@ -227,7 +249,7 @@ const addToCart = async () => {
     </div>
     <h2 class="text-2xl font-bold mt-8">Ça pourrait bien vous intéresser</h2>
     <div class="flex flex-wrap justify-between mt-8 gap-6">
-      <template v-for="product in similarProducts" :key="product._id">
+      <template v-for="product in similarProducts" :key="product.id">
         <CardSellComponent cardClass="w-[24rem]" :product="product" />
       </template>
     </div>

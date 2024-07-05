@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import {useProductsStore} from '@/stores/productsStore';
-import {computed, onMounted, watch} from 'vue';
+import { useProductsStore } from '@/stores/productsStore';
+import { computed, onMounted, watch } from 'vue';
 import CardSellComponent from '@/components/CardSellComponent.vue';
 import FilterComponent from '@/components/filter/FilterComponent.vue';
-import {useRoute} from 'vue-router';
-import {Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription} from '@/components/ui/sheet';
-import {Button} from '@/components/ui/button';
+import { useRoute } from 'vue-router';
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 import { SlidersHorizontal } from 'lucide-vue-next';
-
 
 const productStore = useProductsStore();
 const route = useRoute();
@@ -42,24 +41,25 @@ watch(() => route.query, (newQuery) => {
   } else {
     initializeFiltersFromURL();
   }
-}, {immediate: true});
+}, { immediate: true });
 
 </script>
 
 <template>
   <main>
     <Sheet>
-        <SheetTrigger as-child>
-          <Button class="fixed md:hidden visible md:invisible bottom-0 left-0 bg-white w-full p-4" variant="outline">
-            Filtrer <SlidersHorizontal class="ml-2"/>
-          </Button>
-        </SheetTrigger>
-        <SheetContent class="rounded-lg h-screen" side="bottom">
-          <SheetHeader>
-              <FilterComponent :filteredProducts="filteredProducts"/>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
+      <SheetTrigger as-child>
+        <Button class="fixed md:hidden visible md:invisible bottom-0 left-0 bg-white w-full p-4" variant="outline">
+          Filtrer
+          <SlidersHorizontal class="ml-2"/>
+        </Button>
+      </SheetTrigger>
+      <SheetContent class="rounded-lg h-screen" side="bottom">
+        <SheetHeader>
+          <FilterComponent :filteredProducts="filteredProducts"/>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
     <div class="mt-2 md:mt-6 grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div class="hidden border-r bg-muted/40 md:block">
         <div class="flex h-full max-h-screen flex-col gap-2">
