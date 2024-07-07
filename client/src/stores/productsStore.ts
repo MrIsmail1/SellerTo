@@ -24,11 +24,11 @@ export const useProductsStore = defineStore('products', {
         previousFilters: {}
     }),
     getters: {
-        randomProducts() {
-            return this.products.sort(() => Math.random() - 0.5);
+        randomProducts(state) {
+            return [...state.products].sort(() => Math.random() - 0.5);
         },
-        productCategories() {
-            const categories = this.products.map(product => product.product_category);
+        productCategories(state) {
+            const categories = state.products.map(product => product.product_category);
             return [...new Set(categories)];
         },
     },
