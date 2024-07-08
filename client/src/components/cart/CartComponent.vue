@@ -33,7 +33,6 @@ watch(quantity, (newQuantity) => {
 });
 </script>
 
-
 <template>
   <Card :class="['w-full md:h-80 h-[34rem] flex flex-col md:flex-row items-center mt-4', cardClass]">
     <RouterLink class="flex flex-col md:flex-row hover:bg-inherit" :to="cardLink">

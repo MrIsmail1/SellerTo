@@ -16,25 +16,25 @@ export const useCartStore = defineStore('cart', {
     groupedCart: (state) => {
       const grouped = [];
       state.cart.forEach(item => {
-        if (item.productId && item.productId._id) {
-          const existingItem = grouped.find(groupedItem => groupedItem.productId._id === item.productId._id);
+        if (item.Product && item.Product.id) {
+          const existingItem = grouped.find(groupedItem => groupedItem.Product.id === item.Product.id);
           if (existingItem) {
             existingItem.quantity += item.quantity;
           } else {
             grouped.push({ ...item });
           }
         } else {
-          console.error("Invalid productId in cart item", item);
+          console.error("Invalid product in cart item", item);
         }
       });
       return grouped;
     },
     subTotal: (state) => {
-      return state.groupedCart.reduce((total, item) => total + item.productId.product_price * item.quantity, 0);
+      return state.groupedCart.reduce((total, item) => total + (item.Product ? item.Product.product_price * item.quantity : 0), 0);
     },
     total: (state) => {
       const serviceFee = 6.49;
-      return state.groupedCart.reduce((total, item) => total + item.productId.product_price * item.quantity, 0) + serviceFee;
+      return state.groupedCart.reduce((total, item) => total + (item.Product ? item.Product.product_price * item.quantity : 0), 0) + serviceFee;
     }
   },
   actions: {
@@ -42,7 +42,7 @@ export const useCartStore = defineStore('cart', {
       this.loading = true;
       try {
         const response = await axios.get('/cart');
-        this.cart = response.data.filter(item => item.productId);
+        this.cart = response.data.filter(item => item.Product);
         this.error = null;
       } catch (error) {
         this.error = error.message;
@@ -56,13 +56,17 @@ export const useCartStore = defineStore('cart', {
         return;
       }
       try {
-        const response = await axios.post('/cart/add', { productId });
+        const response = await axios.post('/cart', { productId });
         const cartItem = response.data;
-        const existingItem = this.cart.find(item => item.productId._id === cartItem.productId._id);
-        if (existingItem) {
-          existingItem.quantity += 1;
+        if (cartItem && cartItem.Product) {
+          const existingItem = this.cart.find(item => item.Product && item.Product.id === cartItem.Product.id);
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            this.cart.push(cartItem);
+          }
         } else {
-          this.cart.push(cartItem);
+          console.error("Invalid response data", response.data);
         }
       } catch (error) {
         console.error(error);
@@ -70,17 +74,17 @@ export const useCartStore = defineStore('cart', {
     },
     async removeFromCart(cartItemId) {
       try {
-        await axios.post('/cart/remove', { cartItemId });
-        this.cart = this.cart.filter(item => item._id !== cartItemId);
+        await axios.delete('/cart', { data: { cartItemId } });
+        this.cart = this.cart.filter(item => item.id !== cartItemId);
       } catch (error) {
         console.error(error);
       }
     },
     async updateQuantity(productId, quantity) {
       try {
-        const existingItem = this.cart.find(item => item.productId._id === productId);
+        const existingItem = this.cart.find(item => item.Product && item.Product.id === productId);
         if (existingItem) {
-          const response = await axios.put('/cart/update', { cartItemId: existingItem._id, quantity });
+          const response = await axios.put('/cart', { cartItemId: existingItem.id, quantity });
           existingItem.quantity = quantity;
           this.cart = [...this.cart]; 
         }
@@ -91,7 +95,7 @@ export const useCartStore = defineStore('cart', {
     async confirmPurchase(productId) {
       try {
         await axios.post('/cart/confirm', { productId });
-        this.cart = this.cart.filter(item => item.productId !== productId);
+        this.cart = this.cart.filter(item => item.Product && item.Product.id !== productId);
       } catch (error) {
         console.error(error);
       }
@@ -104,8 +108,9 @@ export const useCartStore = defineStore('cart', {
         const stripe = await stripePromise;
 
         const items = this.groupedCart.map(item => ({
-          name: item.productId.product_title,
-          amount: item.productId.product_price * 100,
+          name: item.Product.product_title,
+          amount: item.Product.product_price * 100,
+          productId: item.Product.id,
           quantity: item.quantity,
         }));
 
@@ -136,8 +141,8 @@ export const useCartStore = defineStore('cart', {
         const userId = authStore.user.id;
 
         const items = this.groupedCart.map(item => ({
-          name: item.productId.product_title,
-          amount: item.productId.product_price * 100,
+          name: item.Product.product_title,
+          amount: item.Product.product_price * 100,
           quantity: item.quantity,
         }));
 
