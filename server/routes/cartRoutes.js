@@ -4,9 +4,9 @@ import { checkAuth } from '../middlewares/checkAuth.js';
 
 const router = express.Router();
 
-router.post('/add', checkAuth, addToCart);
-router.post('/remove', checkAuth, removeFromCart);
-router.put('/update', checkAuth, updateCartQuantity);
+router.post('/', checkAuth, addToCart);
+router.delete('/', checkAuth, removeFromCart);
+router.put('/', checkAuth, updateCartQuantity);
 router.get('/', checkAuth, getCart);
 router.post('/clean-expired', cleanExpiredCarts);
 

@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import Payment from '../models/postgres/paymentModel.js';
-import Cart from '../models/mongo/cartModel.js';
+import Cart from '../models/postgres/cartModel.js'; // Assurez-vous d'importer le bon modèle de panier
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -24,25 +24,24 @@ const stripeWebhookHandler = async (req, res) => {
       const session = event.data.object;
       console.log(`PaymentIntent was successful!`);
 
-      // Create a new payment record in your database
+      const productId = session.metadata.productId;
+
       await Payment.create({
         userId: session.client_reference_id,
-        amount: session.amount_total / 100, // Convert from cents to euros
+        amount: session.amount_total / 100,
         currency: session.currency,
         paymentIntentId: session.payment_intent,
         status: 'succeeded',
+        productId: productId,
       });
 
-      // Vider le panier de l'utilisateur après le paiement
-      await Cart.deleteMany({ userId: session.client_reference_id.toString() });
+      await Cart.destroy({ where: { userId: session.client_reference_id } });
       
       break;
-    // ... handle other event types
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
 
-  // Return a 200 response to acknowledge receipt of the event
   res.send();
 };
 

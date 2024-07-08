@@ -47,21 +47,21 @@ const paymentLink = computed(() => cartStore.paymentLink);
    class="block md:flex flex-col md:flex-row p-0 md:p-4 ml-0 md:ml-32">
     <div class="flex-1">
       <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
-      <div >
+      <div>
         <div class="mt-4">
           <CartComponent
             v-for="item in cart"
-            :key="item.productId._id"
-            :productImage="item.productId.product_photo"
-            :productCategory="item.productId.product_category"
-            :productDescription="item.productId.product_title"
-            :productPrice="item.productId.product_price"
+            :key="item.id"
+            :productImage="item.Product.product_photo"
+            :productCategory="item.Product.product_category"
+            :productDescription="item.Product.product_title"
+            :productPrice="item.Product.product_price"
             :productQuantity="item.quantity"
-            :cardLink="`/product/${item.productId._id}`"
-            @update="updateQuantity(item.productId._id, $event)"
+            :cardLink="`/product/${item.Product.id}`"
+            @update="(newQuantity) => updateQuantity(item.Product.id, newQuantity)"
           >
             <template #actions>
-              <Button @click="() => removeItem(item._id)" variant="secondary" class="mt-2 mb-auto">Supprimer</Button>
+              <Button @click="() => removeItem(item.id)" variant="secondary" class="mt-2 mb-auto">Supprimer</Button>
             </template>
           </CartComponent>
         </div>
@@ -70,8 +70,8 @@ const paymentLink = computed(() => cartStore.paymentLink);
     <div class="w-96 absolute md:right-20 mt-4 md:mt-0">
       <div class="w-full max-w-md p-4 bg-white shadow-md rounded-lg">
         <h2 class="text-2xl font-bold mb-4">Récapitulatif</h2>
-        <div v-for="item in cart" :key="item.productId._id" class="flex justify-between mb-2">
-          <span>{{ item.productId.product_title }} x{{ item.quantity }}</span>
+        <div v-for="item in cart" :key="item.id" class="flex justify-between mb-2">
+          <span>{{ item.Product.product_title }} x{{ item.quantity }}</span>
         </div>
         <div class="flex justify-between border-t pt-2 mt-2">
           <span>Livraison</span>

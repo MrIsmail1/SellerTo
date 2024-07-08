@@ -33,11 +33,11 @@ app.use(cors({
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/auth", authRouter);
-app.use("/products", productRouter);
-app.use("/cart", cartRouter);
-app.use("/users", userRouter);
-app.use("/payments", paymentRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/users", userRouter);
+app.use("/api/payments", paymentRouter);
 
 // Planifier la tâche de nettoyage toutes les 15 secondes pour le panier
 cron.schedule('*/15 * * * * *', async () => {
