@@ -12,8 +12,6 @@ import connectedDataBase from "./models/db.js";
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import stripeWebhookHandler from './webhooks/stripeWebhook.js';
-import cron from 'node-cron';
-import { cleanExpiredCarts } from './controllers/cartController.js';
 
 const app = express();
 
@@ -38,13 +36,6 @@ app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
-
-// Planifier la tâche de nettoyage toutes les 15 secondes pour le panier
-cron.schedule('*/15 * * * * *', async () => {
-  await cleanExpiredCarts();
-  console.log('Cleaned expired cart items');
-});
-
 
 connectedDataBase();
 

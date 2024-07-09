@@ -22,7 +22,7 @@ const Cart = sequelize.define('Carts', {
   },
   reservedUntil: {
     type: DataTypes.DATE,
-    defaultValue: () => new Date(Date.now() + 15 * 60 * 1000),
+    defaultValue: () => new Date(Date.now() + 15 * 1000),
   },
   addedAt: {
     type: DataTypes.DATE,

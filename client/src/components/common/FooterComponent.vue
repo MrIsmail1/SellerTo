@@ -42,15 +42,21 @@
         <div>
             <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">La loi et l'ordre</h2>
             <ul class="text-gray-500 dark:text-gray-400 font-medium">
-                <li class="mb-4">
-                    <a href="#" class="hover:underline">Conditions générales d'utilisation</a>
-                </li>
-                <li class="mb-4">
-                    <a href="#" class="hover:underline">Conditions générales de vente</a>
-                </li>
-                <li class="mb-4">
-                    <a href="#" class="hover:underline">Termes et Conditions générales</a>
-                </li>
+            <li class="mb-4">
+                <router-link to="/terms-of-use" class="hover:underline">Conditions générales d'utilisation</router-link>
+            </li>
+            <li class="mb-4">
+                <router-link to="/terms-of-sales" class="hover:underline">Conditions générales de vente</router-link>
+            </li>
+            <li class="mb-4">
+                <router-link to="/legal-mentions" class="hover:underline">Termes et Conditions générales</router-link>
+            </li>
+            <li class="mb-4">
+                <router-link to="/cookies" class="hover:underline">Politique des Cookies</router-link>
+            </li>
+            <li class="mb-4">
+                <router-link to="/legal-mentions" class="hover:underline">Politique de Protection des Données</router-link>
+            </li>
             </ul>
         </div>
         <div>
