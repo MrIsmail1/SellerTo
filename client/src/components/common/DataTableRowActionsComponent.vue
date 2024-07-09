@@ -24,6 +24,7 @@ const router = useRouter();
 const navigateTo = (route: string) => {
   router.push(route);
 };
+console.log(props.row.original);
 </script>
 
 <template>
@@ -39,16 +40,16 @@ const navigateTo = (route: string) => {
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
       <DropdownMenuItem
-        @click="navigateTo(props.viewRoute + '/' + props.row.id)"
+        @click="navigateTo(props.viewRoute + '/' + props.row.original._id)"
         >Visualiser</DropdownMenuItem
       >
       <DropdownMenuItem
-        @click="navigateTo(props.editRoute + '/' + props.row.id)"
+        @click="navigateTo(props.editRoute + '/' + props.row.original._id)"
         >Modifier</DropdownMenuItem
       >
       <DropdownMenuSeparator />
       <DropdownMenuItem
-        @click="navigateTo(props.deleteRoute + '/' + props.row.id)"
+        @click="navigateTo(props.deleteRoute + '/' + props.row.original._id)"
       >
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>

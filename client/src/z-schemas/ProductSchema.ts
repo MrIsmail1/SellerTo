@@ -1,17 +1,70 @@
 import { z } from "zod";
 
-const productSchema = z.object({
-  product_title: z.string().optional(),
-  product_price: z.number().optional(),
-  product_star_rating: z.number().optional(),
+export const ProductSchema = z.object({
+  product_title: z
+    .string()
+    .min(1, { message: "Le titre du produit est requis" }),
+  product_price: z
+    .number()
+    .min(0.01, { message: "Le prix du produit doit être supérieur à zéro" }),
+  product_star_rating: z.number().min(1, {
+    message: "L'évaluation du produit doit être d'au moins 1 étoile",
+  }),
   product_url: z.string().optional(),
-  product_photo: z.string().optional(),
-  product_minimum_offer_price: z.number().optional(),
-  product_category: z.string().optional(),
-  is_best_seller: z.boolean().optional(),
-  delivery: z.string().optional(),
-  product_stock: z.number().optional(),
-  data: z.any().optional(),
+  product_photo: z
+    .object({
+      fileName: z.string({ message: "Le nom du fichier est requis" }),
+      fileExtension: z.string({
+        message: "L'extension du fichier est requise",
+      }),
+      fileMimeType: z.string({ message: "Le type MIME du fichier est requis" }),
+    })
+    .refine((value) => value !== null, {
+      message: "La photo du produit est requise",
+    }),
+  product_minimum_offer_price: z.number().min(0.01, {
+    message: "Le prix minimum de l'offre doit être supérieur à zéro",
+  }),
+  product_category: z
+    .string()
+    .min(1, { message: "La catégorie du produit est requise" }),
+  is_best_seller: z.boolean(),
+  delivery: z
+    .string()
+    .min(1, { message: "Les informations de livraison sont requises" }),
+  product_stock: z
+    .number()
+    .min(0, { message: "Le stock du produit doit être au moins de zéro" }),
+
+  // Additional product specifications
+  brand: z.string().optional(),
+  itemModelNumber: z.string().optional(),
+  color: z.string().optional(),
+  operatingSystem: z.string().optional(),
+  computerHardwarePlatform: z.string().optional(),
+  keyboardDescription: z.string().optional(),
+  processorBrand: z.string().optional(),
+  typeOfProcessor: z.string().optional(),
+  speedOfProcessor: z.string().optional(),
+  numberOfHearts: z.string().optional(),
+  sizeRam: z.string().optional(),
+  sizeSsd: z.string().optional(),
+  typeOfStorage: z.string().optional(),
+  sizeScreen: z.string().optional(),
+  gpu: z.string().optional(),
+  gpuRam: z.string().optional(),
+  connectivityType: z.string().optional(),
+  wirelessTechnologyType: z.string().optional(),
+  computerHardwareInterface: z.string().optional(),
+  connectorType: z.string().optional(),
+  softwareIncluded: z.string().optional(),
+  itemDimensionsLxWxH: z.string().optional(),
+  weight: z.string().optional(),
+  resolution: z.string().optional(),
+
+  // Additional product details
+  series: z.string().optional(),
+  keyboardAndLanguage: z.string().optional(),
 });
 
-export type Product = z.infer<typeof productSchema>;
+export type Product = z.infer<typeof ProductSchema>;
