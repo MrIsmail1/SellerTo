@@ -16,14 +16,14 @@ export const addToCart = async (req, res) => {
 
     if (cartItem) {
       cartItem.quantity += 1;
-      cartItem.reservedUntil = new Date(Date.now() + 15 * 60 * 1000); // Mise à jour du délai de réservation à 15 minutes
+      cartItem.reservedUntil = new Date(Date.now() + 15 * 1000);
       await cartItem.save();
     } else {
       cartItem = await Cart.create({
         productId,
         userId,
         quantity: 1,
-        reservedUntil: new Date(Date.now() + 15 * 60 * 1000), // Définir le délai de réservation à 15 minutes
+        reservedUntil: new Date(Date.now() + 15 * 1000),
       });
     }
 
@@ -39,6 +39,21 @@ export const addToCart = async (req, res) => {
     });
 
     res.status(201).json(detailedCartItem);
+
+    // Schedule the removal of the cart item
+    setTimeout(async () => {
+      const currentTime = new Date();
+      const item = await Cart.findOne({ where: { id: cartItem.id } });
+      if (item && item.reservedUntil < currentTime) {
+        const product = await Product.findByPk(item.productId);
+        if (product) {
+          product.product_stock++;
+          await product.save();
+        }
+        await Cart.destroy({ where: { id: item.id } });
+        console.log(`Removed cart item ID: ${item.id} after 15 seconds`);
+      }
+    }, 15 * 1000); // 15 seconds
   } catch (error) {
     console.error('Error adding to cart:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -52,9 +67,6 @@ export const removeFromCart = async (req, res) => {
 
   try {
     const cartItem = await Cart.findOne({ where: { id: cartItemId, userId }, include: [{ model: Product, as: 'Product' }] });
-    if (!cartItem) {
-      return res.status(404).json({ message: 'Cart item not found' });
-    }
 
     const product = await Product.findByPk(cartItem.productId);
     if (product) {
@@ -105,28 +117,5 @@ export const updateCartQuantity = async (req, res) => {
   } catch (error) {
     console.error('Error updating cart item quantity:', error);
     res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-export const cleanExpiredCarts = async () => {
-  try {
-    const expiredTime = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes pour les tests
-    const expiredItems = await Cart.findAll({
-      where: {
-        reservedUntil: { [Sequelize.Op.lt]: expiredTime }
-      },
-      include: [{ model: Product, as: 'Product' }]
-    });
-
-    for (const item of expiredItems) {
-      const product = await Product.findByPk(item.productId);
-      if (product) {
-        product.product_stock++;
-        await product.save();
-      }
-      await Cart.destroy({ where: { id: item.id } });
-    }
-  } catch (error) {
-    console.error('Error cleaning expired cart items:', error);
   }
 };

@@ -77,6 +77,36 @@ const routes = [
         component: () => import("@/views/front/product/SearchProductsView.vue"),
         props: true,
       },
+      {
+        path: '/legal-mentions',
+        name: 'legal-mentions',
+        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: 'legal-mentions' }
+      },
+      {
+        path: '/cookies',
+        name: 'cookies',
+        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: 'cookies' }
+      },
+      {
+        path: '/terms-of-use',
+        name: 'terms-of-use',
+        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: 'terms-of-use' }
+      },
+      {
+        path: '/terms-of-sales',
+        name: 'terms-of-sales',
+        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: 'terms-of-sales' }
+      },
+      {
+        path: '/data-protection',
+        name: 'data-protection',
+        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: 'data-protection' }
+      },
     ],
   },
   {
