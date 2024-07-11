@@ -1,4 +1,4 @@
-import type { get } from "node_modules/axios/index.cjs";
+import type { Product } from "@/z-schemas/ProductSchema";
 import { defineStore } from "pinia";
 import axios from "../plugins/axios";
 
@@ -9,6 +9,7 @@ export const useProductsStore = defineStore("products", {
     filteredProducts: [],
     loading: false,
     error: null,
+    imageUploadError: null,
     filters: {
       series: [],
       sizeSsd: [],
@@ -62,7 +63,76 @@ export const useProductsStore = defineStore("products", {
         this.loading = false;
       }
     },
+    async addProduct(product: Product) {
+      this.loading = true;
+      try {
+        const response = await axios.post(`/products`, product);
+        this.product = response.data;
+        this.error = null;
+      } catch (error) {
+        console.error("Failed to add product:", error);
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    async uploadImages(productId: string, files: File[]) {
+      this.loading = true;
+      try {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
 
+        const response = await axios.post(
+          `/products/${productId}/images`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        return response.data;
+      } catch (error) {
+        console.error("Failed to upload images:", error);
+        this.imageUploadError = error.response?.data?.message || error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    async addProductWithImages(product: Product, files: File[]) {
+      this.loading = true;
+      this.imageUploadError = null;
+      try {
+        // Create form data
+        const formData = new FormData();
+        formData.append("productData", JSON.stringify(product));
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+
+        // Create the product with images
+        const response = await axios.post("/upload/products/images", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        this.product = response.data.product;
+        this.product.images = response.data.files;
+        this.error = null;
+      } catch (error) {
+        console.error("Failed to add product with images:", error);
+        this.error = error.response?.data?.message || error.message;
+        if (error.response?.data?.message.includes("Only images are allowed")) {
+          this.imageUploadError = error.response.data.message;
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchFilteredProducts() {
       this.loading = true;
       try {

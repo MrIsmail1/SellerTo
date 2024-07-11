@@ -5,26 +5,15 @@ export const ProductSchema = z.object({
     .string()
     .min(1, { message: "Le titre du produit est requis" }),
   product_price: z
-    .number()
+    .number({ message: "Le prix du produit est requis" })
     .min(0.01, { message: "Le prix du produit doit être supérieur à zéro" }),
-  product_star_rating: z.number().min(1, {
-    message: "L'évaluation du produit doit être d'au moins 1 étoile",
-  }),
   product_url: z.string().optional(),
-  product_photo: z
-    .object({
-      fileName: z.string({ message: "Le nom du fichier est requis" }),
-      fileExtension: z.string({
-        message: "L'extension du fichier est requise",
-      }),
-      fileMimeType: z.string({ message: "Le type MIME du fichier est requis" }),
-    })
-    .refine((value) => value !== null, {
-      message: "La photo du produit est requise",
+  product_photo: z.array(z.number()).optional(),
+  product_minimum_offer_price: z
+    .number({ message: "Le prix minimum de l'offre et requis" })
+    .min(0.01, {
+      message: "Le prix minimum de l'offre doit être supérieur à zéro",
     }),
-  product_minimum_offer_price: z.number().min(0.01, {
-    message: "Le prix minimum de l'offre doit être supérieur à zéro",
-  }),
   product_category: z
     .string()
     .min(1, { message: "La catégorie du produit est requise" }),
@@ -33,7 +22,7 @@ export const ProductSchema = z.object({
     .string()
     .min(1, { message: "Les informations de livraison sont requises" }),
   product_stock: z
-    .number()
+    .number({ message: "Le stock du produit est requis" })
     .min(0, { message: "Le stock du produit doit être au moins de zéro" }),
 
   // Additional product specifications
