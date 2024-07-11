@@ -107,12 +107,12 @@ const routes = [
         component: () => import("@/views/back/product/AddProductView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-      /*       {
-        path: "orders",
-        name: "AdminOrders",
-        component: () => import("@/views/back/OrdersView.vue"),
+      {
+        path: "products/edit/:id",
+        name: "AdminEditProduct",
+        component: () => import("@/views/back/product/EditProductView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
-      }, */
+      },
     ],
   },
   {

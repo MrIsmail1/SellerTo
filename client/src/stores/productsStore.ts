@@ -76,6 +76,21 @@ export const useProductsStore = defineStore("products", {
         this.loading = false;
       }
     },
+    async deleteProductImage(productId: string, imageId: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.delete(
+          `/products/${productId}/images/${imageId}`
+        );
+        return response.data;
+      } catch (error) {
+        this.error = error.message;
+        console.error("Failed to delete image:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
     async uploadImages(productId: string, files: File[]) {
       this.loading = true;
       try {

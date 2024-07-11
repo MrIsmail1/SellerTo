@@ -98,3 +98,30 @@ export const addImagesToProduct = async (req, res) => {
     return res.status(500).json({ message: "Product retrieval failed", error });
   }
 };
+
+export const deleteProductImage = async (req, res) => {
+  const { productId, imageId } = req.params;
+
+  if (!productId || !imageId) {
+    return res
+      .status(400)
+      .json({ message: "Product and Image IDs are required" });
+  }
+
+  try {
+    const product = await Products.findByPk(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const image = await Images.findByPk(imageId);
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    await image.destroy();
+    return res.json({ message: "Image deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Image deletion failed", error });
+  }
+};

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Row } from "@tanstack/vue-table";
-import { Ellipsis } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +8,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Row } from "@tanstack/vue-table";
+import { Ellipsis } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 
 interface DataTableRowActionsProps<T> {
@@ -24,7 +24,6 @@ const router = useRouter();
 const navigateTo = (route: string) => {
   router.push(route);
 };
-console.log(props.row.original);
 </script>
 
 <template>

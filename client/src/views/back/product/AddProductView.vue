@@ -7,7 +7,6 @@ import Label from "@/components/ui/label/Label.vue";
 import { useProductsStore } from "@/stores/productsStore";
 import type { Product } from "@/z-schemas/ProductSchema";
 import { ProductSchema } from "@/z-schemas/ProductSchema";
-import { FileUp } from "lucide-vue-next";
 import { z } from "zod";
 
 import { Save } from "lucide-vue-next";
@@ -229,7 +228,7 @@ const save = async () => {
     if (productsStore.imageUploadError) {
       errors.value["product_photo"] = productsStore.imageUploadError;
     }
-    /* router.push({ name: "AdminProducts" }); */
+    router.push({ name: "AdminProducts" });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error("Validation errors:", error.errors);
@@ -438,7 +437,7 @@ const getLabel = (key: string) => {
       <Card class="w-1/2">
         <CardHeader class="p-2">
           <CardTitle class="text-text-100 font-medium text-md mb-4"
-            >Spécifications technique</CardTitle
+            >Spécifications techniques</CardTitle
           >
         </CardHeader>
         <CardContent>

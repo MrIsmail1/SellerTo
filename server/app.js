@@ -39,7 +39,9 @@ app.use(
 );
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("*", (req, res) => res.sendFile(path.join(__dirname, "uploads")));
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
