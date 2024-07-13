@@ -2,6 +2,8 @@ import Stripe from 'stripe';
 import Payment from '../models/postgres/paymentModel.js';
 import Cart from '../models/postgres/cartModel.js'; // Assurez-vous d'importer le bon modèle de panier
 import dotenv from 'dotenv';
+import { generateTrackingNumber } from '../utils/trackingGenerator.js';
+import Orders from "../models/postgres/orderModel.js";
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -35,8 +37,22 @@ const stripeWebhookHandler = async (req, res) => {
         productId: productId,
       });
 
+      const trackingNumber = generateTrackingNumber();
+
+      await Orders.create({
+        userId: session.client_reference_id,
+        productId: productId,
+        amount: session.amount_total / 100,
+        status: 'Paiement validé, colis pris en charge par La Poste',
+        paymentIntentId: session.payment_intent,
+        trackingCode: trackingNumber,
+      });
+
       await Cart.destroy({ where: { userId: session.client_reference_id } });
-      
+
+      // Vider le panier de l'utilisateur après le paiement
+      await Cart.deleteMany({ userId: session.client_reference_id.toString() });
+
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);

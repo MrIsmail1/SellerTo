@@ -14,6 +14,20 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+export const getUserById = async (userId) => {
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ['firstname', 'lastname', 'address', 'email']
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    throw new Error('Error fetching user details');
+  }
+};
+
 export const deleteUserAccount = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);

@@ -8,6 +8,7 @@ import productRouter from "./routes/productRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import paymentRouter from "./routes/paymentRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
 import connectedDataBase from "./models/db.js";
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -36,6 +37,7 @@ app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
+app.use("/api/orders", orderRouter);
 
 connectedDataBase();
 

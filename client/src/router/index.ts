@@ -78,6 +78,12 @@ const routes = [
         props: true,
       },
       {
+        path: "orders",
+        name: "Order",
+        component: () => import("@/views/front/order/OrdersView.vue"),
+        props: true,
+      },
+      {
         path: '/legal-mentions',
         name: 'legal-mentions',
         component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
