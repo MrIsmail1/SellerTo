@@ -150,6 +150,10 @@ const closeSheet = (closeFn) => {
               <RouterLink to="/account">Mon compte</RouterLink>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <RouterLink to="/orders">Mes commandes</RouterLink>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleLogout">
               Déconnexion
             </DropdownMenuItem>
