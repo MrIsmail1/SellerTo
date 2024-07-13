@@ -17,28 +17,54 @@ export const getUserOrders = async (req, res) => {
     try {
         const orders = await Orders.findAll({
             where: {
-                userId: userId
-            }
+                userId: userId,
+            },
         });
 
-        const detailedOrders = await Promise.all(orders.map(async (order) => {
-            const productDetails = await getProductDetails(order.productId);
-            const userDetails = await getUserDetails(order.userId);
+        const detailedOrders = await Promise.all(
+            orders.map(async (order) => {
+                const productDetails = await getProductDetails(order.productId);
+                const userDetails = await getUserDetails(order.userId);
 
-            return {
-                ...order.toJSON(),
-                product: productDetails,
-                user: userDetails
-            };
-
-        }));
+                return {
+                    ...order.toJSON(),
+                    product: productDetails,
+                    user: userDetails,
+                };
+            })
+        );
 
         res.status(200).json(detailedOrders);
     } catch (error) {
-        console.error('Error fetching user orders:', error);
-        res.status(500).json({ message: 'An error occurred while fetching orders.', error: error.message });
+        res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
     }
 };
+
+export const getOrderById = async (req, res) => {
+    const orderId = req.params.id;
+
+    try {
+        const order = await Orders.findByPk(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const productDetails = await getProductDetails(order.productId);
+        const userDetails = await getUserDetails(order.userId);
+
+        const detailedOrder = {
+            ...order.toJSON(),
+            product: productDetails,
+            user: userDetails,
+        };
+
+        res.status(200).json(detailedOrder);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch order', error: error.message });
+    }
+};
+
 
 export async function sendDeliveryConfirmationEmail(userEmail, trackingNumber, userName, userAddress, orderDate, products) {
     let transporter = nodemailer.createTransport({
@@ -88,4 +114,3 @@ export async function sendDeliveryConfirmationEmail(userEmail, trackingNumber, u
     `,
     });
 }
-

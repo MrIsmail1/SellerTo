@@ -17,7 +17,7 @@ export const getUserProfile = async (req, res) => {
 export const getUserById = async (userId) => {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['firstname', 'lastname', 'address', 'email']
+      attributes: ['firstname', 'lastname', 'address', 'email', 'city', 'postalCode', 'country']
     });
     if (!user) {
       throw new Error('User not found');
