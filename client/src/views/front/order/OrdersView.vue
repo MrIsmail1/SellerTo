@@ -44,19 +44,19 @@ const formatDate = (dateString: string) => {
     <h1 class="font-bold text-5xl my-4 mb-6">Mes Commandes</h1>
     <div v-if="loading" class="text-center">Loading...</div>
     <div v-if="error" class="text-center text-primary-100">{{ error }}</div>
-    <ul v-if="!loading && !error" class="space-y-4">
-      <li v-for="order in orders" :key="order.id" class="bg-gray-100 p-4 rounded-md">
-        <div class="bg-gray-200 p-4 rounded-md mb-4">
+    <ul v-if="!loading && !error" class="space-y-8 mt-6 pb-6">
+      <li v-for="order in orders" :key="order.id" class="bg-gray-100 p-4 rounded-md last:mb-8">
+        <div class="bg-gray-200 p-4 rounded-md mb-2">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-base">Commande effectuée le <strong>{{ formatDate(order.createdAt) }}</strong></p>
-              <p class="text-base">Livraison à: <strong>{{ order.user.firstname }} {{ order.user.lastname }}</strong></p>
+              <p class="text-base">Livraison à : <strong>{{ order.user.firstname }} {{ order.user.lastname }}</strong></p>
             </div>
             <div class="flex-grow text-center">
-              <p class="text-base">Total: <strong>{{ order.amount }} €</strong></p>
+              <p class="text-base">Total : <strong>{{ order.amount }} €</strong></p>
             </div>
             <div class="text-right">
-              <p class="text-base">N° de commande: <strong>{{ order.trackingCode }}</strong></p>
+              <p class="text-base">N° de commande : <strong>{{ order.trackingCode }}</strong></p>
               <a href="#" class="text-base">Afficher les détails de la commande</a> |
               <a href="#" class="text-base">Demande de facturation</a>
             </div>
