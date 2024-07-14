@@ -28,6 +28,10 @@ const viewProduct = (productId: number) => {
   router.push(`/product/${productId}`);
 };
 
+const viewOrder = (orderId: number) => {
+  router.push(`/order/${orderId}`);
+};
+
 // Function to format date
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -57,7 +61,7 @@ const formatDate = (dateString: string) => {
             </div>
             <div class="text-right">
               <p class="text-base">N° de commande : <strong>{{ order.trackingCode }}</strong></p>
-              <a href="#" class="text-base">Afficher les détails de la commande</a> |
+              <a href="#" class="text-base" @click.prevent="viewOrder(order.id)">Afficher les détails de la commande</a> |
               <a href="#" class="text-base">Demande de facturation</a>
             </div>
           </div>
@@ -77,7 +81,6 @@ const formatDate = (dateString: string) => {
     </ul>
   </div>
 </template>
-
 
 <style scoped>
 .container {
