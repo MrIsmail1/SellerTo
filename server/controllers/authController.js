@@ -180,7 +180,7 @@ async function sendConfirmationEmail(user) {
     },
   });
 
-  let confirmationUrl = `${process.env.APP_BASE_URL_SERVER}/auth/confirm/${user.confirmationToken}`;
+  let confirmationUrl = `${process.env.APP_BASE_URL_SERVER}/api/auth/confirm/${user.confirmationToken}`;
 
   let info = await transporter.sendMail({
     from: '"SellerTo" <no-reply@sellerto.com>',
