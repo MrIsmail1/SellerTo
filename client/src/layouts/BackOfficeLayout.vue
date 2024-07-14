@@ -4,10 +4,12 @@ import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <div class="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+  <div
+    class="grid min-h-screen w-full lg:grid-cols-[280px_1fr] overflow-x-hidden"
+  >
     <SidebarComponent />
-    <div class="p-7">
-      <main class="max-w-full">
+    <div class="p-7 overflow-x-hidden">
+      <main class="max-w-full overflow-x-hidden">
         <RouterView />
       </main>
     </div>

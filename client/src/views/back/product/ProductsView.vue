@@ -1,29 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import Button from "@/components/ui/button/Button.vue";
-import AddProductModal from "@/components/modal/AddProductModal.vue";
-import { Plus } from "lucide-vue-next";
-import { useProductsStore } from "@/stores/productsStore";
 import DataTable from "@/components/common/DataTableComponent.vue";
 import { columns } from "@/components/datatable-columns/Product";
+import Button from "@/components/ui/button/Button.vue";
+import { useProductsStore } from "@/stores/productsStore";
 import type { Product } from "@/z-schemas/ProductSchema";
+import { Plus } from "lucide-vue-next";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const showModal = ref(false);
 const data = ref<Product>([]);
 const productsStore = useProductsStore();
-
-const openModal = () => {
-  showModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const saveProduct = (product) => {
-  productsStore.addProduct(product);
-  closeModal();
-};
+const router = useRouter();
 
 onMounted(async () => {
   await productsStore.fetchProducts();
@@ -39,7 +26,7 @@ onMounted(async () => {
     </span>
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="openModal"
+      @click="router.push({ name: 'AdminAddProduct' })"
     >
       <Plus class="icon w-6 h-6 mr-2 text-primary-200" />
       Produit
@@ -48,7 +35,6 @@ onMounted(async () => {
   <div class="flex flex-col mt-6">
     <DataTable :columns="columns" :data="data" filterColumn="product_title" />
   </div>
-  <AddProductModal v-if="showModal" @close="closeModal" @save="saveProduct" />
 </template>
 
 <style scoped>

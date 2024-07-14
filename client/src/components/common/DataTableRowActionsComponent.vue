@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Row } from "@tanstack/vue-table";
-import { Ellipsis } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +8,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Row } from "@tanstack/vue-table";
+import { Ellipsis } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 
 interface DataTableRowActionsProps<T> {
@@ -39,16 +39,16 @@ const navigateTo = (route: string) => {
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
       <DropdownMenuItem
-        @click="navigateTo(props.viewRoute + '/' + props.row.id)"
+        @click="navigateTo(props.viewRoute + '/' + props.row.original._id)"
         >Visualiser</DropdownMenuItem
       >
       <DropdownMenuItem
-        @click="navigateTo(props.editRoute + '/' + props.row.id)"
+        @click="navigateTo(props.editRoute + '/' + props.row.original._id)"
         >Modifier</DropdownMenuItem
       >
       <DropdownMenuSeparator />
       <DropdownMenuItem
-        @click="navigateTo(props.deleteRoute + '/' + props.row.id)"
+        @click="navigateTo(props.deleteRoute + '/' + props.row.original._id)"
       >
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>

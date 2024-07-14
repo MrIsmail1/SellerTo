@@ -1,17 +1,17 @@
 <script setup lang='ts'>
-import { useRoute } from 'vue-router';
-import { onMounted, ref, computed } from 'vue';
-import { useProductsStore } from '@/stores/productsStore';
-import { useCartStore } from '@/stores/cartStore';
-import BreadCrumbComponent from '@/components/common/BreadCrumbComponent.vue';
-import Button from '@/components/ui/button/Button.vue';
 import CardSellComponent from '@/components/CardSellComponent.vue';
+import BreadCrumbComponent from '@/components/common/BreadCrumbComponent.vue';
 import Hr from '@/components/common/HrComponent.vue';
-import { watchOnce } from '@vueuse/core';
-import { Carousel, type CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import Button from '@/components/ui/button/Button.vue';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { ShieldCheck, Box, Truck, Headset, CreditCard } from 'lucide-vue-next';
+import { useCartStore } from '@/stores/cartStore';
+import { useProductsStore } from '@/stores/productsStore';
+import { watchOnce } from '@vueuse/core';
+import { Box, CreditCard, Headset, ShieldCheck, Truck } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 const emblaMainApi = ref<CarouselApi>();
 const emblaThumbnailApi = ref<CarouselApi>();
