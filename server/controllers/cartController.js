@@ -1,4 +1,3 @@
-import Sequelize from 'sequelize';
 import Cart from '../models/postgres/cartModel.js';
 import Product from '../models/postgres/productModel.js';
 
