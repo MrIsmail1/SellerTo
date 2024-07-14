@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Payments', {
+    await queryInterface.createTable('Trackings', {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -16,45 +16,32 @@ module.exports = {
           key: 'id',
         },
       },
-      productId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Products',
-          key: 'id',
-        },
-      },
-      amount: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
       paymentIntentId: {
         type: Sequelize.STRING,
-        allowNull: true,
-        unique: true,
+        allowNull: false,
+        references: {
+          model: 'Payments',
+          key: 'paymentIntentId',
+        },
       },
-      refundId: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      status: {
+      trackingCode: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now'),
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now'),
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Payments');
+    await queryInterface.dropTable('Trackings');
   }
 };

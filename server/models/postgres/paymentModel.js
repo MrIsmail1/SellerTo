@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/database.js';
+import User from './userModel.js';
+import Product from './productModel.js';
 
 const Payment = sequelize.define('Payment', {
   id: {
@@ -11,15 +13,7 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
-      key: 'id',
-    },
-  },
-  productId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Products',
+      model: User,
       key: 'id',
     },
   },
@@ -44,4 +38,37 @@ const Payment = sequelize.define('Payment', {
   timestamps: true,
 });
 
-export default Payment;
+const PaymentProduct = sequelize.define('PaymentProduct', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  paymentId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Payment,
+      key: 'id',
+    },
+  },
+  productId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Product,
+      key: 'id',
+    },
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, {
+  timestamps: true,
+});
+
+Payment.hasMany(PaymentProduct, { foreignKey: 'paymentId' });
+PaymentProduct.belongsTo(Payment, { foreignKey: 'paymentId' });
+
+export { Payment, PaymentProduct };
