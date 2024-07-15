@@ -56,10 +56,10 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
-        path: '/account/delete',
-        name: 'Delete',
-        component: () => import('@/views/front/user/DeleteView.vue'),
-        meta: {requiresAuth: true}
+        path: "/account/delete",
+        name: "Delete",
+        component: () => import("@/views/front/user/DeleteView.vue"),
+        meta: { requiresAuth: true },
       },
       {
         path: "success",
@@ -75,6 +75,18 @@ const routes = [
         path: "search",
         name: "Search",
         component: () => import("@/views/front/product/SearchProductsView.vue"),
+        props: true,
+      },
+      {
+        path: "orders",
+        name: "Orders",
+        component: () => import("@/views/front/order/OrdersView.vue"),
+        props: true,
+      },
+      {
+        path: "order/:id",
+        name: "Order",
+        component: () => import("@/views/front/order/OrderView.vue"),
         props: true,
       },
       {
@@ -122,15 +134,27 @@ const routes = [
       {
         path: "products",
         name: "AdminProducts",
-        component: () => import("@/views/back/ProductsView.vue"),
+        component: () => import("@/views/back/product/ProductsView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-      /*       {
-        path: "orders",
-        name: "AdminOrders",
-        component: () => import("@/views/back/OrdersView.vue"),
+      {
+        path: "products/view/:id",
+        name: "AdminViewProduct",
+        component: () => import("@/views/back/product/SingleProductView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
-      }, */
+      },
+      {
+        path: "products/new",
+        name: "AdminAddProduct",
+        component: () => import("@/views/back/product/AddProductView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "products/edit/:id",
+        name: "AdminEditProduct",
+        component: () => import("@/views/back/product/EditProductView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
     ],
   },
   {

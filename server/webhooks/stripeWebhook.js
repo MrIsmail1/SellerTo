@@ -1,8 +1,13 @@
 import Stripe from 'stripe';
 import { Payment, PaymentProduct } from '../models/postgres/paymentModel.js';
-import Cart from '../models/postgres/cartModel.js'; // Assurez-vous d'importer le bon modèle de panier
+import Cart from '../models/postgres/cartModel.js';
 import Product from '../models/postgres/productModel.js';
 import dotenv from 'dotenv';
+import { generateTrackingNumber } from '../utils/trackingGenerator.js';
+import Orders from "../models/postgres/orderModel.js";
+import User from '../models/postgres/userModel.js';
+import { sendDeliveryConfirmationEmail } from '../controllers/orderController.js';
+
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -44,6 +49,17 @@ const stripeWebhookHandler = async (req, res) => {
           status: 'succeeded',
         });
 
+      const trackingNumber = generateTrackingNumber();
+
+      const order = await Orders.create({
+        userId: session.client_reference_id,
+        productId: productId,
+        amount: session.amount_total / 100,
+        status: 'Paiement validé, colis pris en charge par La Poste',
+        paymentIntentId: session.payment_intent,
+        trackingCode: trackingNumber,
+      });
+
         // Create PaymentProduct records for each product
         for (const item of products) {
           await PaymentProduct.create({
@@ -57,6 +73,33 @@ const stripeWebhookHandler = async (req, res) => {
         await Cart.destroy({ where: { userId: session.client_reference_id } });
       } else {
         console.log('No items in cart for the user.');
+      }
+
+      await Cart.destroy({ where: { userId: session.client_reference_id } });
+
+      const user = await User.findByPk(session.client_reference_id);
+      const product = await Product.findByPk(productId);
+
+      if (user && product) {
+        const products = [{
+          photo: product.product_photo,
+          title: product.product_title,
+          vendor: 'SellerTo',
+          quantity: 1,
+          price: session.amount_total / 100,
+        }];
+        const userName = `${user.firstname} ${user.lastname}`;
+        const userAddress = `${user.address}, ${user.city}, ${user.country}`;
+
+        const orderDate = new Date(order.createdAt);
+        orderDate.setDate(orderDate.getDate() + 4);
+        const formattedOrderDate = orderDate.toLocaleDateString('fr-FR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+
+        await sendDeliveryConfirmationEmail(user.email, trackingNumber, userName, userAddress, formattedOrderDate, products);
       }
 
       break;

@@ -59,7 +59,7 @@ const secondaryMenuItems = [
 </script>
 
 <template>
-  <div class="border-r bg-bg-200 lg:block">
+  <div class="border-r bg-bg-200 lg:block sticky">
     <div class="flex h-full max-h-screen flex-col gap-2">
       <div class="flex h-[60px] items-center border-b px-6">
         <RouterLink

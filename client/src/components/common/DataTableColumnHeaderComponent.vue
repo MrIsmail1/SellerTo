@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import type { Column } from "@tanstack/vue-table";
-import { ArrowDownZA, ArrowUpAZ, ArrowDownUp } from "lucide-vue-next";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import type { Column } from "@tanstack/vue-table";
+import { ArrowDownUp, ArrowDownZA, ArrowUpAZ } from "lucide-vue-next";
 import { ref } from "vue";
 
 interface DataTableColumnHeaderProps {
   column: Column<any>;
   title: string;
+  searchable?: boolean;
 }
 
 const props = defineProps<DataTableColumnHeaderProps>();
@@ -67,11 +68,12 @@ const handleInput = (event: Event) => {
       </DropdownMenu>
     </div>
     <Input
+      v-if="props.searchable"
       type="text"
       v-model="filterValue"
       @input="handleInput"
       placeholder="Search..."
-      class="h-8 px-2 border border-gray-300 rounded-md w-52"
+      class="h-8 px-2 border border-gray-300 rounded-md w-52 mt-2"
     />
   </div>
 </template>

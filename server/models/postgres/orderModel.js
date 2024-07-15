@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import {DataTypes} from 'sequelize';
 import sequelize from '../../config/database.js';
 
 const Orders = sequelize.define('Orders', {
@@ -23,6 +23,17 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
+
+    amount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+
+    status: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
     paymentIntentId: {
         type: DataTypes.STRING,
         allowNull: false,
