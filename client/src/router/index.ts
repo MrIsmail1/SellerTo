@@ -160,7 +160,12 @@ const routes = [
         component: () => import("@/views/back/product/EditProductView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-
+      {
+        path: "products/delete/:id",
+        name: "AdminDeleteProduct",
+        component: () => import("@/views/back/product/DeleteProduct.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
       {
         path: "users",
         name: "AdminUsers",
@@ -207,7 +212,10 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     if (!authStore.user) {
       next({ name: "Login" });
-    } else if (to.meta.requiresAdmin && authStore.user.role !== "admin") {
+    } else if (
+      to.meta.requiresAdmin &&
+      !["admin", "SuperAdmin"].includes(authStore.user.role)
+    ) {
       next({ name: "Homepage" });
     } else {
       next();
@@ -216,7 +224,7 @@ router.beforeEach(async (to, from, next) => {
     if (
       to.name === "AdminLogin" &&
       authStore.user &&
-      authStore.user.role === "admin"
+      ["admin", "SuperAdmin"].includes(authStore.user.role)
     ) {
       next({ name: "AdminDashboard" });
     } else {

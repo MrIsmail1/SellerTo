@@ -4,6 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUsersStore } from "@/stores/userStore";
 import { UserSchema } from "@/z-schemas/UserSchema";
 import { Save } from "lucide-vue-next";
@@ -14,12 +23,13 @@ import { z } from "zod";
 const router = useRouter();
 const usersStore = useUsersStore();
 
-type FieldType = "string" | "number" | "boolean";
+type FieldType = "string" | "number" | "boolean" | "select";
 
 interface UserField {
   value: string | number | boolean;
   type: FieldType;
   placeholder: string;
+  options?: string[];
 }
 
 const userInfo = ref<Record<string, UserField>>({
@@ -45,8 +55,9 @@ const userInfo = ref<Record<string, UserField>>({
   },
   role: {
     value: "users",
-    type: "string",
-    placeholder: "Saisir le rôle (users/admin)...",
+    type: "select",
+    placeholder: "Choisir le rôle",
+    options: ["SuperAdmin", "Admin", "Users"],
   },
   isVerified: {
     value: false,
@@ -99,6 +110,7 @@ const getLabel = (key: string) => {
   }
 };
 </script>
+
 <template>
   <div class="flex justify-between w-full">
     <span class="flex flex-col">
@@ -145,11 +157,29 @@ const getLabel = (key: string) => {
                 :placeholder="field.placeholder"
                 type="number"
               />
-              <Checkbox
-                v-if="field.type === 'boolean'"
-                :id="key.toString()"
-                v-model="field.value"
-              />
+              <Select v-if="field.type === 'select'" v-model="field.value">
+                <SelectTrigger>
+                  <SelectValue :placeholder="field.placeholder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Rôle</SelectLabel>
+                    <SelectItem
+                      v-for="option in field.options"
+                      :key="option"
+                      :value="option"
+                    >
+                      {{ option }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <div v-if="field.type === 'boolean'" class="flex items-center">
+                <Checkbox :id="key.toString()" v-model="field.value" />
+                <Label :for="key.toString()" class="ml-2">{{
+                  getLabel(key.toString())
+                }}</Label>
+              </div>
               <span v-if="errors[key]" class="text-red-500 text-sm">
                 {{ errors[key] }}
               </span>
@@ -160,6 +190,12 @@ const getLabel = (key: string) => {
     </div>
   </form>
 </template>
+
+<style scoped>
+.button:hover .icon {
+  color: white;
+}
+</style>
 
 <style scoped>
 .button:hover .icon {

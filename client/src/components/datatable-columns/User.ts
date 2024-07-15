@@ -27,7 +27,10 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "role",
     header: ({ column }) =>
       h(DataTableColumnHeader, { column: column, title: "Rôle" }),
-    cell: ({ row }) => row.original.role,
+    cell: ({ row }) => {
+      console.log(row.original);
+      return row.original.role;
+    },
   },
   {
     id: "actions",

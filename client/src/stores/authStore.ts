@@ -1,31 +1,31 @@
-import { defineStore } from 'pinia';
-import axios from '../plugins/axios';
-import { useRouter } from 'vue-router';
+import { defineStore } from "pinia";
+import { useRouter } from "vue-router";
+import axios from "../plugins/axios";
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    firstname: '',
-    lastname: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
-    postalCode: '',
-    city: '',
-    country: '',
-    password: '',
-    errorMessage: '',
-    successMessage: '',
-    user: null
+    firstname: "",
+    lastname: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    postalCode: "",
+    city: "",
+    country: "",
+    password: "",
+    errorMessage: "",
+    successMessage: "",
+    user: null,
   }),
   actions: {
     async register() {
       const router = useRouter();
       try {
-        const response = await axios.post('/auth/register', {
+        const response = await axios.post("/auth/register", {
           firstname: this.firstname,
           lastname: this.lastname,
           email: this.email,
-          password: this.password
+          password: this.password,
         });
         this.successMessage = response.data.message;
         this.reset();
@@ -35,19 +35,19 @@ export const useAuthStore = defineStore('auth', {
     },
     async login() {
       try {
-        const response = await axios.post('/auth/login', {
+        const response = await axios.post("/auth/login", {
           email: this.email,
-          password: this.password
+          password: this.password,
         });
         this.user = response.data.user;
-        this.errorMessage = '';
+        this.errorMessage = "";
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
     },
     async fetchUser() {
       try {
-        const response = await axios.get('/users');
+        const response = await axios.get("/users/profile");
         this.user = response.data;
       } catch (error) {
         this.user = null;
@@ -55,10 +55,10 @@ export const useAuthStore = defineStore('auth', {
     },
     async forgotPassword() {
       try {
-        await axios.post('/auth/forgotpassword', {
+        await axios.post("/auth/forgotpassword", {
           email: this.email,
         });
-        this.successMessage = 'Password reset successful';
+        this.successMessage = "Password reset successful";
         this.reset();
       } catch (error) {
         this.errorMessage = error.response.data.message;
@@ -68,17 +68,17 @@ export const useAuthStore = defineStore('auth', {
       const router = useRouter();
       try {
         await axios.put(`/auth/resetpassword/${token}`, {
-          password: this.password
+          password: this.password,
         });
         this.reset();
-        router.push('/login');
+        router.push("/login");
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
     },
     async changePassword(oldPassword, newPassword) {
       try {
-        const response = await axios.post('/auth/changePassword', {
+        const response = await axios.post("/auth/changePassword", {
           id: this.user.id, // Assuming the user ID is stored in the user object
           oldPassword: oldPassword,
           newPassword: newPassword,
@@ -90,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async deleteAccount() {
       try {
-        const response = await axios.delete('/users/delete');
+        const response = await axios.delete("/users/delete");
         this.successMessage = response.data.message;
         this.reset();
       } catch (error) {
@@ -99,16 +99,16 @@ export const useAuthStore = defineStore('auth', {
     },
     async updateUser(updatedUser) {
       try {
-        const response = await axios.put('/users/update', updatedUser);
+        const response = await axios.put("/users/update", updatedUser);
         this.user = response.data;
-        this.successMessage = 'User updated successfully';
+        this.successMessage = "User updated successfully";
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
     },
     async logout() {
       try {
-        await axios.get('/auth/logout');
+        await axios.get("/auth/logout");
         this.reset();
       } catch (error) {
         this.errorMessage = error.response.data.message;
@@ -116,23 +116,23 @@ export const useAuthStore = defineStore('auth', {
     },
     async checkAuth() {
       try {
-        const response = await axios.get('/users');
+        const response = await axios.get("/users");
         this.user = response.data;
       } catch (error) {
         this.user = null;
       }
     },
     clearMessages() {
-      this.errorMessage = '';
-      this.successMessage = '';
+      this.errorMessage = "";
+      this.successMessage = "";
     },
     reset() {
-      this.firstname = '';
-      this.lastname = '';
-      this.email = '';
-      this.password = '';
-      this.errorMessage = '';
+      this.firstname = "";
+      this.lastname = "";
+      this.email = "";
+      this.password = "";
+      this.errorMessage = "";
       this.user = null;
-    }
-  }
+    },
+  },
 });
