@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { RouterLink, useRoute, useRouter } from "vue-router";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/stores/authStore";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
-  LayoutDashboard,
-  FileText,
-  ShoppingCart,
-  CreditCard,
-  Users,
-  Settings,
-  LogOut,
   CircleUserRound,
+  CreditCard,
   Ellipsis,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  ShoppingCart,
+  Users,
 } from "lucide-vue-next";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -44,7 +44,7 @@ const primaryMenuItems = [
     icon: CreditCard,
     text: "Facturation",
   },
-  { route: { name: "" }, icon: Users, text: "Clients" },
+  { route: { name: "AdminUsers" }, icon: Users, text: "Utilisateurs" },
 ];
 
 const secondaryMenuItems = [

@@ -90,34 +90,39 @@ const routes = [
         props: true,
       },
       {
-        path: '/legal-mentions',
-        name: 'legal-mentions',
-        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
-        meta: { contentType: 'legal-mentions' }
+        path: "/legal-mentions",
+        name: "legal-mentions",
+        component: () =>
+          import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: "legal-mentions" },
       },
       {
-        path: '/cookies',
-        name: 'cookies',
-        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
-        meta: { contentType: 'cookies' }
+        path: "/cookies",
+        name: "cookies",
+        component: () =>
+          import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: "cookies" },
       },
       {
-        path: '/terms-of-use',
-        name: 'terms-of-use',
-        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
-        meta: { contentType: 'terms-of-use' }
+        path: "/terms-of-use",
+        name: "terms-of-use",
+        component: () =>
+          import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: "terms-of-use" },
       },
       {
-        path: '/terms-of-sales',
-        name: 'terms-of-sales',
-        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
-        meta: { contentType: 'terms-of-sales' }
+        path: "/terms-of-sales",
+        name: "terms-of-sales",
+        component: () =>
+          import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: "terms-of-sales" },
       },
       {
-        path: '/data-protection',
-        name: 'data-protection',
-        component: () => import("@/views/front/legalcontent/LegalContentView.vue"),
-        meta: { contentType: 'data-protection' }
+        path: "/data-protection",
+        name: "data-protection",
+        component: () =>
+          import("@/views/front/legalcontent/LegalContentView.vue"),
+        meta: { contentType: "data-protection" },
       },
     ],
   },
@@ -153,6 +158,31 @@ const routes = [
         path: "products/edit/:id",
         name: "AdminEditProduct",
         component: () => import("@/views/back/product/EditProductView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+
+      {
+        path: "users",
+        name: "AdminUsers",
+        component: () => import("@/views/back/user/UsersView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "users/view/:id",
+        name: "AdminViewUser",
+        component: () => import("@/views/back/user/SingleUserView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "users/new",
+        name: "AdminAddUser",
+        component: () => import("@/views/back/user/AddUserView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "users/edit/:id",
+        name: "AdminEditUsers",
+        component: () => import("@/views/back/user/EditUserView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
     ],
