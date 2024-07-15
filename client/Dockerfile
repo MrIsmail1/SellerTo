@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN npm run dev
 
 EXPOSE 5173

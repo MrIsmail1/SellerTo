@@ -15,7 +15,7 @@ export const createPaymentSession = async (req, res) => {
           product_data: {
             name: item.name,
           },
-          unit_amount: item.amount,
+          unit_amount: item.amount,  // Ensure this value is in cents
         },
         quantity: item.quantity,
       })),
@@ -24,13 +24,13 @@ export const createPaymentSession = async (req, res) => {
       cancel_url: `${process.env.APP_BASE_URL_CLIENT}/cancel`,
       client_reference_id: userId,
       metadata: {
-        productId: items[0].productId // Inclure le productId dans les métadonnées
+        products: JSON.stringify(items.map(item => ({ productId: item.productId, amount: item.amount, quantity: item.quantity }))),
       }
     });
-    res.status(200).json({sessionId: session.id});
+    res.status(200).json({ sessionId: session.id });
   } catch (error) {
     console.error('Error creating checkout session:', error);
-    res.status(500);
+    res.status(500).json({ message: 'Error creating checkout session' });
   }
 };
 
@@ -46,7 +46,7 @@ export const createUniquePaymentLink = async (req, res) => {
           product_data: {
             name: item.name,
           },
-          unit_amount: item.amount,
+          unit_amount: item.amount,  // Ensure this value is in cents
         },
         quantity: item.quantity,
       })),
@@ -55,16 +55,15 @@ export const createUniquePaymentLink = async (req, res) => {
       cancel_url: `${process.env.APP_BASE_URL_CLIENT}/cancel`,
       client_reference_id: userId,
       metadata: {
-        productId: items[0].productId // Inclure le productId dans les métadonnées
+        products: JSON.stringify(items.map(item => ({ productId: item.productId, amount: item.amount, quantity: item.quantity }))),
       }
     });
-    res.status(200).json({paymentUrl: session.url});
+    res.status(200).json({ paymentUrl: session.url });
   } catch (error) {
     console.error('Error creating unique payment link:', error);
-    res.status(500);
+    res.status(500).json({ message: 'Error creating unique payment link' });
   }
 };
-
 
 
 export const createRefund = async (req, res) => {

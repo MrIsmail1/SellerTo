@@ -1,13 +1,8 @@
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import logger from "morgan";
-import cron from "node-cron";
 import path from "path";
-import { cleanExpiredCarts } from "./controllers/cartController.js";
-import connectedDataBase from "./models/db.js";
 import authRouter from "./routes/authRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import imagesRoutes from "./routes/imagesRoutes.js";
@@ -52,12 +47,6 @@ app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/upload", imagesRoutes);
 app.use("/api/orders", orderRouter);
-
-// Planifier la tâche de nettoyage toutes les 15 secondes pour le panier
-cron.schedule("*/15 * * * * *", async () => {
-  await cleanExpiredCarts();
-  console.log("Cleaned expired cart items");
-});
 
 connectedDataBase();
 

@@ -2,12 +2,19 @@ import User from '../models/postgres/userModel.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import {Op} from 'sequelize';
+import { Op } from 'sequelize';
+import bcrypt from 'bcryptjs';
+import { validationResult } from 'express-validator';
 
 export const register = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
 
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     let user = await User.findOne({ where: { email } });
 
     if (user && !user.isVerified) {
@@ -15,10 +22,11 @@ export const register = async (req, res) => {
         await user.destroy();
         user = null;
       } else {
-        return res.status(400);
+        return res.status(400).json({ message: 'Utilisateur déjà existant ' });
       }
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const confirmationToken = crypto.randomBytes(20).toString('hex');
     const confirmationTokenExpires = Date.now() + 3600000; // 1 heure
 
@@ -26,7 +34,7 @@ export const register = async (req, res) => {
       firstname,
       lastname,
       email,
-      password,
+      password: hashedPassword,
       confirmationToken,
       confirmationTokenExpires,
       isVerified: false,
@@ -36,6 +44,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.' });
   } catch (error) {
+    console.error('Error in register:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -44,6 +53,11 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
@@ -84,6 +98,7 @@ export const login = async (req, res) => {
       res.status(401).json({ message: 'Email ou mot de passe incorrect. Votre compte sera bloqué après 3 tentatives.' });
     }
   } catch (error) {
+    console.error('Error in login:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -92,6 +107,11 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
@@ -112,7 +132,7 @@ export const forgotPassword = async (req, res) => {
 
     res.status(200).json({ message: 'Email envoyé avec le lien de réinitialisation du mot de passe' });
   } catch (error) {
-    console.log(error);
+    console.error('Error in forgotPassword:', error);
     res.status(500).json({ message: 'Erreur lors de l\'envoi de l\'email' });
   }
 };
@@ -120,6 +140,11 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = await User.findOne({
       where: {
         resetPasswordToken,
@@ -131,14 +156,15 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Token invalide ou expiré' });
     }
 
-    user.password = req.body.password;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
     res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
   } catch (error) {
-    console.log(error);
+    console.error('Error in resetPassword:', error);
     res.status(500).json({ message: 'Erreur lors de la réinitialisation du mot de passe' });
   }
 };
@@ -155,17 +181,28 @@ const generateToken = (id) => {
 export const changePassword = async (req, res) => {
   const { id, oldPassword, newPassword } = req.body;
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
 
     if (!await user.matchPassword(oldPassword)) {
       return res.status(401).json({ message: 'Votre ancien mot de passe est incorrect' });
     }
 
-    user.password = newPassword;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
     res.clearCookie('JWT');
     res.status(200).json({ message: 'Mot de passe changé avec succès' });
   } catch (error) {
+    console.error('Error in changePassword:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -182,7 +219,7 @@ async function sendConfirmationEmail(user) {
 
   let confirmationUrl = `${process.env.APP_BASE_URL_SERVER}/api/auth/confirm/${user.confirmationToken}`;
 
-  let info = await transporter.sendMail({
+  await transporter.sendMail({
     from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
     subject: 'Veuillez confirmer votre compte',
@@ -212,6 +249,7 @@ export const confirmEmail = async (req, res) => {
 
     res.status(200).json({ message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
   } catch (error) {
+    console.error('Error in confirmEmail:', error);
     res.status(500).json({ message: 'Erreur lors de la confirmation de l\'email' });
   }
 };
@@ -226,14 +264,14 @@ async function sendPasswordResetEmail(user, resetUrl) {
     },
   });
 
-  let info = await transporter.sendMail({
+  await transporter.sendMail({
     from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
     subject: 'Réinitialisez votre mot de passe',
     html: `Veuillez cliquer sur ce lien pour réinitialiser votre mot de passe : <a href="${resetUrl}">Réinitialiser le mot de passe</a>`,
   });
 
-  console.log(`Email de réinitialisation du mot de passe envoyé à : ${user.email}`, info.messageId);
+  console.log(`Email de réinitialisation du mot de passe envoyé à : ${user.email}`);
 }
 
 // Mail pour bloquer le compte
@@ -246,12 +284,12 @@ async function sendLockoutEmail(user) {
     },
   });
 
-  let info = await transporter.sendMail({
+  await transporter.sendMail({
     from: '"SellerTo" <no-reply@sellerto.com>',
     to: user.email,
     subject: 'Compte bloqué',
     html: `Votre compte a été bloqué en raison de multiples tentatives de connexion échouées. Il sera automatiquement débloqué dans 20 minutes.`,
   });
 
-  console.log(`Message de verrouillage envoyé à : ${user.email}`, info.messageId);
+  console.log(`Message de verrouillage envoyé à : ${user.email}`);
 }
