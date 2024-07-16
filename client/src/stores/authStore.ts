@@ -18,31 +18,24 @@ export const useAuthStore = defineStore('auth', {
     user: null
   }),
   actions: {
-    async register() {
-      const router = useRouter();
+    async register(values: { firstname: string, lastname: string, email: string, password: string }) {
       try {
-        const response = await axios.post('/auth/register', {
-          firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email,
-          password: this.password
-        });
+        const response = await axios.post('/auth/register', values);
         this.successMessage = response.data.message;
         this.reset();
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
-    async login() {
+    async login({ email, password }: { email: string, password: string }) {
       try {
-        const response = await axios.post('/auth/login', {
-          email: this.email,
-          password: this.password
-        });
-        this.user = response.data.user;
+        const response = await axios.post('/auth/login', { email, password });
+        this.successMessage = 'Connexion réussie';
         this.errorMessage = '';
-      } catch (error) {
-        this.errorMessage = error.response.data.message;
+        this.user = response.data.user;
+      } catch (error: any) {
+        this.errorMessage = error.response?.data?.message || 'Erreur de connexion';
+        this.successMessage = '';
       }
     },
     async fetchUser() {
@@ -53,38 +46,34 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
       }
     },
-    async forgotPassword() {
+    async forgotPassword(values: { email: string }) {
       try {
-        await axios.post('/auth/forgotpassword', {
-          email: this.email,
-        });
+        await axios.post('/auth/forgotpassword', values);
         this.successMessage = 'Password reset successful';
         this.reset();
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
-    async resetPassword(token) {
+    async resetPassword({ token, password }: { token: string, password: string }) {
       const router = useRouter();
       try {
-        await axios.put(`/auth/resetpassword/${token}`, {
-          password: this.password
-        });
+        await axios.put(`/auth/resetpassword/${token}`, { password });
         this.reset();
         router.push('/login');
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
-    async changePassword(oldPassword, newPassword) {
+    async changePassword(oldPassword: string, newPassword: string) {
       try {
         const response = await axios.post('/auth/changePassword', {
-          id: this.user.id, // Assuming the user ID is stored in the user object
-          oldPassword: oldPassword,
-          newPassword: newPassword,
+          id: this.user.id,
+          oldPassword,
+          newPassword,
         });
         this.successMessage = response.data.message;
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
@@ -93,16 +82,16 @@ export const useAuthStore = defineStore('auth', {
         const response = await axios.delete('/users/delete');
         this.successMessage = response.data.message;
         this.reset();
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
-    async updateUser(updatedUser) {
+    async updateUser(updatedUser: any) {
       try {
         const response = await axios.put('/users/update', updatedUser);
         this.user = response.data;
         this.successMessage = 'User updated successfully';
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },
@@ -110,7 +99,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await axios.get('/auth/logout');
         this.reset();
-      } catch (error) {
+      } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }
     },

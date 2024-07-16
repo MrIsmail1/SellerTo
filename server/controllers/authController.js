@@ -3,18 +3,11 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { Op } from 'sequelize';
-import bcrypt from 'bcryptjs';
-import { validationResult } from 'express-validator';
 
 export const register = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
 
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     let user = await User.findOne({ where: { email } });
 
     if (user && !user.isVerified) {
@@ -22,11 +15,10 @@ export const register = async (req, res) => {
         await user.destroy();
         user = null;
       } else {
-        return res.status(400).json({ message: 'Utilisateur déjà existant ' });
+        return res.status(400).json({ message: 'Email déjà utilisé.' });
       }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const confirmationToken = crypto.randomBytes(20).toString('hex');
     const confirmationTokenExpires = Date.now() + 3600000; // 1 heure
 
@@ -34,7 +26,7 @@ export const register = async (req, res) => {
       firstname,
       lastname,
       email,
-      password: hashedPassword,
+      password,
       confirmationToken,
       confirmationTokenExpires,
       isVerified: false,
@@ -44,7 +36,6 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.' });
   } catch (error) {
-    console.error('Error in register:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -53,11 +44,6 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
@@ -98,7 +84,6 @@ export const login = async (req, res) => {
       res.status(401).json({ message: 'Email ou mot de passe incorrect. Votre compte sera bloqué après 3 tentatives.' });
     }
   } catch (error) {
-    console.error('Error in login:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -107,11 +92,6 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
@@ -124,15 +104,12 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // Création de l'URL de réinitialisation
     const resetUrl = `${process.env.APP_BASE_URL_CLIENT}/resetpassword/${resetToken}`;
-
-    // Envoi de l'email
     await sendPasswordResetEmail(user, resetUrl);
 
     res.status(200).json({ message: 'Email envoyé avec le lien de réinitialisation du mot de passe' });
   } catch (error) {
-    console.error('Error in forgotPassword:', error);
+    console.log(error);
     res.status(500).json({ message: 'Erreur lors de l\'envoi de l\'email' });
   }
 };
@@ -140,11 +117,6 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const user = await User.findOne({
       where: {
         resetPasswordToken,
@@ -156,15 +128,14 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Token invalide ou expiré' });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    user.password = hashedPassword;
+    user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
     res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
   } catch (error) {
-    console.error('Error in resetPassword:', error);
+    console.log(error);
     res.status(500).json({ message: 'Erreur lors de la réinitialisation du mot de passe' });
   }
 };
@@ -181,28 +152,17 @@ const generateToken = (id) => {
 export const changePassword = async (req, res) => {
   const { id, oldPassword, newPassword } = req.body;
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const user = await User.findByPk(id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
 
     if (!await user.matchPassword(oldPassword)) {
       return res.status(401).json({ message: 'Votre ancien mot de passe est incorrect' });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
     res.clearCookie('JWT');
     res.status(200).json({ message: 'Mot de passe changé avec succès' });
   } catch (error) {
-    console.error('Error in changePassword:', error);
     res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
@@ -249,7 +209,6 @@ export const confirmEmail = async (req, res) => {
 
     res.status(200).json({ message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
   } catch (error) {
-    console.error('Error in confirmEmail:', error);
     res.status(500).json({ message: 'Erreur lors de la confirmation de l\'email' });
   }
 };

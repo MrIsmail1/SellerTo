@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/stores/authStore';
 import { useRoute } from 'vue-router';
+import { resetPasswordSchema } from '@/z-schemas/authSchema';
+import { useForm } from '@/composables/useForm';
 
 const authStore = useAuthStore();
 const route = useRoute();
-const token = route.params.token
-</script>
+const token = route.params.token;
 
+const { values, errors, isSubmitting, httpError, handleSubmit, cancelRequest } = useForm({
+  schema: resetPasswordSchema,
+  initialValues: {
+    password: ''
+  },
+  onSubmit: async (values) => {
+    await authStore.resetPassword({ token, ...values });
+  }
+});
+</script>
 
 <template>
   <Card class="mx-auto max-w-sm">
@@ -22,22 +33,29 @@ const token = route.params.token
       </CardDescription>
     </CardHeader>
     <CardContent>
-      <div class="grid gap-4">
-        <div class="grid gap-2">
-          <div class="flex items-center">
-            <Input
-            v-model="authStore.password"
-            id="password"
-            type="password"
-            required
-          />
+      <form @submit.prevent="handleSubmit">
+        <div class="grid gap-4">
+          <div class="grid gap-2">
+            <div class="flex items-center">
+              <Input
+                v-model="values.password.value"
+                id="password"
+                type="password"
+                required
+              />
+              <p v-if="errors.password" class="text-red-500">{{ errors.password }}</p>
+            </div>
           </div>
+          <Button type="submit" class="w-full" :disabled="isSubmitting">
+            Réinitialiser votre mot de passe
+          </Button>
+          <Button type="button" class="w-full mt-2" @click="cancelRequest" :disabled="!isSubmitting">
+            Annuler
+          </Button>
         </div>
-        <Button @click="authStore.resetPassword(token)" type="submit" class="w-full">
-          Réinitialiser votre mot de passe
-        </Button>
-        <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
-      </div>
+      </form>
+      <p v-if="httpError" class="text-red-500">{{ httpError }}</p>
+      <p v-if="authStore.errorMessage" class="text-red-500">{{ authStore.errorMessage }}</p>
     </CardContent>
   </Card>
 </template>

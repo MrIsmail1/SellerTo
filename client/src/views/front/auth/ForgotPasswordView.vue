@@ -1,13 +1,34 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { onMounted, watch } from 'vue';
+import { forgotPasswordSchema } from '@/z-schemas/authSchema';
+import { useForm } from '@/composables/useForm';
 
 const authStore = useAuthStore();
 const router = useRouter();
+
+const { values, errors, isSubmitting, httpError, handleSubmit, cancelRequest } = useForm({
+  schema: forgotPasswordSchema,
+  initialValues: {
+    email: ''
+  },
+  onSubmit: async (values) => {
+    await authStore.forgotPassword(values);
+    if (authStore.successMessage) {
+      router.push({
+        path: '/success',
+        query: {
+          title: 'Réinitialisation réussie',
+          message: 'Un email de réinitialisation vous a été envoyé. Veuillez vérifier votre boîte de réception et suivre les instructions pour réinitialiser votre mot de passe.'
+        }
+      });
+    }
+  }
+});
 
 onMounted(() => {
   authStore.clearMessages();
@@ -37,23 +58,30 @@ watch(() => authStore.successMessage, (newMessage) => {
       </CardDescription>
     </CardHeader>
     <CardContent>
-      <div class="grid gap-4">
-        <div class="grid gap-2">
-          <div class="flex items-center">
-            <Input
-            v-model="authStore.email"
-            id="email"
-            type="email"
-            placeholder="hamza.mahmood@exemple.com"
-            required
-          />
+      <form @submit.prevent="handleSubmit">
+        <div class="grid gap-4">
+          <div class="grid gap-2">
+            <div class="flex items-center">
+              <Input
+                v-model="values.email.value"
+                id="email"
+                type="email"
+                placeholder="hamza.mahmood@exemple.com"
+                required
+              />
+              <p v-if="errors.email" class="text-red-500">{{ errors.email }}</p>
+            </div>
           </div>
+          <Button type="submit" class="w-full" :disabled="isSubmitting">
+            Envoyer
+          </Button>
+          <Button type="button" class="w-full mt-2" @click="cancelRequest" :disabled="!isSubmitting">
+            Annuler
+          </Button>
         </div>
-        <Button @click="authStore.forgotPassword" type="submit" class="w-full">
-          Envoyer
-        </Button>
-        <p v-if="authStore.errorMessage">{{ authStore.errorMessage }}</p>
-      </div>
+      </form>
+      <p v-if="httpError" class="text-red-500">{{ httpError }}</p>
+      <p v-if="authStore.errorMessage" class="text-red-500">{{ authStore.errorMessage }}</p>
       <div class="mt-4 text-center text-sm">
         Vous n'avez pas de compte ?
         <RouterLink to="/register" class="underline">
