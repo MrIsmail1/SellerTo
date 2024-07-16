@@ -190,12 +190,23 @@ const routes = [
         component: () => import("@/views/back/user/EditUserView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
+      {
+        path: "users/delete/:id",
+        name: "AdminDeleteUser",
+        component: () => import("@/views/back/user/DeleteUser.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
     ],
   },
   {
     path: "/admin/login",
     name: "AdminLogin",
     component: () => import("@/views/back/AdminLoginView.vue"),
+  },
+  {
+    path: "/403_forbidden",
+    name: "403-forbidden",
+    component: () => import("@/views/common/ForbiddenView.vue"),
   },
 ];
 
@@ -208,13 +219,12 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
   await authStore.fetchUser();
-
   if (to.meta.requiresAuth) {
     if (!authStore.user) {
       next({ name: "Login" });
     } else if (
       to.meta.requiresAdmin &&
-      !["admin", "SuperAdmin"].includes(authStore.user.role)
+      !["Admin", "SuperAdmin"].includes(authStore.user.role)
     ) {
       next({ name: "Homepage" });
     } else {
@@ -224,7 +234,7 @@ router.beforeEach(async (to, from, next) => {
     if (
       to.name === "AdminLogin" &&
       authStore.user &&
-      ["admin", "SuperAdmin"].includes(authStore.user.role)
+      ["Admin", "SuperAdmin"].includes(authStore.user.role)
     ) {
       next({ name: "AdminDashboard" });
     } else {

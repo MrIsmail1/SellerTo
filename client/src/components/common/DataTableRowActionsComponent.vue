@@ -21,7 +21,11 @@ interface DataTableRowActionsProps<T> {
 
 const props = defineProps<DataTableRowActionsProps<any>>();
 const router = useRouter();
+const rowId = props.row.original._id
+  ? props.row.original._id
+  : props.row.original.id;
 const navigateTo = (route: string) => {
+  console.log(route);
   router.push(route);
 };
 </script>
@@ -38,18 +42,14 @@ const navigateTo = (route: string) => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
-      <DropdownMenuItem
-        @click="navigateTo(props.viewRoute + '/' + props.row.original._id)"
+      <DropdownMenuItem @click="navigateTo(props.viewRoute + '/' + rowId)"
         >Visualiser</DropdownMenuItem
       >
-      <DropdownMenuItem
-        @click="navigateTo(props.editRoute + '/' + props.row.original._id)"
+      <DropdownMenuItem @click="navigateTo(props.editRoute + '/' + rowId)"
         >Modifier</DropdownMenuItem
       >
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        @click="navigateTo(props.deleteRoute + '/' + props.row.original._id)"
-      >
+      <DropdownMenuItem @click="navigateTo(props.deleteRoute + '/' + rowId)">
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
       </DropdownMenuItem>
