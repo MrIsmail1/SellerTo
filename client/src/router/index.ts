@@ -84,12 +84,6 @@ const routes = [
         props: true,
       },
       {
-        path: "order/:id",
-        name: "Order",
-        component: () => import("@/views/front/order/OrderView.vue"),
-        props: true,
-      },
-      {
         path: '/legal-mentions',
         name: 'legal-mentions',
         component: () => import("@/views/front/legalcontent/LegalContentView.vue"),

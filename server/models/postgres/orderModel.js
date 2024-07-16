@@ -7,6 +7,17 @@ const Orders = sequelize.define('Orders', {
         autoIncrement: true,
         primaryKey: true,
     },
+
+    orderUnique: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+
+    quantity : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -15,6 +26,7 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
+
     productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
