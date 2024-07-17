@@ -7,7 +7,8 @@
 import app from "../app.js";
 import debug from "debug";
 import http from "http";
-import startCronJob from "../utils/cronJobs.js"; // Import correct pour la fonction startCronJob
+import startCronJob from "../utils/cronJobs/updateOrderStatuses.js";
+import startStockUpdateCronJob from "../utils/cronJobs/updateStock.js";
 
 /**
  * Get port from environment and store in Express.
@@ -34,6 +35,8 @@ server.on("listening", onListening);
  * Start the cron job for updating order statuses.
  */
 startCronJob();
+startStockUpdateCronJob();
+
 
 /**
  * Normalize a port into a number, string, or false.

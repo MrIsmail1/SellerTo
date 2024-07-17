@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import Orders from '../models/postgres/orderModel.js';
+import Orders from '../../models/postgres/orderModel.js';
 
 const deliveryStatuses = [
     "Paiement validé, colis pris en charge par La Poste",
