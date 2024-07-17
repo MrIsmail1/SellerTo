@@ -1,12 +1,13 @@
 import Stripe from 'stripe';
-import {Payment, PaymentProduct} from '../models/postgres/paymentModel.js';
+import { Payment, PaymentProduct } from '../models/postgres/paymentModel.js';
 import Cart from '../models/postgres/cartModel.js';
 import Product from '../models/postgres/productModel.js';
+import Stock from '../models/postgres/stockModel.js';
 import dotenv from 'dotenv';
-import {generateTrackingNumber} from '../utils/trackingGenerator.js';
+import { generateTrackingNumber } from '../utils/trackingGenerator.js';
 import Orders from "../models/postgres/orderModel.js";
 import User from '../models/postgres/userModel.js';
-import {sendDeliveryConfirmationEmail} from '../controllers/orderController.js';
+import { sendDeliveryConfirmationEmail } from '../controllers/orderController.js';
 
 dotenv.config();
 
@@ -61,7 +62,7 @@ const stripeWebhookHandler = async (req, res) => {
                 for (const item of products) {
                     const productId = item.productId;
 
-                    const order = await Orders.create({
+                    await Orders.create({
                         userId: session.client_reference_id,
                         orderUnique: orderUnique,
                         quantity: item.quantity,
@@ -78,6 +79,12 @@ const stripeWebhookHandler = async (req, res) => {
                         quantity: item.quantity,
                     });
 
+                    await Stock.create({
+                        productId: productId,
+                        quantity: item.quantity,
+                        operationType: 'REMOVE',
+                    });
+
                     // Récupérer les détails du produit
                     const product = await Product.findByPk(productId);
                     if (product) {
@@ -92,7 +99,7 @@ const stripeWebhookHandler = async (req, res) => {
                 }
 
                 // Vider le panier de l'utilisateur
-                await Cart.destroy({where: {userId: session.client_reference_id}});
+                await Cart.destroy({ where: { userId: session.client_reference_id } });
 
                 const user = await User.findByPk(session.client_reference_id);
 

@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/database.js';
-import Products from './productModel.js';  // Assurez-vous que le chemin est correct
+import Products from './productModel.js';
 
 const Stock = sequelize.define('Stock', {
     id: {
@@ -18,10 +18,6 @@ const Stock = sequelize.define('Stock', {
     },
     quantity: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    event: {
-        type: DataTypes.STRING,
         allowNull: false,
     },
     operationType: {
@@ -47,13 +43,11 @@ const Stock = sequelize.define('Stock', {
 });
 
 const updateProductStock = async (productId) => {
-    // Calculez le stock total pour le produit donné
     const stocks = await Stock.findAll({ where: { productId } });
     const totalStock = stocks.reduce((total, stock) => {
         return stock.operationType === 'ADD' ? total + stock.quantity : total - stock.quantity;
     }, 0);
 
-    // Mettez à jour la colonne product_stock dans la table Products
     await Products.update({ product_stock: totalStock }, {
         where: { id: productId }
     });
