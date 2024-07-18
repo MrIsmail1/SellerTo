@@ -36,7 +36,7 @@ export const useCartStore = defineStore('cart', {
       return state.groupedCart.reduce((total, item) => total + (item.Product ? item.Product.product_price * item.quantity : 0), 0);
     },
     total: (state) => {
-      const serviceFee = 6.49;
+      const serviceFee = 6;
       const discount = state.calculateDiscount();
       return state.subTotal + serviceFee - discount;
     },

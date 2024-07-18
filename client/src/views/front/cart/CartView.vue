@@ -39,7 +39,7 @@
         </div>
         <div class="flex justify-between border-t pt-2 mt-2">
           <span>Frais de service SellerTo</span>
-          <span>{{ 6.49 }} €</span>
+          <span>{{ 6 }} €</span>
         </div>
         <div v-if="discountAmount > 0" class="flex justify-between border-t pt-2 mt-2 font-bold">
           <span>Remise appliquée</span>
