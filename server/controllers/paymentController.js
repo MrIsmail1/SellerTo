@@ -65,21 +65,19 @@ export const createUniquePaymentLink = async (req, res) => {
   }
 };
 
-
 export const createRefund = async (req, res) => {
   const { paymentIntentId, amount } = req.body;
   const userId = req.user.id;
 
   try {
-  
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
       amount: amount ? amount * 100 : undefined,
     });
 
     await Payment.update(
-      { status: 'refunded', refundId: refund.id },
-      { where: { paymentIntentId, userId } }
+        { status: 'refunded', refundId: refund.id },
+        { where: { paymentIntentId, userId } }
     );
 
     res.status(200).json({ message: 'Refund created successfully', refund });

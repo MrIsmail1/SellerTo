@@ -15,14 +15,14 @@ export const addToCart = async (req, res) => {
 
     if (cartItem) {
       cartItem.quantity += 1;
-      cartItem.reservedUntil = new Date(Date.now() + 15 * 1000);
+      cartItem.reservedUntil = new Date(Date.now() + 3 * 60 * 1000); // 3 minutes
       await cartItem.save();
     } else {
       cartItem = await Cart.create({
         productId,
         userId,
         quantity: 1,
-        reservedUntil: new Date(Date.now() + 15 * 1000),
+        reservedUntil: new Date(Date.now() + 3 * 60 * 1000), // 3 minutes
       });
     }
 
@@ -50,9 +50,9 @@ export const addToCart = async (req, res) => {
           await product.save();
         }
         await Cart.destroy({ where: { id: item.id } });
-        console.log(`Removed cart item ID: ${item.id} after 15 seconds`);
+        console.log(`Removed cart item ID: ${item.id} after 3 minutes`);
       }
-    }, 15 * 1000); // 15 seconds
+    }, 3 * 60 * 1000); // 3 minutes
   } catch (error) {
     console.error('Error adding to cart:', error);
     res.status(500).json({ message: 'Internal server error' });

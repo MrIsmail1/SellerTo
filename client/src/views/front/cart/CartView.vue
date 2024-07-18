@@ -1,64 +1,20 @@
-<script setup lang='ts'>
-import { computed, onMounted, onUnmounted } from 'vue';
-import { useCartStore } from '@/stores/cartStore';
-import Button from '@/components/ui/button/Button.vue';
-import CartComponent from '@/components/cart/CartComponent.vue';
-
-const cartStore = useCartStore();
-const cart = computed(() => cartStore.groupedCart);
-
-const removeItem = async (cartItemId) => {
-  await cartStore.removeFromCart(cartItemId);
-};
-
-const updateQuantity = async (productId, quantity) => {
-  await cartStore.updateQuantity(productId, quantity);
-};
-
-const handleCheckout = async () => {
-  await cartStore.handleCheckout();
-};
-
-const generatePaymentLink = async () => {
-  await cartStore.generatePaymentLink();
-};
-
-let cleanInterval;
-
-onMounted(async () => {
-  await cartStore.fetchCart();
-  cleanInterval = setInterval(async () => {
-    await cartStore.fetchCart();
-  }, 15000);
-});
-
-onUnmounted(() => {
-  clearInterval(cleanInterval);
-});
-
-const subTotal = computed(() => cartStore.subTotal);
-const total = computed(() => cartStore.total);
-const paymentLink = computed(() => cartStore.paymentLink);
-</script>
-
 <template>
   <div v-if="!cart.length" class="text-center text-lg">Votre panier est vide</div>
-  <main v-else
-   class="block md:flex flex-col md:flex-row p-0 md:p-4 ml-0 md:ml-32">
+  <main v-else class="block md:flex flex-col md:flex-row p-0 md:p-4 ml-0 md:ml-32">
     <div class="flex-1">
       <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
       <div>
         <div class="mt-4">
           <CartComponent
-            v-for="item in cart"
-            :key="item.id"
-            :productImage="item.Product.product_photo"
-            :productCategory="item.Product.product_category"
-            :productDescription="item.Product.product_title"
-            :productPrice="item.Product.product_price"
-            :productQuantity="item.quantity"
-            :cardLink="`/product/${item.Product.id}`"
-            @update="(newQuantity) => updateQuantity(item.Product.id, newQuantity)"
+              v-for="item in cart"
+              :key="item.id"
+              :productImage="item.Product.product_photo"
+              :productCategory="item.Product.product_category"
+              :productDescription="item.Product.product_title"
+              :productPrice="item.Product.product_price"
+              :productQuantity="item.quantity"
+              :cardLink="`/product/${item.Product.id}`"
+              @update="(newQuantity) => updateQuantity(item.Product.id, newQuantity)"
           >
             <template #actions>
               <Button @click="() => removeItem(item.id)" variant="secondary" class="mt-2 mb-auto">Supprimer</Button>
@@ -85,15 +41,29 @@ const paymentLink = computed(() => cartStore.paymentLink);
           <span>Frais de service SellerTo</span>
           <span>{{ 6.49 }} €</span>
         </div>
+        <div v-if="discountAmount > 0" class="flex justify-between border-t pt-2 mt-2 font-bold">
+          <span>Remise appliquée</span>
+          <span>-{{ discountAmount.toFixed(2) }} €</span>
+        </div>
         <div class="flex justify-between border-t pt-2 mt-2 font-bold">
           <span>Total TTC</span>
-          <span>{{ total }} €</span>
+          <span>{{ total.toFixed(2) }} €</span>
         </div>
         <div class="mt-4 text-sm">
           <p>Paiement sécurisé</p>
           <p>En passant commande vous acceptez nos Conditions générales d'utilisation, nos Conditions générales de vente et notre politique de protection des données</p>
         </div>
-        <div class="text-center">
+        <div class="mt-4">
+          <input type="text" v-model="promoCode" placeholder="Code promo" class="w-full p-2 border rounded" />
+          <Button @click="applyPromoCode" size="medium" class="mt-2">Appliquer le code promo</Button>
+        </div>
+        <div v-if="errorMessage" class="mt-4 text-red-500">
+          <p>{{ errorMessage }}</p>
+        </div>
+        <div v-if="discountPercentage > 0" class="mt-4">
+          <p>Remise appliquée : -{{ discountPercentage }}%</p>
+        </div>
+        <div class="text-center mt-4">
           <Button @click="handleCheckout" size="medium">Passer commande</Button>
           <Button @click="generatePaymentLink" size="medium">Générer un lien de paiement</Button>
         </div>
@@ -105,3 +75,55 @@ const paymentLink = computed(() => cartStore.paymentLink);
     </div>
   </main>
 </template>
+
+<script setup lang='ts'>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useCartStore } from '@/stores/cartStore';
+import Button from '@/components/ui/button/Button.vue';
+import CartComponent from '@/components/cart/CartComponent.vue';
+
+const cartStore = useCartStore();
+const cart = computed(() => cartStore.groupedCart);
+
+const removeItem = async (cartItemId) => {
+  await cartStore.removeFromCart(cartItemId);
+};
+
+const updateQuantity = async (productId, quantity) => {
+  await cartStore.updateQuantity(productId, quantity);
+};
+
+const handleCheckout = async () => {
+  await cartStore.confirmPurchase(); // Assurez-vous d'appeler la bonne méthode
+};
+
+const generatePaymentLink = async () => {
+  await cartStore.generatePaymentLink();
+};
+
+let cleanInterval;
+
+onMounted(async () => {
+  await cartStore.fetchCart();
+  cleanInterval = setInterval(async () => {
+    await cartStore.fetchCart();
+  }, 15000);
+});
+
+onUnmounted(() => {
+  clearInterval(cleanInterval);
+});
+
+const subTotal = computed(() => cartStore.subTotal);
+const total = computed(() => cartStore.total);
+const paymentLink = computed(() => cartStore.paymentLink);
+const promoCode = ref('');
+const discount = computed(() => cartStore.discount);
+const discountPercentage = computed(() => cartStore.discountPercentage);
+const discountAmount = computed(() => cartStore.discountAmount);
+const errorMessage = computed(() => cartStore.errorMessage);
+
+const applyPromoCode = async () => {
+  await cartStore.applyPromoCode(promoCode.value);
+};
+</script>
