@@ -10,6 +10,8 @@ import paymentRouter from "./routes/paymentRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import promoCodeRouter from "./routes/promoCodeRoutes.js";
+import stockRouter from "./routes/stockRoutes.js";
 import connectedDataBase from "./models/db.js";
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -47,6 +49,8 @@ app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/upload", imagesRoutes);
 app.use("/api/orders", orderRouter);
+app.use('/api', promoCodeRouter);
+app.use('/api', stockRouter);
 
 connectedDataBase();
 

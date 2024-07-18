@@ -11,6 +11,9 @@ export const useCartStore = defineStore('cart', {
     loading: false,
     error: null,
     paymentLink: null,
+    discount: 0,
+    errorMessage: '',
+    promoCodeDetails: null,
   }),
   getters: {
     groupedCart: (state) => {
@@ -34,10 +37,30 @@ export const useCartStore = defineStore('cart', {
     },
     total: (state) => {
       const serviceFee = 6.49;
-      return state.groupedCart.reduce((total, item) => total + (item.Product ? item.Product.product_price * item.quantity : 0), 0) + serviceFee;
-    }
+      const discount = state.calculateDiscount();
+      return state.subTotal + serviceFee - discount;
+    },
+    discountPercentage: (state) => {
+      return state.promoCodeDetails ? state.promoCodeDetails.discount : 0;
+    },
+    discountAmount: (state) => {
+      return state.calculateDiscount();
+    },
   },
   actions: {
+    calculateDiscount() {
+      if (!this.promoCodeDetails) return 0;
+
+      let discount = 0;
+      this.groupedCart.forEach(item => {
+        if (this.promoCodeDetails.product_id && item.Product.id === this.promoCodeDetails.product_id) {
+          discount += (item.Product.product_price * item.quantity) * (this.promoCodeDetails.discount / 100);
+        } else if (this.promoCodeDetails.category && item.Product.product_category === this.promoCodeDetails.category) {
+          discount += (item.Product.product_price * item.quantity) * (this.promoCodeDetails.discount / 100);
+        }
+      });
+      return discount;
+    },
     async fetchCart() {
       this.loading = true;
       try {
@@ -86,30 +109,22 @@ export const useCartStore = defineStore('cart', {
         if (existingItem) {
           const response = await axios.put('/cart', { cartItemId: existingItem.id, quantity });
           existingItem.quantity = quantity;
-          this.cart = [...this.cart]; 
+          this.cart = [...this.cart];
         }
       } catch (error) {
         console.error(error);
       }
     },
-    async confirmPurchase(productId) {
+    async confirmPurchase() {
       try {
-        await axios.post('/cart/confirm', { productId });
-        this.cart = this.cart.filter(item => item.Product && item.Product.id !== productId);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async handleCheckout() {
-      try {
-        const authStore = useAuthStore(); 
+        const authStore = useAuthStore();
         const userId = authStore.user.id;
 
         const stripe = await stripePromise;
 
         const items = this.groupedCart.map(item => ({
           name: item.Product.product_title,
-          amount: item.Product.product_price * 100,
+          amount: Math.round((item.Product.product_price * 100) * (1 - (this.promoCodeDetails && (this.promoCodeDetails.product_id === item.Product.id || this.promoCodeDetails.category === item.Product.product_category) ? this.promoCodeDetails.discount / 100 : 0))), // Amount in cents
           productId: item.Product.id,
           quantity: item.quantity,
         }));
@@ -137,12 +152,12 @@ export const useCartStore = defineStore('cart', {
     },
     async generatePaymentLink() {
       try {
-        const authStore = useAuthStore(); 
+        const authStore = useAuthStore();
         const userId = authStore.user.id;
 
         const items = this.groupedCart.map(item => ({
           name: item.Product.product_title,
-          amount: item.Product.product_price * 100,
+          amount: Math.round((item.Product.product_price * 100) * (1 - (this.promoCodeDetails && (this.promoCodeDetails.product_id === item.Product.id || this.promoCodeDetails.category === item.Product.product_category) ? this.promoCodeDetails.discount / 100 : 0))), // Amount in cents
           quantity: item.quantity,
         }));
 
@@ -161,12 +176,36 @@ export const useCartStore = defineStore('cart', {
       try {
         const response = await axios.post('/payments/refund', {
           paymentIntentId,
-          amount,
+          amount: amount ? amount * 100 : undefined,
         });
         console.log('Refund created:', response.data);
       } catch (error) {
         console.error('Error creating refund:', error);
       }
     },
+    async applyPromoCode(code) {
+      try {
+        const response = await axios.post('/promocodes/validate', { code });
+        const promoCode = response.data;
+
+        const valid = this.groupedCart.some(item => {
+          const productMatch = promoCode.product_id && item.Product.id === promoCode.product_id;
+          const categoryMatch = promoCode.category && item.Product.product_category === promoCode.category;
+          return productMatch || categoryMatch;
+        });
+
+        if (valid && new Date(promoCode.expiry_date) > new Date()) {
+          this.promoCodeDetails = promoCode;
+          this.errorMessage = '';
+        } else {
+          this.promoCodeDetails = null;
+          this.errorMessage = 'Code promo invalide ou expiré';
+        }
+      } catch (error) {
+        console.error('Error applying promo code:', error);
+        this.promoCodeDetails = null;
+        this.errorMessage = 'Code promo invalide ou expiré';
+      }
+    }
   },
 });
