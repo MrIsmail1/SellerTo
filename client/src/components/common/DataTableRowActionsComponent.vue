@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DialogComponent from "@/components/common/DialogComponent.vue";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDeleteHandler } from "@/handlers/useDeleteHandler";
 import type { Row } from "@tanstack/vue-table";
 import { Ellipsis } from "lucide-vue-next";
 import { useRouter } from "vue-router";
@@ -17,12 +19,23 @@ interface DataTableRowActionsProps<T> {
   viewRoute: string;
   editRoute: string;
   deleteRoute: string;
+  deleteFunction: (id: number) => Promise<void>;
 }
 
 const props = defineProps<DataTableRowActionsProps<any>>();
 const router = useRouter();
+const { showDialog, dialogMessage, handleDelete, closeDialog } =
+  useDeleteHandler();
+
+const rowId = props.row.original._id
+  ? props.row.original._id
+  : props.row.original.id;
+
 const navigateTo = (route: string) => {
   router.push(route);
+};
+const deleteItem = async (rowId: number) => {
+  await handleDelete(() => props.deleteFunction(rowId));
 };
 </script>
 
@@ -38,18 +51,14 @@ const navigateTo = (route: string) => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
-      <DropdownMenuItem
-        @click="navigateTo(props.viewRoute + '/' + props.row.original._id)"
-        >Visualiser</DropdownMenuItem
-      >
-      <DropdownMenuItem
-        @click="navigateTo(props.editRoute + '/' + props.row.original._id)"
-        >Modifier</DropdownMenuItem
-      >
+      <DropdownMenuItem @click="navigateTo(props.viewRoute + '/' + rowId)">
+        Visualiser
+      </DropdownMenuItem>
+      <DropdownMenuItem @click="navigateTo(props.editRoute + '/' + rowId)">
+        Modifier
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        @click="navigateTo(props.deleteRoute + '/' + props.row.original._id)"
-      >
+      <DropdownMenuItem @click="deleteItem(rowId)">
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
       </DropdownMenuItem>

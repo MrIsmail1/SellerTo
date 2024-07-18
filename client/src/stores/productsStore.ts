@@ -67,6 +67,7 @@ export const useProductsStore = defineStore("products", {
       this.loading = true;
       try {
         const response = await axios.post(`/products`, product);
+        console.log(response.data);
         this.product = response.data;
         this.error = null;
       } catch (error) {
@@ -170,7 +171,17 @@ export const useProductsStore = defineStore("products", {
         this.loading = false;
       }
     },
-
+    async deleteProduct(id: string) {
+      this.loading = true;
+      try {
+        await axios.delete(`/products/${id}`);
+        this.error = null;
+      } catch (error) {
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
     async searchProductByTitleOrDescription(query) {
       try {
         const params = { query, ...this.filters };

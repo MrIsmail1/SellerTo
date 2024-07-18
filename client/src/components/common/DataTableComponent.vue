@@ -16,11 +16,6 @@ import {
   useVueTable,
 } from "@tanstack/vue-table";
 
-import { ref } from "vue";
-import type { Task } from "../data/schema";
-import DataTablePagination from "./DataTablePaginationComponent.vue";
-import DataTableToolbar from "./DataTableToolbarComponent.vue";
-import { valueUpdater } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -29,6 +24,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { valueUpdater } from "@/lib/utils";
+import { ref } from "vue";
+import DataTablePagination from "./DataTablePaginationComponent.vue";
+import DataTableToolbar from "./DataTableToolbarComponent.vue";
 
 interface DataTableProps {
   columns: ColumnDef<any>[];
@@ -122,7 +121,7 @@ const table = useVueTable({
 
           <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
+              Pas de résultats trouvés.
             </TableCell>
           </TableRow>
         </TableBody>
