@@ -1,5 +1,6 @@
 import DataTableColumnHeader from "@/components/common/DataTableColumnHeaderComponent.vue";
 import DataTableRowActionsComponent from "@/components/common/DataTableRowActionsComponent.vue";
+import { useUsersStore } from "@/stores/userStore";
 import type { User } from "@/z-schemas/UserSchema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
@@ -28,7 +29,6 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }) =>
       h(DataTableColumnHeader, { column: column, title: "Rôle" }),
     cell: ({ row }) => {
-      console.log(row.original);
       return row.original.role;
     },
   },
@@ -41,6 +41,13 @@ export const columns: ColumnDef<User>[] = [
         viewRoute: "/admin/users/view",
         editRoute: "/admin/users/edit",
         deleteRoute: "/admin/users/delete",
+        deleteFunction: async (id: number) => {
+          const userStore = useUsersStore();
+          await userStore.deleteUser(id);
+          if (userStore.error) {
+            return { error: { status: 403 } };
+          }
+        },
       }),
   },
 ];

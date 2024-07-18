@@ -5,10 +5,9 @@ import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
 import { useProductsStore } from "@/stores/productsStore";
-import type { Product } from "@/z-schemas/ProductSchema";
 import { ProductSchema } from "@/z-schemas/ProductSchema";
-import { z } from "zod";
 
+import { useFormHandler } from "@/handlers/useFormHandler"; // import useFormHandler
 import { Save } from "lucide-vue-next";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -16,15 +15,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const productsStore = useProductsStore();
 
-type FieldType = "string" | "number" | "boolean" | "file";
-
-interface ProductField {
-  value: string | number | boolean | File[];
-  type: FieldType;
-  placeholder: string;
-}
-
-const basicProductInfo = ref<Record<string, ProductField>>({
+const basicProductInfo = ref({
   product_photo: {
     value: [],
     type: "file",
@@ -72,7 +63,7 @@ const basicProductInfo = ref<Record<string, ProductField>>({
   },
 });
 
-const productSpecifications = ref<Record<string, ProductField>>({
+const productSpecifications = ref({
   brand: { value: "", type: "string", placeholder: "Saisir la marque" },
   itemModelNumber: {
     value: "",
@@ -175,7 +166,7 @@ const productSpecifications = ref<Record<string, ProductField>>({
   },
 });
 
-const additionalProductDetails = ref<Record<string, ProductField>>({
+const additionalProductDetails = ref({
   series: { value: "", type: "string", placeholder: "Saisir la série..." },
   keyboardAndLanguage: {
     value: "",
@@ -184,63 +175,30 @@ const additionalProductDetails = ref<Record<string, ProductField>>({
   },
 });
 
-const errors = ref<Record<string, string>>({});
-const files = ref<File[]>([]);
-
-const handleFileChange = (event) => {
-  files.value = Array.from(event.target.files);
+const initialValues = {
+  ...basicProductInfo.value,
+  ...productSpecifications.value,
+  ...additionalProductDetails.value,
 };
 
-const save = async () => {
-  try {
-    const productData = {
-      product_title: basicProductInfo.value.product_title.value,
-      product_url: basicProductInfo.value.product_url.value,
-      product_price: basicProductInfo.value.product_price.value,
-      product_minimum_offer_price:
-        basicProductInfo.value.product_minimum_offer_price.value,
-      product_category: basicProductInfo.value.product_category.value,
-      delivery: basicProductInfo.value.delivery.value,
-      product_stock: basicProductInfo.value.product_stock.value,
-      is_best_seller: basicProductInfo.value.is_best_seller.value,
-      ...Object.fromEntries(
-        Object.entries(productSpecifications.value).map(([key, field]) => [
-          key,
-          field.value,
-        ])
-      ),
-      ...Object.fromEntries(
-        Object.entries(additionalProductDetails.value).map(([key, field]) => [
-          key,
-          field.value,
-        ])
-      ),
-    };
-
-    // Validate productData against the schema
-    ProductSchema.parse(productData);
-
-    if (files.value.length > 0) {
-      await productsStore.addProductWithImages(productData, files.value);
+const { formValues, errors, handleFileChange, handleSubmit } = useFormHandler({
+  initialValues,
+  schema: ProductSchema,
+  redirectRoute: { name: "AdminProducts" },
+  onSubmit: async (data) => {
+    const files = formValues.value.product_photo.value;
+    console.log(files);
+    if (files.length > 0) {
+      await productsStore.addProductWithImages(data, files);
     } else {
-      await productsStore.addProduct(productData);
+      await productsStore.addProduct(data);
     }
     if (productsStore.imageUploadError) {
       errors.value["product_photo"] = productsStore.imageUploadError;
     }
-    router.push({ name: "AdminProducts" });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Validation errors:", error.errors);
-      errors.value = {};
-      error.errors.forEach((err) => {
-        errors.value[err.path[0]] = err.message;
-      });
-    }
-  }
-};
+  },
+});
 
-// Function to format labels in French
 const getLabel = (key: string) => {
   switch (key) {
     case "product_title":
@@ -282,7 +240,7 @@ const getLabel = (key: string) => {
     case "speedOfProcessor":
       return "Vitesse du processeur";
     case "numberOfHearts":
-      return "Nombre de coeurs";
+      return "Nombre de cœurs";
     case "sizeRam":
       return "Taille RAM";
     case "sizeSsd":
@@ -331,13 +289,13 @@ const getLabel = (key: string) => {
     </span>
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="save"
+      @click="handleSubmit"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
     </Button>
   </div>
-  <form @submit.prevent="save" class="max-w-full flex flex-col mt-6">
+  <form @submit.prevent="handleSubmit" class="max-w-full flex flex-col mt-6">
     <div class="flex w-full gap-x-2">
       <div class="flex flex-col w-1/2 gap-y-2">
         <Card class="h-fit p-3">
@@ -353,9 +311,7 @@ const getLabel = (key: string) => {
                 :key="key"
                 class="grid gap-2"
               >
-                <Label :for="key.toString()">{{
-                  getLabel(key.toString())
-                }}</Label>
+                <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
@@ -381,7 +337,7 @@ const getLabel = (key: string) => {
                   type="file"
                   multiple
                   :placeholder="field.placeholder"
-                  @change="handleFileChange($event)"
+                  @change="(event) => handleFileChange(key, event)"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}

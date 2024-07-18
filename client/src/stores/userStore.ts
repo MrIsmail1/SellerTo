@@ -1,83 +1,72 @@
 import type { User } from "@/z-schemas/UserSchema";
 import { defineStore } from "pinia";
-import { useRouter } from "vue-router";
 import axios from "../plugins/axios";
 
+interface UsersState {
+  users: User[];
+  loading: boolean;
+  error: string | null;
+}
+
 export const useUsersStore = defineStore("users", {
-  state: () => ({
+  state: (): UsersState => ({
     users: [] as User[],
     loading: false,
     error: null,
   }),
   actions: {
-    async fetchUsers() {
+    async fetchUsers(): Promise<void> {
       this.loading = true;
       try {
         const response = await axios.get("/users");
         this.users = response.data;
-      } catch (error) {
-        if (error.response && error.response.status === 403) {
-          const router = useRouter();
-          router.push({ name: "403-forbidden" });
-        } else {
-          this.error = error.message;
-        }
+      } catch (error: any) {
+        this.error = error.message;
       } finally {
         this.loading = false;
       }
     },
-    async deleteUser(id: string) {
+    async deleteUser(id: number): Promise<void> {
       this.loading = true;
       try {
         await axios.delete(`/users/${id}`);
         this.users = this.users.filter((user) => user._id !== id);
-      } catch (error) {
-        if (error.response && error.response.status === 403) {
-          const router = useRouter();
-          router.push({ name: "403-forbidden" });
-          //error here
-        } else {
-          this.error = error.message;
-        }
+      } catch (error: any) {
+        this.error = error.message;
       } finally {
         this.loading = false;
       }
     },
-    async updateUser(user: User) {
+    async updateUser(user: User): Promise<void> {
       this.loading = true;
       try {
         await axios.put(`/users/${user._id}`, user);
         const index = this.users.findIndex((u) => u._id === user._id);
         this.users[index] = user;
-      } catch (error) {
+      } catch (error: any) {
         this.error = error.message;
       } finally {
         this.loading = false;
       }
     },
-    async createUser(user: User) {
+    async createUser(user: User): Promise<void> {
       this.loading = true;
       try {
         await axios.post("/users", user);
         this.users.push(user);
-      } catch (error) {
+      } catch (error: any) {
         this.error = error.message;
       } finally {
         this.loading = false;
       }
     },
-    async findUserById(id: string) {
+    async findUserById(id: string): Promise<User | undefined> {
       this.loading = true;
       try {
         const response = await axios.get(`/users/${id}`);
         return response.data;
-      } catch (error) {
-        if (error.response && error.response.status === 403) {
-          const router = useRouter();
-          router.push({ name: "403-forbidden" });
-        } else {
-          this.error = error.message;
-        }
+      } catch (error: any) {
+        this.error = error.message;
       } finally {
         this.loading = false;
       }

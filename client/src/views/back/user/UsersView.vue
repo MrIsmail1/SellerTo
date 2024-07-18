@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DataTable from "@/components/common/DataTableComponent.vue";
 import { columns } from "@/components/datatable-columns/User";
+
 import Button from "@/components/ui/button/Button.vue";
 import { useUsersStore } from "@/stores/userStore";
 import type { User } from "@/z-schemas/UserSchema";

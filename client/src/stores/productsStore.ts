@@ -67,6 +67,7 @@ export const useProductsStore = defineStore("products", {
       this.loading = true;
       try {
         const response = await axios.post(`/products`, product);
+        console.log(response.data);
         this.product = response.data;
         this.error = null;
       } catch (error) {

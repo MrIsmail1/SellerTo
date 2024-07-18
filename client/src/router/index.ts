@@ -190,12 +190,6 @@ const routes = [
         component: () => import("@/views/back/user/EditUserView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
-      {
-        path: "users/delete/:id",
-        name: "AdminDeleteUser",
-        component: () => import("@/views/back/user/DeleteUser.vue"),
-        meta: { requiresAuth: true, requiresAdmin: true },
-      },
     ],
   },
   {
