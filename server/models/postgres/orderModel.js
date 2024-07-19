@@ -62,14 +62,14 @@ const Orders = sequelize.define('Orders', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-}, {
+},  {
     timestamps: true,
     hooks: {
         afterCreate: async (order, options) => {
-            await denormalizeOrder({ id: order.id }, { Order: Orders, Product: Products, User: Users });
+            await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
         },
         afterUpdate: async (order, options) => {
-            await denormalizeOrder({ id: order.id }, { Order: Orders, Product: Products, User: Users });
+            await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
         },
         afterDestroy: async (order, options) => {
             await OrderMongo.findByIdAndDelete(order.id);

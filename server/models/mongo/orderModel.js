@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
     {
+        _id: {
+            type: Number,
+            required: true,
+        },
         orderUnique: {
             type: Number,
             required: true,
@@ -11,13 +15,11 @@ const orderSchema = new mongoose.Schema(
             required: true,
         },
         userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+            type: String,
             required: true,
         },
         productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product',
+            type: String,
             required: true,
         },
         amount: {
@@ -30,12 +32,39 @@ const orderSchema = new mongoose.Schema(
         },
         paymentIntentId: {
             type: String,
-            ref: 'Payment',
             required: true,
         },
         trackingCode: {
             type: String,
             required: true,
+        },
+        product: {
+            product_title: {
+                type: String,
+                required: true,
+            },
+            product_price: {
+                type: Number,
+                required: true,
+            },
+            product_category: {
+                type: String,
+                required: true,
+            }
+        },
+        user: {
+            firstname: {
+                type: String,
+                required: true,
+            },
+            lastname: {
+                type: String,
+                required: true,
+            },
+            email: {
+                type: String,
+                required: true,
+            },
         },
     },
     {

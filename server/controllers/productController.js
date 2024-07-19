@@ -2,124 +2,155 @@ import Product from '../models/mongo/productModel.js';
 import Products from '../models/postgres/productModel.js';
 
 export const getProducts = async (req, res) => {
-    try {
-        const filters = req.query;
-        const query = applyFilters(filters);
+  try {
+    const filters = req.query;
+    const query = applyFilters(filters);
 
-        const products = await Product.find(query);
-        res.json(products);
-    } catch (error) {
-        res.status(500);
-    }
+    const products = await Product.find(query);
+    res.json(products);
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 export const getProduct = async (req, res) => {
-    try {
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404);
-        }
-        res.json(product);
-    } catch (error) {
-        res.status(500);
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404);
     }
+    res.json(product);
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 export const getProductById = async (productId) => {
-    try {
-        const product = await Product.findById(productId).select('_id product_title product_price product_photo product_description product_category');
-        if (!product) {
-            throw new Error('Product not found');
-        }
-        return product;
-    } catch (error) {
-        throw new Error('Error fetching product details');
+  try {
+    const product = await Product.findById(productId).select(
+      "_id product_title product_price product_photo product_description product_category"
+    );
+    if (!product) {
+      throw new Error("Product not found");
     }
+    return product;
+  } catch (error) {
+    throw new Error("Error fetching product details");
+  }
 };
 
 export const createProduct = async (req, res) => {
-    try {
-        const products = req.body;
+  try {
+    const products = req.body;
 
-        if (Array.isArray(products)) {
-            const newProducts = await Products.bulkCreate(products, { returning: true, individualHooks: true });
-            res.status(201).json(newProducts);
-        } else {
-            const newProduct = await Products.create(products, { returning: true, individualHooks: true });
-            res.status(201).json(newProduct);
-        }
-    } catch (error) {
-        res.status(500);
+    if (Array.isArray(products)) {
+      const newProducts = await Products.bulkCreate(products, {
+        returning: true,
+        individualHooks: true,
+      });
+      res.status(201).json(newProducts);
+    } else {
+      const newProduct = await Products.create(products, {
+        returning: true,
+        individualHooks: true,
+      });
+      res.status(201).json(newProduct);
     }
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 export const updateProduct = async (req, res) => {
-    try {
-        const product = await Products.findByPk(req.params.id);
-        if (!product) {
-            return res.status(404);
-        }
-
-        Object.assign(product, req.body);
-        await product.save({ individualHooks: true });
-
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(500);
+  try {
+    const product = await Products.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404);
     }
+
+    Object.assign(product, req.body);
+    await product.save({ individualHooks: true });
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 export const patchProduct = async (req, res) => {
-    try {
-        const product = await Products.findByPk(req.params.id);
-        if (!product) {
-            return res.status(404);
-        }
-
-        await product.update(req.body, { individualHooks: true });
-
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(500);
+  try {
+    const product = await Products.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404);
     }
+
+    await product.update(req.body, { individualHooks: true });
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 export const deleteProduct = async (req, res) => {
-    try {
-        const product = await Products.findByPk(req.params.id);
-        if (!product) {
-            return res.status(404);
-        }
-        await product.destroy({ individualHooks: true });
-
-        res.status(204).json({ message: 'Product deleted' });
-    } catch (error) {
-        res.status(500);
+  try {
+    const product = await Products.findByPk(req.params.id);
+    console.log(product);
+    if (!product) {
+      return res.status(404);
     }
+    await product.destroy({ individualHooks: true });
+
+    res.status(204).json({ message: "Product deleted" });
+  } catch (error) {
+    res.status(500);
+  }
 };
 
-
 export const searchProductByTitleOrDescription = async (req, res) => {
-    try {
-        const { query } = req.query;
-        const filters = req.query;
-        const filterQuery = applyFilters(filters);
+  try {
+    const { query } = req.query;
+    const filters = req.query;
+    const filterQuery = applyFilters(filters);
 
-        const products = await Product.find({
-            $and: [
-                {
-                    $or: [
-                        { product_title: { $regex: query, $options: 'i' } },
-                        { product_description: { $regex: query, $options: 'i' } }
-                    ]
+    const products = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            {
+              $or: [
+                { product_title: { $regex: query, $options: "i" } },
+                { product_description: { $regex: query, $options: "i" } },
+              ],
+            },
+            filterQuery,
+          ],
+        },
+      },
+      {
+        $addFields: {
+          score: {
+            $cond: {
+              if: { $regexMatch: { input: "$product_title", regex: query, options: "i" } },
+              then: 10,
+              else: {
+                $cond: {
+                  if: { $regexMatch: { input: "$product_description", regex: query, options: "i" } },
+                  then: 5,
+                  else: 0,
                 },
-                filterQuery
-            ]
-        });
-        res.json(products);
-    } catch (error) {
-        res.status(500);
-    }
+              },
+            },
+          },
+        },
+      },
+      { $sort: { score: -1 } },
+    ]);
+
+    res.json(products);
+  } catch (error) {
+    res.status(500);
+  }
 };
 
 const applyFilters = (filters) => {

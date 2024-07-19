@@ -1,6 +1,7 @@
 import Orders from '../models/postgres/orderModel.js';
-import {getProductById} from './productController.js';
-import {getUserById} from './userController.js';
+import Order from '../models/mongo/orderModel.js';
+import { getProductById } from './productController.js';
+import { getUserById } from './userController.js';
 import nodemailer from "nodemailer";
 
 async function getProductDetails(productId) {
@@ -36,7 +37,7 @@ export const getUserOrders = async (req, res) => {
 
         res.status(200).json(detailedOrders);
     } catch (error) {
-        res.status(500).json({message: 'Failed to fetch orders', error: error.message});
+        res.status(500);
     }
 };
 
@@ -88,3 +89,80 @@ export async function sendDeliveryConfirmationEmail(userEmail, trackingNumber, u
     `,
     });
 }
+
+export const getDashboardData = async (req, res) => {
+    const { timeFrame } = req.query;
+
+    if (!timeFrame) {
+        return res.status(400);
+    }
+
+    try {
+        const now = new Date();
+        let startDate;
+
+        switch (timeFrame) {
+            case '-1h':
+                startDate = new Date(now.getTime() - 60 * 60 * 1000);
+                break;
+            case '-12h':
+                startDate = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+                break;
+            case '-1d':
+                startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                break;
+            case '-1w':
+                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                break;
+            case '-1m':
+                startDate = new Date(now.setMonth(now.getMonth() - 1));
+                break;
+            case '-3m':
+                startDate = new Date(now.setMonth(now.getMonth() - 3));
+                break;
+            case '-6m':
+                startDate = new Date(now.setMonth(now.getMonth() - 6));
+                break;
+            case '-1y':
+                startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+                break;
+            case '-3y':
+                startDate = new Date(now.setFullYear(now.getFullYear() - 3));
+                break;
+            default:
+                throw new Error('Invalid time frame');
+        }
+
+        const bestSellingProducts = await Order.aggregate([
+            { $match: { createdAt: { $gte: startDate } } },
+            {
+                $group: {
+                    _id: "$productId",
+                    product_title: { $first: "$product.product_title" },
+                    product_category: { $first: "$product.product_category" },
+                    totalQuantity: { $sum: "$quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$quantity", "$product.product_price"] } }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const totalRevenue = await Order.aggregate([
+            { $match: { createdAt: { $gte: startDate } } },
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: { $sum: "$amount" }
+                }
+            }
+        ]);
+
+        res.json({
+            bestSellingProducts,
+            totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0
+        });
+    } catch (error) {
+        res.status(500);
+    }
+};
