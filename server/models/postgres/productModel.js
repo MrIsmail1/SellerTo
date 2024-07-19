@@ -11,6 +11,10 @@ const Products = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    product_description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     product_price: {
       type: DataTypes.FLOAT,
       allowNull: true,
@@ -21,10 +25,6 @@ const Products = sequelize.define(
     },
     product_url: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
-    product_photo: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
     },
     product_minimum_offer_price: {
@@ -47,6 +47,10 @@ const Products = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
     },
     brand: {
       type: DataTypes.STRING,

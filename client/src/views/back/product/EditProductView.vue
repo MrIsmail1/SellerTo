@@ -4,39 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
+import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
-import type { Product } from "@/z-schemas/ProductSchema";
 import { ProductSchema } from "@/z-schemas/ProductSchema";
-import { z } from "zod";
 
+import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
-import { ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/carousel"; // Assume these components exist
+import { onMounted, ref, toRaw, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
+const productsStore = useProductsStore();
 const router = useRouter();
 const route = useRoute();
-const productsStore = useProductsStore();
 
-const productId = route.params.id;
-
-const productDetails = ref<Product | null>(null);
-const basicProductInfo = ref<Record<string, ProductField>>({});
-const productSpecifications = ref<Record<string, ProductField>>({});
-const additionalProductDetails = ref<Record<string, ProductField>>({});
-const errors = ref<Record<string, string>>({});
-const files = ref<File[]>([]);
-const emblaMainApi = ref(null);
-const emblaThumbnailApi = ref(null);
-const selectedIndex = ref(0);
-
-type FieldType = "string" | "number" | "boolean" | "file";
+type FieldType = "string" | "number" | "boolean" | "file" | "textarea";
 
 interface ProductField {
   value: string | number | boolean | File[];
@@ -44,282 +25,237 @@ interface ProductField {
   placeholder: string;
 }
 
-const initializeFormFields = (product: Product) => {
-  basicProductInfo.value = {
-    product_photo: {
-      value: [],
-      type: "file",
-      placeholder: "Ajouter des photos du produit...",
-    },
-    product_title: {
-      value: product.product_title || "",
-      type: "string",
-      placeholder: "Saisir le titre du produit..",
-    },
-    product_url: {
-      value: product.product_url || "",
-      type: "string",
-      placeholder: "Saisir l'URL du produit...",
-    },
-    product_price: {
-      value: product.product_price || "",
-      type: "number",
-      placeholder: "Saisir le prix du produit......",
-    },
-    product_minimum_offer_price: {
-      value: product.product_minimum_offer_price || "",
-      type: "number",
-      placeholder: "Saisir le prix minimum d'offre...",
-    },
-    product_category: {
-      value: product.product_category || "",
-      type: "string",
-      placeholder: "Saisir la catégorie du produit...",
-    },
-    delivery: {
-      value: product.delivery || "",
-      type: "string",
-      placeholder: "Saisir le délai de livraison...",
-    },
-    product_stock: {
-      value: product.product_stock || "",
-      type: "number",
-      placeholder: "Saisir le stock du produit...",
-    },
-    is_best_seller: {
-      value: product.is_best_seller || false,
-      type: "boolean",
-      placeholder: "Indiquer si meilleure vente...",
-    },
-  };
+const productId = route.params.id as string;
+const productDetails = ref<Record<string, any>>({});
+const files = ref<File[]>([]);
 
-  productSpecifications.value = {
-    brand: {
-      value: product.brand || "",
-      type: "string",
-      placeholder: "Saisir la marque",
-    },
-    itemModelNumber: {
-      value: product.itemModelNumber || "",
-      type: "string",
-      placeholder: "Saisir le numéro de modèle...",
-    },
-    color: {
-      value: product.color || "",
-      type: "string",
-      placeholder: "Saisir la couleur...",
-    },
-    operatingSystem: {
-      value: product.operatingSystem || "",
-      type: "string",
-      placeholder: "Saisir le système d'exploitation...",
-    },
-    computerHardwarePlatform: {
-      value: product.computerHardwarePlatform || "",
-      type: "string",
-      placeholder: "Saisir la plateforme matérielle...",
-    },
-    keyboardDescription: {
-      value: product.keyboardDescription || "",
-      type: "string",
-      placeholder: "Saisir la description du clavier...",
-    },
-    processorBrand: {
-      value: product.processorBrand || "",
-      type: "string",
-      placeholder: "Saisir la marque du processeur...",
-    },
-    typeOfProcessor: {
-      value: product.typeOfProcessor || "",
-      type: "string",
-      placeholder: "Saisir le type de processeur...",
-    },
-    speedOfProcessor: {
-      value: product.speedOfProcessor || "",
-      type: "string",
-      placeholder: "Saisir la vitesse du processeur...",
-    },
-    numberOfHearts: {
-      value: product.numberOfHearts || "",
-      type: "string",
-      placeholder: "Saisir le nombre de cœurs...",
-    },
-    sizeRam: {
-      value: product.sizeRam || "",
-      type: "string",
-      placeholder: "Saisir la taille de la RAM...",
-    },
-    sizeSsd: {
-      value: product.sizeSsd || "",
-      type: "string",
-      placeholder: "Saisir la taille du SSD...",
-    },
-    typeOfStorage: {
-      value: product.typeOfStorage || "",
-      type: "string",
-      placeholder: "Saisir le type de stockage...",
-    },
-    sizeScreen: {
-      value: product.sizeScreen || "",
-      type: "string",
-      placeholder: "Saisir la taille de l'écran...",
-    },
-    gpu: {
-      value: product.gpu || "",
-      type: "string",
-      placeholder: "Saisir le GPU",
-    },
-    gpuRam: {
-      value: product.gpuRam || "",
-      type: "string",
-      placeholder: "Saisir la RAM du GPU...",
-    },
-    connectivityType: {
-      value: product.connectivityType || "",
-      type: "string",
-      placeholder: "Saisir le type de connectivité...",
-    },
-    wirelessTechnologyType: {
-      value: product.wirelessTechnologyType || "",
-      type: "string",
-      placeholder: "Saisir le type de technologie sans fil...",
-    },
-    computerHardwareInterface: {
-      value: product.computerHardwareInterface || "",
-      type: "string",
-      placeholder: "Saisir l'interface matérielle...",
-    },
-    connectorType: {
-      value: product.connectorType || "",
-      type: "string",
-      placeholder: "Saisir le type de connecteur...",
-    },
-    softwareIncluded: {
-      value: product.softwareIncluded || "",
-      type: "string",
-      placeholder: "Saisir les logiciels inclus...",
-    },
-    itemDimensionsLxWxH: {
-      value: product.itemDimensionsLxWxH || "",
-      type: "string",
-      placeholder: "Saisir les dimensions de l'article (LxWxH)",
-    },
-    weight: {
-      value: product.weight || "",
-      type: "string",
-      placeholder: "Saisir le poids...",
-    },
-    resolution: {
-      value: product.resolution || "",
-      type: "string",
-      placeholder: "Saisir la résolution...",
-    },
-  };
+const basicProductInfo = ref<Record<string, ProductField>>({
+  product_photo: {
+    value: [],
+    type: "file",
+    placeholder: "Ajouter des URLs d'images du produit...",
+  },
+  product_title: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le titre du produit...",
+  },
+  product_price: {
+    value: "",
+    type: "number",
+    placeholder: "Saisir le prix du produit...",
+  },
+  product_minimum_offer_price: {
+    value: "",
+    type: "number",
+    placeholder: "Saisir le prix minimum d'offre...",
+  },
+  product_category: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la catégorie du produit...",
+  },
+  delivery: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le délai de livraison...",
+  },
+  product_stock: {
+    value: "",
+    type: "number",
+    placeholder: "Saisir le stock du produit...",
+  },
+  product_description: {
+    value: "",
+    type: "textarea",
+    placeholder: "Saisir la description du produit...",
+  },
+});
 
-  additionalProductDetails.value = {
-    series: {
-      value: product.series || "",
-      type: "string",
-      placeholder: "Saisir la série...",
-    },
-    keyboardAndLanguage: {
-      value: product.keyboardAndLanguage || "",
-      type: "string",
-      placeholder: "Saisir le clavier et la langue...",
-    },
-  };
-};
+const productSpecifications = ref<Record<string, ProductField>>({
+  brand: { value: "", type: "string", placeholder: "Saisir la marque" },
+  itemModelNumber: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le numéro de modèle...",
+  },
+  color: { value: "", type: "string", placeholder: "Saisir la couleur..." },
+  operatingSystem: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le système d'exploitation...",
+  },
+  computerHardwarePlatform: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la plateforme matérielle...",
+  },
+  keyboardDescription: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la description du clavier...",
+  },
+  processorBrand: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la marque du processeur...",
+  },
+  typeOfProcessor: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le type de processeur...",
+  },
+  speedOfProcessor: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la vitesse du processeur...",
+  },
+  numberOfHearts: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le nombre de cœurs...",
+  },
+  sizeRam: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la taille de la RAM...",
+  },
+  sizeSsd: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la taille du SSD...",
+  },
+  typeOfStorage: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le type de stockage...",
+  },
+  sizeScreen: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la taille de l'écran...",
+  },
+  gpu: { value: "", type: "string", placeholder: "Saisir le GPU" },
+  gpuRam: { value: "", type: "string", placeholder: "Saisir la RAM du GPU..." },
+  connectivityType: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le type de connectivité...",
+  },
+  wirelessTechnologyType: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le type de technologie sans fil...",
+  },
+  computerHardwareInterface: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir l'interface matérielle...",
+  },
+  connectorType: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le type de connecteur...",
+  },
+  softwareIncluded: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir les logiciels inclus...",
+  },
+  itemDimensionsLxWxH: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir les dimensions de l'article (LxWxH)",
+  },
+  weight: { value: "", type: "string", placeholder: "Saisir le poids..." },
+  resolution: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir la résolution...",
+  },
+});
+
+const additionalProductDetails = ref<Record<string, ProductField>>({
+  series: { value: "", type: "string", placeholder: "Saisir la série..." },
+  keyboardAndLanguage: {
+    value: "",
+    type: "string",
+    placeholder: "Saisir le clavier et la langue...",
+  },
+});
 
 onMounted(async () => {
   await productsStore.getProductById(productId);
-  const product = productsStore.product;
-  productDetails.value = product;
-  initializeFormFields(product);
+  productDetails.value = productsStore.product;
 });
 
-const handleFileChange = (event) => {
-  files.value = Array.from(event.target.files);
-};
-
-const onThumbClick = (index: number) => {
-  if (emblaMainApi.value) {
-    emblaMainApi.value.scrollTo(index);
-    selectedIndex.value = index;
+watchEffect(() => {
+  if (productDetails.value) {
+    Object.keys(basicProductInfo.value).forEach((key) => {
+      if (productDetails.value[key] !== undefined) {
+        basicProductInfo.value[key].value = productDetails.value[key];
+      }
+    });
+    Object.keys(productSpecifications.value).forEach((key) => {
+      if (productDetails.value[key] !== undefined) {
+        productSpecifications.value[key].value = productDetails.value[key];
+      }
+    });
+    Object.keys(additionalProductDetails.value).forEach((key) => {
+      if (productDetails.value[key] !== undefined) {
+        additionalProductDetails.value[key].value = productDetails.value[key];
+      }
+    });
   }
-};
+});
 
+const flattenValues = (obj: Record<string, ProductField>) => {
+  const result: Record<string, string | number | boolean | File[]> = {};
+  for (let key in obj) {
+    result[key] = obj[key].value;
+  }
+  return result;
+};
+const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
+  schema: ProductSchema,
+  initialValues: { ...toRaw(basicProductInfo.value) }, // Initialize with function to ensure it gets the current values
+  onSubmit: async (values) => {
+    if (files.value.length > 0) {
+      await productsStore.addProductWithImages(values, files.value);
+    } else {
+      /* await productsStore.editProduct(values); */
+    }
+
+    if (productsStore.error) {
+      errors["image_urls"] = productsStore.error;
+    } else {
+      router.push({ name: "AdminProducts" });
+    }
+  },
+});
+
+const handleFileChange = (key: string, event: Event) => {
+  const target = event.target as HTMLInputElement;
+  files.value = Array.from(target.files || []);
+};
 const deleteImage = async (imageUrl: string) => {
   await productsStore.deleteProductImage(productId, imageUrl);
-  const product = await productsStore.fetchProductById(productId);
-  productDetails.value = product;
 };
 
-const save = async () => {
-  try {
-    const productData = {
-      product_title: basicProductInfo.value.product_title.value,
-      product_url: basicProductInfo.value.product_url.value,
-      product_price: basicProductInfo.value.product_price.value,
-      product_minimum_offer_price:
-        basicProductInfo.value.product_minimum_offer_price.value,
-      product_category: basicProductInfo.value.product_category.value,
-      delivery: basicProductInfo.value.delivery.value,
-      product_stock: basicProductInfo.value.product_stock.value,
-      is_best_seller: basicProductInfo.value.is_best_seller.value,
-      ...Object.fromEntries(
-        Object.entries(productSpecifications.value).map(([key, field]) => [
-          key,
-          field.value,
-        ])
-      ),
-      ...Object.fromEntries(
-        Object.entries(additionalProductDetails.value).map(([key, field]) => [
-          key,
-          field.value,
-        ])
-      ),
-    };
-
-    // Validate productData against the schema
-    ProductSchema.parse(productData);
-
-    if (files.value.length > 0) {
-      await productsStore.updateProductWithImages(
-        productId,
-        productData,
-        files.value
-      );
-    } else {
-      await productsStore.updateProduct(productId, productData);
-    }
-    if (productsStore.imageUploadError) {
-      errors.value["product_photo"] = productsStore.imageUploadError;
-    }
-    router.push({ name: "AdminProducts" });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Validation errors:", error.errors);
-      errors.value = {};
-      error.errors.forEach((err) => {
-        errors.value[err.path[0]] = err.message;
-      });
-    }
-  }
-};
-
-// Function to format labels in French
 const getLabel = (key: string) => {
   switch (key) {
     case "product_title":
       return "Nom du produit*";
+    case "product_description":
+      return "Description du produit";
     case "product_price":
       return "Prix du produit*";
     case "product_star_rating":
       return "Évaluation du produit";
     case "product_url":
       return "URL du produit";
-    case "product_photo":
-      return "Photo du produit*";
+    case "image_urls":
+      return "URLs des images du produit*";
     case "product_minimum_offer_price":
       return "Prix minimum de l'offre*";
     case "product_category":
@@ -349,7 +285,7 @@ const getLabel = (key: string) => {
     case "speedOfProcessor":
       return "Vitesse du processeur";
     case "numberOfHearts":
-      return "Nombre de coeurs";
+      return "Nombre de cœurs";
     case "sizeRam":
       return "Taille RAM";
     case "sizeSsd":
@@ -383,7 +319,7 @@ const getLabel = (key: string) => {
     case "keyboardAndLanguage":
       return "Clavier et langue";
     default:
-      return key; // fallback to key name if no specific label found
+      return key;
   }
 };
 </script>
@@ -398,14 +334,15 @@ const getLabel = (key: string) => {
     </span>
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="save"
+      @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
     </Button>
   </div>
 
-  <form @submit.prevent="save" class="max-w-full flex flex-col mt-6">
+  <form @submit.prevent="handleSubmit" class="max-w-full flex flex-col mt-6">
     <div class="flex w-full gap-x-2">
       <div class="flex flex-col w-1/2 gap-y-2">
         <Card class="h-fit p-3">

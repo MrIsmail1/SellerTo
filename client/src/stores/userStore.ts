@@ -26,7 +26,7 @@ export const useUsersStore = defineStore("users", {
         this.loading = false;
       }
     },
-    async deleteUser(id: number): Promise<void> {
+    async deleteUser(id: string): Promise<void> {
       this.loading = true;
       try {
         await axios.delete(`/users/${id}`);

@@ -32,6 +32,7 @@ export const createProductWithImages = async (req, res) => {
         });
 
         const savedFiles = await Promise.all(filePromises);
+        console.log("Saved files", newProduct.id);
 
         // Denormalize the product
         await denormalizeProduct(newProduct.id, {

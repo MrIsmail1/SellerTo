@@ -1,5 +1,5 @@
-import { ref, reactive, toRefs } from 'vue';
-import { z, ZodSchema } from 'zod';
+import { reactive, ref, toRefs } from "vue";
+import { z, ZodSchema } from "zod";
 
 type UseFormOptions<T> = {
   schema: ZodSchema<T>;
@@ -7,21 +7,35 @@ type UseFormOptions<T> = {
   onSubmit: (values: T) => Promise<void>;
 };
 
-export function useForm<T>({ schema, initialValues, onSubmit }: UseFormOptions<T>) {
+export function useForm<T>({
+  schema,
+  initialValues,
+  onSubmit,
+}: UseFormOptions<T>) {
   const values = reactive({ ...initialValues });
-  const errors = reactive<Record<keyof T, string | null>>({} as Record<keyof T, string | null>);
+  const errors = reactive<Record<keyof T, string | null>>(
+    {} as Record<keyof T, string | null>
+  );
+  console.log("values", values);
   const isSubmitting = ref(false);
   const httpError = ref<string | null>(null);
 
   const validate = () => {
+    console.log("values", values);
     const result = schema.safeParse(values);
+
     if (result.success) {
-      Object.keys(errors).forEach(key => {
+      Object.keys(errors).forEach((key) => {
         errors[key as keyof T] = null;
       });
       return true;
     } else {
-      result.error.errors.forEach(error => {
+      Object.keys(errors).forEach((key) => {
+        if (!result.error.errors.some((error) => error.path[0] === key)) {
+          errors[key as keyof T] = null;
+        }
+      });
+      result.error.errors.forEach((error) => {
         const path = error.path[0] as keyof T;
         errors[path] = error.message;
       });
@@ -38,7 +52,9 @@ export function useForm<T>({ schema, initialValues, onSubmit }: UseFormOptions<T
     try {
       await onSubmit(values);
     } catch (error: any) {
-      httpError.value = error.message || 'Une erreur est survenue lors de la soumission du formulaire';
+      httpError.value =
+        error.message ||
+        "Une erreur est survenue lors de la soumission du formulaire";
     } finally {
       isSubmitting.value = false;
     }
@@ -46,7 +62,7 @@ export function useForm<T>({ schema, initialValues, onSubmit }: UseFormOptions<T
 
   const cancelRequest = () => {
     isSubmitting.value = false;
-    httpError.value = 'Requête annulée';
+    httpError.value = "Requête annulée";
   };
 
   return {

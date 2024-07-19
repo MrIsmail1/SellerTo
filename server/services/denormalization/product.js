@@ -14,7 +14,6 @@ export default async function denormalizeProduct(productId, models) {
       },
       attributes: { exclude: [] },
     });
-
     if (!productDenormalized) {
       throw new Error(`Product with id ${productId} not found`);
     }

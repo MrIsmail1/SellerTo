@@ -4,18 +4,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Checkbox from "@/components/ui/checkbox/Checkbox.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
+import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
 import { ProductSchema } from "@/z-schemas/ProductSchema";
 
-import { useFormHandler } from "@/handlers/useFormHandler"; // import useFormHandler
+import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
 const productsStore = useProductsStore();
+const router = useRouter();
 
-const basicProductInfo = ref({
+type FieldType = "string" | "number" | "boolean" | "file" | "textarea";
+
+interface ProductField {
+  value: string | number | boolean | File[];
+  type: FieldType;
+  placeholder: string;
+}
+const files = ref<File[]>([]);
+
+const basicProductInfo = ref<Record<string, ProductField>>({
   product_photo: {
     value: [],
     type: "file",
@@ -25,11 +35,6 @@ const basicProductInfo = ref({
     value: "",
     type: "string",
     placeholder: "Saisir le titre du produit..",
-  },
-  product_url: {
-    value: "",
-    type: "string",
-    placeholder: "Saisir l'URL du produit...",
   },
   product_price: {
     value: "",
@@ -56,14 +61,14 @@ const basicProductInfo = ref({
     type: "number",
     placeholder: "Saisir le stock du produit...",
   },
-  is_best_seller: {
-    value: false,
-    type: "boolean",
-    placeholder: "Indiquer si meilleure vente...",
+  product_description: {
+    value: "",
+    type: "textarea",
+    placeholder: "Saisir la description du produit...",
   },
 });
 
-const productSpecifications = ref({
+const productSpecifications = ref<Record<string, ProductField>>({
   brand: { value: "", type: "string", placeholder: "Saisir la marque" },
   itemModelNumber: {
     value: "",
@@ -166,7 +171,7 @@ const productSpecifications = ref({
   },
 });
 
-const additionalProductDetails = ref({
+const additionalProductDetails = ref<Record<string, ProductField>>({
   series: { value: "", type: "string", placeholder: "Saisir la série..." },
   keyboardAndLanguage: {
     value: "",
@@ -175,34 +180,48 @@ const additionalProductDetails = ref({
   },
 });
 
-const initialValues = {
-  ...basicProductInfo.value,
-  ...productSpecifications.value,
-  ...additionalProductDetails.value,
+const flattenValues = (obj: Record<string, ProductField>) => {
+  const result: Record<string, string | number | boolean | File[]> = {};
+
+  for (const key in obj) {
+    result[key] = obj[key].value;
+  }
+  return result;
 };
 
-const { formValues, errors, handleFileChange, handleSubmit } = useFormHandler({
-  initialValues,
+const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
   schema: ProductSchema,
-  redirectRoute: { name: "AdminProducts" },
-  onSubmit: async (data) => {
-    const files = formValues.value.product_photo.value;
-    console.log(files);
-    if (files.length > 0) {
-      await productsStore.addProductWithImages(data, files);
+  initialValues: {
+    ...flattenValues(basicProductInfo.value),
+    ...flattenValues(productSpecifications.value),
+    ...flattenValues(additionalProductDetails.value),
+  },
+  onSubmit: async (values) => {
+    if (files) {
+      await productsStore.addProductWithImages(values, files.value);
     } else {
-      await productsStore.addProduct(data);
+      await productsStore.addProduct(values);
     }
-    if (productsStore.imageUploadError) {
-      errors.value["product_photo"] = productsStore.imageUploadError;
+
+    if (productsStore.error) {
+      errors["product_photo"] = productsStore.error;
+    } else {
+      router.push({ name: "AdminProducts" });
     }
   },
 });
+
+const handleFileChange = (key: string, event: Event) => {
+  const target = event.target as HTMLInputElement;
+  files.value = Array.from(target.files || []);
+};
 
 const getLabel = (key: string) => {
   switch (key) {
     case "product_title":
       return "Nom du produit*";
+    case "product_description":
+      return "Description du produit";
     case "product_price":
       return "Prix du produit*";
     case "product_star_rating":
@@ -274,7 +293,7 @@ const getLabel = (key: string) => {
     case "keyboardAndLanguage":
       return "Clavier et langue";
     default:
-      return key; // fallback to key name if no specific label found
+      return key;
   }
 };
 </script>
@@ -290,6 +309,7 @@ const getLabel = (key: string) => {
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
       @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -315,29 +335,35 @@ const getLabel = (key: string) => {
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
-                  v-model="field.value"
+                  v-model="values[key].value"
                   :placeholder="field.placeholder"
                   type="text"
                 />
                 <Input
                   v-if="field.type === 'number'"
                   :id="key"
-                  v-model.number="field.value"
+                  v-model.number="values[key].value"
                   :placeholder="field.placeholder"
                   type="number"
                 />
                 <Checkbox
                   v-if="field.type === 'boolean'"
-                  :id="key.toString()"
-                  v-model="field.value"
+                  :id="key"
+                  v-model="values[key].value"
                 />
                 <Input
-                  v-if="key === 'product_photo'"
+                  v-if="field.type === 'file'"
                   :id="key"
                   type="file"
                   multiple
                   :placeholder="field.placeholder"
                   @change="(event) => handleFileChange(key, event)"
+                />
+                <Textarea
+                  v-if="field.type === 'textarea'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -359,27 +385,25 @@ const getLabel = (key: string) => {
                 :key="key"
                 class="grid gap-2"
               >
-                <Label :for="key.toString()">{{
-                  getLabel(key.toString())
-                }}</Label>
+                <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
-                  v-model="field.value"
+                  v-model="values[key].value"
                   :placeholder="field.placeholder"
                   type="text"
                 />
                 <Input
                   v-if="field.type === 'number'"
                   :id="key"
-                  v-model.number="field.value"
+                  v-model.number="values[key].value"
                   :placeholder="field.placeholder"
                   type="number"
                 />
                 <Checkbox
                   v-if="field.type === 'boolean'"
-                  :id="key.toString()"
-                  v-model="field.value"
+                  :id="key"
+                  v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -403,27 +427,25 @@ const getLabel = (key: string) => {
               :key="key"
               class="grid gap-2"
             >
-              <Label :for="key.toString()">{{
-                getLabel(key.toString())
-              }}</Label>
+              <Label :for="key">{{ getLabel(key) }}</Label>
               <Input
                 v-if="field.type === 'string'"
                 :id="key"
-                v-model="field.value"
+                v-model="values[key].value"
                 :placeholder="field.placeholder"
                 type="text"
               />
               <Input
                 v-if="field.type === 'number'"
                 :id="key"
-                v-model.number="field.value"
-                type="number"
+                v-model.number="values[key].value"
                 :placeholder="field.placeholder"
+                type="number"
               />
               <Checkbox
                 v-if="field.type === 'boolean'"
-                :id="key.toString()"
-                v-model="field.value"
+                :id="key"
+                v-model="values[key].value"
               />
               <span v-if="errors[key]" class="text-red-500 text-sm">
                 {{ errors[key] }}

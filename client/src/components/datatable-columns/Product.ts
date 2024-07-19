@@ -1,6 +1,7 @@
 import DataTableColumnHeader from "@/components/common/DataTableColumnHeaderComponent.vue";
 import DataTableRowActionsComponent from "@/components/common/DataTableRowActionsComponent.vue";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useProductsStore } from "@/stores/productsStore";
 import type { Product } from "@/z-schemas/ProductSchema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
@@ -107,6 +108,10 @@ export const columns: ColumnDef<Product>[] = [
         viewRoute: "/admin/products/view",
         editRoute: "/admin/products/edit",
         deleteRoute: "/admin/products/delete",
+        deleteFunction: async (id: string) => {
+          const productStore = useProductsStore();
+          await productStore.deleteProduct(id);
+        },
       }),
   },
 ];
