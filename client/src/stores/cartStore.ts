@@ -79,7 +79,7 @@ export const useCartStore = defineStore('cart', {
         return;
       }
       try {
-        const response = await axios.post('/cart', { productId });
+        const response = await axios.post('/cart', {productId});
         const cartItem = response.data;
         if (cartItem && cartItem.Product) {
           const existingItem = this.cart.find(item => item.Product && item.Product.id === cartItem.Product.id);
@@ -97,7 +97,7 @@ export const useCartStore = defineStore('cart', {
     },
     async removeFromCart(cartItemId) {
       try {
-        await axios.delete('/cart', { data: { cartItemId } });
+        await axios.delete('/cart', {data: {cartItemId}});
         this.cart = this.cart.filter(item => item.id !== cartItemId);
       } catch (error) {
         console.error(error);
@@ -107,7 +107,7 @@ export const useCartStore = defineStore('cart', {
       try {
         const existingItem = this.cart.find(item => item.Product && item.Product.id === productId);
         if (existingItem) {
-          const response = await axios.put('/cart', { cartItemId: existingItem.id, quantity });
+          const response = await axios.put('/cart', {cartItemId: existingItem.id, quantity});
           existingItem.quantity = quantity;
           this.cart = [...this.cart];
         }
@@ -136,7 +136,7 @@ export const useCartStore = defineStore('cart', {
 
         const sessionId = response.data.sessionId;
 
-        const result = await stripe.redirectToCheckout({ sessionId });
+        const result = await stripe.redirectToCheckout({sessionId});
 
         if (result.error) {
           console.error(result.error.message);
@@ -185,7 +185,7 @@ export const useCartStore = defineStore('cart', {
     },
     async applyPromoCode(code) {
       try {
-        const response = await axios.post('/promocodes/validate', { code });
+        const response = await axios.post('/promocodes/validate', {code});
         const promoCode = response.data;
 
         const valid = this.groupedCart.some(item => {

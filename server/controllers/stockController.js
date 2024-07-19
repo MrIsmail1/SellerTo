@@ -20,7 +20,7 @@ export const createStock = async (req, res) => {
 
     try {
         if (!['ADD', 'REMOVE'].includes(operationType)) {
-            return res.status(400).json({ message: 'Invalid operation type' });
+            return res.status(400);
         }
 
         const product = await Products.findByPk(productId);
@@ -45,7 +45,7 @@ export const deleteStock = async (req, res) => {
         }
 
         await stock.destroy();
-        res.status(204).json({ message: 'Stock deleted' });
+        res.status(204);
     } catch (error) {
         res.status(500);
     }

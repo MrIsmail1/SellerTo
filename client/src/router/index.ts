@@ -72,7 +72,7 @@ const routes = [
         component: () => import("@/views/front/notif/CancelView.vue"),
       },
       {
-        path: "search",
+        path: "products",
         name: "Search",
         component: () => import("@/views/front/product/SearchProductsView.vue"),
         props: true,
@@ -87,35 +87,35 @@ const routes = [
         path: "/legal-mentions",
         name: "legal-mentions",
         component: () =>
-          import("@/views/front/legalcontent/LegalContentView.vue"),
+            import("@/views/front/legalcontent/LegalContentView.vue"),
         meta: { contentType: "legal-mentions" },
       },
       {
         path: "/cookies",
         name: "cookies",
         component: () =>
-          import("@/views/front/legalcontent/LegalContentView.vue"),
+            import("@/views/front/legalcontent/LegalContentView.vue"),
         meta: { contentType: "cookies" },
       },
       {
         path: "/terms-of-use",
         name: "terms-of-use",
         component: () =>
-          import("@/views/front/legalcontent/LegalContentView.vue"),
+            import("@/views/front/legalcontent/LegalContentView.vue"),
         meta: { contentType: "terms-of-use" },
       },
       {
         path: "/terms-of-sales",
         name: "terms-of-sales",
         component: () =>
-          import("@/views/front/legalcontent/LegalContentView.vue"),
+            import("@/views/front/legalcontent/LegalContentView.vue"),
         meta: { contentType: "terms-of-sales" },
       },
       {
         path: "/data-protection",
         name: "data-protection",
         component: () =>
-          import("@/views/front/legalcontent/LegalContentView.vue"),
+            import("@/views/front/legalcontent/LegalContentView.vue"),
         meta: { contentType: "data-protection" },
       },
     ],
@@ -211,8 +211,8 @@ router.beforeEach(async (to, from, next) => {
     if (!authStore.user) {
       next({ name: "Login" });
     } else if (
-      to.meta.requiresAdmin &&
-      !["Admin", "SuperAdmin"].includes(authStore.user.role)
+        to.meta.requiresAdmin &&
+        !["Admin", "SuperAdmin"].includes(authStore.user.role)
     ) {
       next({ name: "Homepage" });
     } else {
@@ -220,9 +220,9 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     if (
-      to.name === "AdminLogin" &&
-      authStore.user &&
-      ["Admin", "SuperAdmin"].includes(authStore.user.role)
+        to.name === "AdminLogin" &&
+        authStore.user &&
+        ["Admin", "SuperAdmin"].includes(authStore.user.role)
     ) {
       next({ name: "AdminDashboard" });
     } else {

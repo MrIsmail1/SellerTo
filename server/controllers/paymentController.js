@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import {Payment} from "../models/postgres/paymentModel.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -29,8 +30,7 @@ export const createPaymentSession = async (req, res) => {
     });
     res.status(200).json({ sessionId: session.id });
   } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ message: 'Error creating checkout session' });
+    res.status(500);
   }
 };
 
@@ -60,8 +60,7 @@ export const createUniquePaymentLink = async (req, res) => {
     });
     res.status(200).json({ paymentUrl: session.url });
   } catch (error) {
-    console.error('Error creating unique payment link:', error);
-    res.status(500).json({ message: 'Error creating unique payment link' });
+    res.status(500);
   }
 };
 
@@ -80,9 +79,8 @@ export const createRefund = async (req, res) => {
         { where: { paymentIntentId, userId } }
     );
 
-    res.status(200).json({ message: 'Refund created successfully', refund });
+    res.status(200).json(refund);
   } catch (error) {
-    console.error('Error creating refund:', error);
     res.status(500);
   }
 };

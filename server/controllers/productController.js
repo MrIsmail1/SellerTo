@@ -2,15 +2,18 @@ import Product from '../models/mongo/productModel.js';
 import Products from '../models/postgres/productModel.js';
 
 export const getProducts = async (req, res) => {
-  try {
-    const filters = req.query;
-    const query = applyFilters(filters);
+    try {
+        const filters = req.query;
+        if (filters.query) {
+            return searchProductByTitleOrDescription(req, res);
+        }
 
-    const products = await Product.find(query);
-    res.json(products);
-  } catch (error) {
-    res.status(500);
-  }
+        const query = applyFilters(filters);
+        const products = await Product.find(query);
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500);
+    }
 };
 
 export const getProduct = async (req, res) => {
@@ -43,22 +46,17 @@ export const createProduct = async (req, res) => {
   try {
     const products = req.body;
 
-    if (Array.isArray(products)) {
-      const newProducts = await Products.bulkCreate(products, {
-        returning: true,
-        individualHooks: true,
-      });
-      res.status(201).json(newProducts);
-    } else {
-      const newProduct = await Products.create(products, {
-        returning: true,
-        individualHooks: true,
-      });
-      res.status(201).json(newProduct);
+        // TODO : Je sais pas pourquoi il y a deux fois un create c'est bizarre faut peut-être en retiré
+        if (Array.isArray(products)) {
+            const newProducts = await Products.bulkCreate(products, { returning: true, individualHooks: true });
+            res.status(201).json(newProducts);
+        } else {
+            const newProduct = await Products.create(products, { returning: true, individualHooks: true });
+            res.status(201).json(newProduct);
+        }
+    } catch (error) {
+        res.status(500);
     }
-  } catch (error) {
-    res.status(500);
-  }
 };
 
 export const updateProduct = async (req, res) => {
@@ -93,18 +91,17 @@ export const patchProduct = async (req, res) => {
 };
 
 export const deleteProduct = async (req, res) => {
-  try {
-    const product = await Products.findByPk(req.params.id);
-    console.log(product);
-    if (!product) {
-      return res.status(404);
-    }
-    await product.destroy({ individualHooks: true });
+    try {
+        const product = await Products.findByPk(req.params.id);
+        if (!product) {
+            return res.status(404);
+        }
+        await product.destroy({ individualHooks: true });
 
-    res.status(204).json({ message: "Product deleted" });
-  } catch (error) {
-    res.status(500);
-  }
+        res.status(204);
+    } catch (error) {
+        res.status(500);
+    }
 };
 
 export const searchProductByTitleOrDescription = async (req, res) => {
@@ -147,7 +144,7 @@ export const searchProductByTitleOrDescription = async (req, res) => {
       { $sort: { score: -1 } },
     ]);
 
-    res.json(products);
+    res.status(200).json(products);
   } catch (error) {
     res.status(500);
   }

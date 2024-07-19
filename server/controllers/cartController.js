@@ -55,7 +55,7 @@ export const addToCart = async (req, res) => {
     }, 3 * 60 * 1000); // 3 minutes
   } catch (error) {
     console.error('Error adding to cart:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500);
   }
 };
 
@@ -74,10 +74,10 @@ export const removeFromCart = async (req, res) => {
     }
 
     await Cart.destroy({ where: { id: cartItem.id } });
-    res.status(200).json({ message: 'Product removed from cart' });
+    // TODO : Vu que c'est un remove c'est pas un 204 ?
+    res.status(200);
   } catch (error) {
-    console.error('Error removing from cart:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500);
   }
 };
 
@@ -94,8 +94,7 @@ export const getCart = async (req, res) => {
     });
     res.status(200).json(carts);
   } catch (error) {
-    console.error('Error getting cart items:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500);
   }
 };
 
@@ -106,15 +105,14 @@ export const updateCartQuantity = async (req, res) => {
   try {
     const cartItem = await Cart.findOne({ where: { id: cartItemId, userId }, include: [{ model: Product, as: 'Product' }] });
     if (!cartItem) {
-      return res.status(404).json({ message: 'Cart item not found' });
+      return res.status(404);
     }
 
     cartItem.quantity = quantity;
     await cartItem.save();
 
-    res.status(200).json({ message: 'Cart item quantity updated', cartItem });
+    res.status(200).json(cartItem);
   } catch (error) {
-    console.error('Error updating cart item quantity:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500);
   }
 };

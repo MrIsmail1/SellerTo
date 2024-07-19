@@ -33,7 +33,7 @@ onMounted(() => {
 const handleSearch = async () => {
   if (searchQuery.value.trim() !== "") {
     await productStore.searchProductByTitleOrDescription(searchQuery.value);
-    router.push({ path: "/search", query: { query: searchQuery.value } });
+    router.push({ path: "/products", query: { query: searchQuery.value } });
   }
 };
 

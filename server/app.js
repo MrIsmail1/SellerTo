@@ -49,8 +49,8 @@ app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/upload", imagesRoutes);
 app.use("/api/orders", orderRouter);
-app.use('/api', promoCodeRouter);
-app.use('/api', stockRouter);
+app.use('/api/stocks', stockRouter);
+app.use('/api/promocodes', promoCodeRouter);
 
 connectedDataBase();
 
