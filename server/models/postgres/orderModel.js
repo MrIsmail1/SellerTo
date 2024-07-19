@@ -1,5 +1,9 @@
 import {DataTypes} from 'sequelize';
 import sequelize from '../../config/database.js';
+import denormalizeOrder from "../../services/denormalization/order.js";
+import OrderMongo from "../../models/mongo/orderModel.js";
+import Products from "./productModel.js";
+import Users from "./userModel.js";
 
 const Orders = sequelize.define('Orders', {
     id: {
@@ -58,8 +62,19 @@ const Orders = sequelize.define('Orders', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-}, {
+},  {
     timestamps: true,
+    hooks: {
+        afterCreate: async (order, options) => {
+            await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
+        },
+        afterUpdate: async (order, options) => {
+            await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
+        },
+        afterDestroy: async (order, options) => {
+            await OrderMongo.findByIdAndDelete(order.id);
+        },
+    },
 });
 
 export default Orders;

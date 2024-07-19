@@ -24,8 +24,8 @@ export default async function denormalizeProduct(productId, models) {
 
     // Map images to include only the URL
     const imageUrls = productJSON.images
-      ? productJSON.images.map((image) => image.url)
-      : [];
+        ? productJSON.images.map((image) => image.url)
+        : [];
 
     // Include image URLs in the product document
     productJSON.imageUrls = imageUrls;
