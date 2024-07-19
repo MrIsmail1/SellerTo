@@ -34,9 +34,10 @@ export const register = async (req, res) => {
 
     await sendConfirmationEmail(user);
 
+    // TODO : Faut pas renvoyer juste user ( res.status(201).json(user); )
     res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.' });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur interne du serveur' });
+    res.status(500);
   }
 };
 

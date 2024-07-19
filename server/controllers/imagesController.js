@@ -7,7 +7,7 @@ import { uploadFiles } from "../services/imageUploadService.js";
 export const createProductWithImages = async (req, res) => {
   uploadFiles(req, res, async (err, fileInfos) => {
     if (err) {
-      return res.status(400).json({ message: err.message });
+      return res.status(400);
     } else {
       const productData = JSON.parse(req.body.productData);
       try {
@@ -42,8 +42,7 @@ export const createProductWithImages = async (req, res) => {
         return res.json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
         return res
-          .status(500)
-          .json({ message: "Database error", error: dbError });
+          .status(500);
       }
     }
   });
@@ -54,13 +53,13 @@ export const addImagesToProduct = async (req, res) => {
   const { productId } = req.body;
 
   if (!productId) {
-    return res.status(400).json({ message: "Product ID is required" });
+    return res.status(400);
   }
 
   try {
     const product = await Products.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404);
     }
 
     uploadFiles(req, res, async (err, fileInfos) => {
@@ -89,13 +88,12 @@ export const addImagesToProduct = async (req, res) => {
           return res.json({ files: savedFiles });
         } catch (dbError) {
           return res
-            .status(500)
-            .json({ message: "Database error", error: dbError });
+            .status(500);
         }
       }
     });
   } catch (error) {
-    return res.status(500).json({ message: "Product retrieval failed", error });
+    return res.status(500);
   }
 };
 
@@ -104,24 +102,23 @@ export const deleteProductImage = async (req, res) => {
 
   if (!productId || !imageId) {
     return res
-      .status(400)
-      .json({ message: "Product and Image IDs are required" });
+      .status(400);
   }
 
   try {
     const product = await Products.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404);
     }
 
     const image = await Images.findByPk(imageId);
     if (!image) {
-      return res.status(404).json({ message: "Image not found" });
+      return res.status(404);
     }
 
     await image.destroy();
     return res.json({ message: "Image deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Image deletion failed", error });
+    return res.status(500);
   }
 };

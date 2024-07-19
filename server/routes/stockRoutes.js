@@ -3,8 +3,8 @@ import { getAllStock, createStock, deleteStock } from '../controllers/stockContr
 
 const router = express.Router();
 
-router.get('/stock', getAllStock);
-router.post('/stock', createStock);
-router.delete('/stock/:id', deleteStock);
+router.get('/', getAllStock);
+router.post('/', createStock);
+router.delete('/:id', deleteStock);
 
 export default router;

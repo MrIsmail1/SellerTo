@@ -7,16 +7,15 @@ export const validatePromoCode = async (req, res) => {
         const promoCode = await PromoCodes.findOne({ where: { code } });
 
         if (!promoCode) {
-            return res.status(404).json({ error: 'Code promo introuvable' });
+            return res.status(404).json({ message: 'Code promo non trouvé.' });
         }
 
         if (new Date(promoCode.expiry_date) < new Date()) {
-            return res.status(400).json({ error: 'Code promo expiré' });
+            return res.status(400).json({ message: 'Le code promo a expiré.' });
         }
 
-        return res.json(promoCode);
+        return res.status(200).json(promoCode);
     } catch (error) {
-        console.error('Error validating promo code:', error);
-        return res.status(500).json({ error: 'Erreur serveur' });
+        return res.status(500);
     }
 };
