@@ -31,7 +31,7 @@ export const getProduct = async (req, res) => {
 export const getProductById = async (productId) => {
   try {
     const product = await Product.findById(productId).select(
-      "_id product_title product_price product_photo product_description product_category"
+      "_id product_title product_price product_description product_category"
     );
     if (!product) {
       throw new Error("Product not found");

@@ -67,7 +67,6 @@ export const useProductsStore = defineStore("products", {
       this.loading = true;
       try {
         const response = await axios.post(`/products`, product);
-        console.log(response.data);
         this.product = response.data;
         this.error = null;
       } catch (error) {
@@ -128,14 +127,12 @@ export const useProductsStore = defineStore("products", {
         files.forEach((file) => {
           formData.append("files", file);
         });
-
         // Create the product with images
         const response = await axios.post("/upload/products/images", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-
         this.product = response.data.product;
         this.product.images = response.data.files;
         this.error = null;
@@ -143,7 +140,7 @@ export const useProductsStore = defineStore("products", {
         console.error("Failed to add product with images:", error);
         this.error = error.response?.data?.message || error.message;
         if (error.response?.data?.message.includes("Only images are allowed")) {
-          this.imageUploadError = error.response.data.message;
+          this.error = error.response.data.message;
         }
       } finally {
         this.loading = false;
@@ -200,5 +197,42 @@ export const useProductsStore = defineStore("products", {
         console.error("Failed to search products:", error);
       }
     },
+    async updateProductWithImages(
+      productId: string,
+      product: Product,
+      files: File[]
+    ) {
+      this.loading = true;
+      this.imageUploadError = null;
+      try {
+        // Create form data
+        const formData = new FormData();
+        formData.append("productData", JSON.stringify(product));
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+        // Update the product with images
+        const response = await axios.put(
+          `/upload/products/${productId}/images`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        this.product = response.data.product;
+        this.product.images = response.data.files;
+        this.error = null;
+      } catch (error) {
+        console.error("Failed to update product with images:", error);
+        this.error = error.response?.data?.message || error.message;
+        if (error.response?.data?.message.includes("Only images are allowed")) {
+          this.error = error.response.data.message;
+        }
+      } finally {
+        this.loading = false;
+      }
+    }
   },
 });

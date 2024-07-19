@@ -7,6 +7,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    product_description: {
+      type: String,
+      required: false,
+    },
     product_price: {
       type: Number,
       required: false,
@@ -16,10 +20,6 @@ const productSchema = new mongoose.Schema(
       required: false,
     },
     product_url: {
-      type: String,
-      required: false,
-    },
-    product_photo: {
       type: String,
       required: false,
     },
@@ -42,7 +42,10 @@ const productSchema = new mongoose.Schema(
     product_stock: {
       type: Number,
       required: false,
-      default: 0,
+    },
+    active: {
+      type: Boolean,
+      required: false,
     },
     brand: {
       type: String,

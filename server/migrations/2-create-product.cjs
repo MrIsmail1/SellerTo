@@ -12,6 +12,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      product_description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       product_price: {
         type: Sequelize.FLOAT,
         allowNull: true,
@@ -22,10 +26,6 @@ module.exports = {
       },
       product_url: {
         type: Sequelize.STRING,
-        allowNull: true,
-      },
-      product_photo: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: true,
       },
       product_minimum_offer_price: {
@@ -48,6 +48,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: 0,
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
       },
       brand: {
         type: Sequelize.STRING,
@@ -165,7 +169,6 @@ module.exports = {
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("Products");
   },

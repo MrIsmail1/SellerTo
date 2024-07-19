@@ -41,7 +41,7 @@ export const columns: ColumnDef<User>[] = [
         viewRoute: "/admin/users/view",
         editRoute: "/admin/users/edit",
         deleteRoute: "/admin/users/delete",
-        deleteFunction: async (id: number) => {
+        deleteFunction: async (id: string) => {
           const userStore = useUsersStore();
           await userStore.deleteUser(id);
           if (userStore.error) {

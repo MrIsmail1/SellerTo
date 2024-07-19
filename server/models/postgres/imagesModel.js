@@ -42,6 +42,7 @@ const Images = sequelize.define("Images", {
       model: "Products",
       key: "id",
     },
+    onDelete: "CASCADE",
     allowNull: false,
   },
 });

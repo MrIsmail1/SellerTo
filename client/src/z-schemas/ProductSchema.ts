@@ -4,11 +4,10 @@ export const ProductSchema = z.object({
   product_title: z
     .string()
     .min(1, { message: "Le titre du produit est requis" }),
+  product_description: z.string().optional(),
   product_price: z
     .number({ message: "Le prix du produit est requis" })
     .min(0.01, { message: "Le prix du produit doit être supérieur à zéro" }),
-  product_url: z.string().optional(),
-  product_photo: z.array(z.number()).optional(),
   product_minimum_offer_price: z
     .number({ message: "Le prix minimum de l'offre et requis" })
     .min(0.01, {
@@ -17,7 +16,6 @@ export const ProductSchema = z.object({
   product_category: z
     .string()
     .min(1, { message: "La catégorie du produit est requise" }),
-  is_best_seller: z.boolean(),
   delivery: z
     .string()
     .min(1, { message: "Les informations de livraison sont requises" }),
