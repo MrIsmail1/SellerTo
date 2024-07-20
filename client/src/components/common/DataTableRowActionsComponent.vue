@@ -16,8 +16,8 @@ interface DataTableRowActionsProps<T> {
   row: Row<T>;
   viewRoute: string;
   editRoute: string;
-  deleteRoute: string;
-  deleteFunction: (id: string) => Promise<void>;
+  deleteRoute?: string; // Make deleteRoute optional
+  deleteFunction?: (id: string) => Promise<void>; // Make deleteFunction optional
 }
 
 const props = defineProps<DataTableRowActionsProps<any>>();
@@ -31,7 +31,9 @@ const navigateTo = (route: string) => {
   router.push(route);
 };
 const deleteItem = async (rowId: string) => {
-  await props.deleteFunction(rowId);
+  if (props.deleteFunction) {
+    await props.deleteFunction(rowId);
+  }
 };
 </script>
 
@@ -53,8 +55,11 @@ const deleteItem = async (rowId: string) => {
       <DropdownMenuItem @click="navigateTo(props.editRoute + '/' + rowId)">
         Modifier
       </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem @click="deleteItem(rowId)">
+      <DropdownMenuSeparator v-if="props.deleteRoute && props.deleteFunction" />
+      <DropdownMenuItem
+        v-if="props.deleteRoute && props.deleteFunction"
+        @click="deleteItem(rowId)"
+      >
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
       </DropdownMenuItem>

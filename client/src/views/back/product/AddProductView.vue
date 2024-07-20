@@ -6,11 +6,11 @@ import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
 import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
-import { ProductSchema } from "@/z-schemas/ProductSchema";
+import { AddProductSchema } from "@/z-schemas/ProductSchema";
 
 import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const productsStore = useProductsStore();
@@ -190,7 +190,7 @@ const flattenValues = (obj: Record<string, ProductField>) => {
 };
 
 const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
-  schema: ProductSchema,
+  schema: AddProductSchema,
   initialValues: {
     ...flattenValues(basicProductInfo.value),
     ...flattenValues(productSpecifications.value),

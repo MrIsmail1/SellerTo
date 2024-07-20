@@ -16,6 +16,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  PackageOpen,
   Settings,
   ShoppingCart,
   Users,
@@ -37,19 +38,19 @@ const primaryMenuItems = [
     icon: LayoutDashboard,
     text: "Tableau de bord",
   },
-  { route: { name: "" }, icon: FileText, text: "Commandes" },
+  { route: { name: "AdminOrders" }, icon: FileText, text: "Commandes" },
   { route: { name: "AdminProducts" }, icon: ShoppingCart, text: "Produits" },
   {
     route: { name: "" },
-    icon: CreditCard,
-    text: "Facturation",
+    icon: PackageOpen,
+    text: "Stock",
   },
   { route: { name: "AdminUsers" }, icon: Users, text: "Utilisateurs" },
 ];
 
 const secondaryMenuItems = [
-  { route: { name: "" }, icon: Settings, text: "Paramètres" },
-  {
+  /*   { route: { name: "" }, icon: Settings, text: "Paramètres" },
+   */ {
     route: { name: "" },
     icon: LogOut,
     text: "Déconnexion",
@@ -160,7 +161,7 @@ const secondaryMenuItems = [
               "Admin"
             }}</span>
             <span class="text-text-200 text-sm font-medium">{{
-              authStore.user.email ?? "Admin"
+              authStore.user.email
             }}</span>
           </div>
           <DropdownMenu>

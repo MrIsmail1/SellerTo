@@ -68,4 +68,5 @@ export const EditUserSchema = z.object({
 });
 
 export type AddUser = z.infer<typeof AddUserSchema>;
+export type User = z.infer<typeof AddUserSchema>;
 export type EditUser = z.infer<typeof EditUserSchema>;

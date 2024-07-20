@@ -6,7 +6,7 @@ import Input from "@/components/ui/input/Input.vue";
 import Label from "@/components/ui/label/Label.vue";
 import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
-import { ProductSchema } from "@/z-schemas/ProductSchema";
+import { EditProductSchema } from "@/z-schemas/ProductSchema";
 
 import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
@@ -59,11 +59,6 @@ const basicProductInfo = ref<Record<string, ProductField>>({
     value: "",
     type: "string",
     placeholder: "Saisir le délai de livraison...",
-  },
-  product_stock: {
-    value: "",
-    type: "number",
-    placeholder: "Saisir le stock du produit...",
   },
   product_description: {
     value: "",
@@ -221,7 +216,7 @@ onMounted(() => {
 
 const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
   useForm({
-    schema: ProductSchema,
+    schema: EditProductSchema,
     initialValues: {
       ...flattenValues(basicProductInfo.value),
       ...flattenValues(productSpecifications.value),

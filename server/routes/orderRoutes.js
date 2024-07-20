@@ -1,10 +1,23 @@
-import express from 'express';
-import {getUserOrders, getDashboardData} from '../controllers/orderController.js';
-import {checkAuth} from '../middlewares/checkAuth.js';
+import express from "express";
+import {
+  generateInvoices,
+  getDashboardData,
+  getOrders,
+  getUserOrders,
+} from "../controllers/orderController.js";
+import { checkAuth } from "../middlewares/checkAuth.js";
+import { checkRole } from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-router.get('/', checkAuth, getUserOrders);
-router.get('/dashboard', getDashboardData);
+router.get("/", checkAuth, checkRole(["User"]), getUserOrders);
+router.get("/dashboard", checkRole(["Admin", "SuperAdmin"]), getDashboardData);
+router.get("/all", checkAuth, checkRole(["Admin", "SuperAdmin"]), getOrders);
+router.post(
+  "/invoice",
+  checkAuth,
+  checkRole(["Admin", "SuperAdmin"]),
+  generateInvoices
+);
 
 export default router;

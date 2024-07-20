@@ -63,23 +63,6 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: "product_stock",
-    header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: "Stock" }),
-    cell: ({ row }) => row.original.product_stock,
-    enableSorting: true,
-  },
-  {
-    accessorKey: "is_best_seller",
-    header: ({ column }) =>
-      h(DataTableColumnHeader, { column, title: "Meilleure vente" }),
-    cell: ({ row }) =>
-      row.original.is_best_seller
-        ? h("div", { class: "text-green-500 font-medium" }, "Oui")
-        : h("div", { class: "text-red-500 font-medium" }, "Non"),
-    enableSorting: true,
-  },
-  {
     accessorKey: "imageUrls",
     header: ({ column }) =>
       h(DataTableColumnHeader, { column, title: "Images" }),

@@ -72,7 +72,7 @@ const handleInput = (event: Event) => {
       type="text"
       v-model="filterValue"
       @input="handleInput"
-      placeholder="Search..."
+      placeholder="Recherche..."
       class="h-8 px-2 border border-gray-300 rounded-md w-52 mt-2"
     />
   </div>
