@@ -31,6 +31,8 @@ import { watchOnce } from "@vueuse/core";
 import { Box, CreditCard, Headset, ShieldCheck, Truck } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import AddUserAlert from '@/components/alert/AddUserAlert.vue';
+
 
 const emblaMainApi = ref<CarouselApi>();
 const emblaThumbnailApi = ref<CarouselApi>();
@@ -173,6 +175,9 @@ const addToCart = async () => {
         <p class="mb-2">
           <strong>Prix:</strong> {{ productDetail.product_price }} €
         </p>
+
+        <AddUserAlert :userId="1" :productId="productDetail._id" />
+
         <Button @click="addToCart" class="mt-4">Ajouter au panier</Button>
         <Accordion type="single" class="w-full">
           <AccordionItem>

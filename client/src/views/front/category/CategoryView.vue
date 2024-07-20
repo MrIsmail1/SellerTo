@@ -6,6 +6,7 @@ import FilterComponent from '@/components/filter/FilterComponent.vue';
 import { useRoute } from 'vue-router';
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import AddUserAlert from '@/components/alert/AddUserAlert.vue';
 import { SlidersHorizontal } from 'lucide-vue-next';
 
 const productStore = useProductsStore();
@@ -67,6 +68,7 @@ watch(() => route.query, (newQuery) => {
         </div>
       </div>
       <div class="flex flex-wrap justify-between -mt-4">
+        <AddUserAlert :userId="1" />
         <template v-for="product in filteredProducts" :key="product._id">
           <CardSellComponent :product="product" class="mt-4"/>
         </template>
