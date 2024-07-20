@@ -83,9 +83,9 @@ const addToCart = async () => {
         <div class="w-full sm:w-auto center">
           <Carousel class="relative w-full max-w-xs" @init-api="(val) => (emblaMainApi = val)">
             <CarouselContent>
-              <CarouselItem v-for="(photo, index) in productDetail.product_photo.split(',')" :key="index">
+              <!-- <CarouselItem v-for="(photo, index) in productDetail.imageUrls.split(',')" :key="index">
                 <img :src="photo" alt="Product Image" class="w-full h-auto object-cover rounded-lg" />
-              </CarouselItem>
+              </CarouselItem> -->
             </CarouselContent>
             <CarouselPrevious />
             <CarouselNext />
@@ -93,14 +93,14 @@ const addToCart = async () => {
 
           <Carousel class="relative w-full max-w-xs mt-4" @init-api="(val) => (emblaThumbnailApi = val)">
             <CarouselContent class="flex gap-1 ml-0">
-              <CarouselItem
-                v-for="(photo, index) in productDetail.product_photo.split(',')"
+              <!-- <CarouselItem
+                v-for="(photo, index) in productDetail.imageUrls.split(',')"
                 :key="index"
                 class="pl-0 basis-1/4 cursor-pointer"
                 @click="onThumbClick(index)"
               >
                 <img :src="photo" alt="Thumbnail Image" class="w-full h-auto object-cover rounded-lg" :class="index === selectedIndex ? '' : 'opacity-50'" />
-              </CarouselItem>
+              </CarouselItem> -->
             </CarouselContent>
           </Carousel>
         </div>

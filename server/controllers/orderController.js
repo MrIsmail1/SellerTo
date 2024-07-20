@@ -3,6 +3,7 @@ import Order from '../models/mongo/orderModel.js';
 import { getProductById } from './productController.js';
 import { getUserById } from './userController.js';
 import nodemailer from "nodemailer";
+import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
 
 async function getProductDetails(productId) {
     return await getProductById(productId);
@@ -27,17 +28,35 @@ export const getUserOrders = async (req, res) => {
                 const productDetails = await getProductDetails(order.productId);
                 const userDetails = await getUserDetails(order.userId);
 
+                // Find the payment record using paymentIntentId
+                const payment = await Payment.findOne({
+                    where: {
+                        paymentIntentId: order.paymentIntentId,
+                    }
+                });
+
+                let paymentProducts = [];
+                if (payment) {
+                    // Get PaymentProduct using paymentId
+                    paymentProducts = await PaymentProduct.findAll({
+                        where: {
+                            paymentId: payment.id,
+                        }
+                    });
+                }
+
                 return {
                     ...order.toJSON(),
                     product: productDetails,
                     user: userDetails,
+                    paymentProducts: paymentProducts,
                 };
             })
         );
 
         res.status(200).json(detailedOrders);
     } catch (error) {
-        res.status(500);
+        res.status(500).json({ message: error.message });
     }
 };
 

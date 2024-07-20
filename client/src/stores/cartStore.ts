@@ -172,17 +172,6 @@ export const useCartStore = defineStore('cart', {
         this.paymentLink = null;
       }
     },
-    async createRefund(paymentIntentId, amount) {
-      try {
-        const response = await axios.post('/payments/refund', {
-          paymentIntentId,
-          amount: amount ? amount * 100 : undefined,
-        });
-        console.log('Refund created:', response.data);
-      } catch (error) {
-        console.error('Error creating refund:', error);
-      }
-    },
     async applyPromoCode(code) {
       try {
         const response = await axios.post('/promocodes/validate', {code});

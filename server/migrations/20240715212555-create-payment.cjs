@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -73,6 +73,22 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      amount: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      refundId: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      refundAmount: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      refundStatus: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -89,5 +105,5 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('PaymentProducts');
     await queryInterface.dropTable('Payments');
-  }
+  },
 };

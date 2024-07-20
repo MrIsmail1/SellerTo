@@ -77,6 +77,7 @@ const stripeWebhookHandler = async (req, res) => {
                         paymentId: payment.id,
                         productId: item.productId,
                         quantity: item.quantity,
+                        amount: (item.amount * item.quantity) / 100, // Include amount here
                     });
 
                     await Stock.create({

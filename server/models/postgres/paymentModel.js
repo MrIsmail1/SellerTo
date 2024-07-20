@@ -64,6 +64,22 @@ const PaymentProduct = sequelize.define('PaymentProduct', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  amount: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+  refundId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  refundAmount: {
+    type: DataTypes.FLOAT,
+    allowNull: true,
+  },
+  refundStatus: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
 });

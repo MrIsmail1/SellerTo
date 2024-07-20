@@ -15,7 +15,7 @@ const router = Router();
 router.get(
   "/profile",
   checkAuth,
-  checkRole(["User", "Admin", "SuperAdmin"]),
+  checkRole(["users", "Admin", "SuperAdmin"]),
   getUserProfile
 );
 router.get(
