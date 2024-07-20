@@ -19,3 +19,58 @@ export const validatePromoCode = async (req, res) => {
         return res.status(500);
     }
 };
+
+export const createPromoCode = async (req, res) => {
+    const { code, discount, expiry_date, product_id, category } = req.body;
+
+    try {
+        const newPromoCode = await PromoCodes.create({ code, discount, expiry_date, product_id, category });
+        return res.status(201).json(newPromoCode);
+    } catch (error) {
+        return res.status(500);
+    }
+};
+
+export const updatePromoCode = async (req, res) => {
+    const { id } = req.params;
+    const { code, discount, expiry_date, product_id, category } = req.body;
+
+    try {
+        const promoCode = await PromoCodes.findByPk(id);
+
+        if (!promoCode) {
+            return res.status(404);
+        }
+
+        await promoCode.update({ code, discount, expiry_date, product_id, category });
+        return res.status(200).json(promoCode);
+    } catch (error) {
+        return res.status(500);
+    }
+};
+
+export const deletePromoCode = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const promoCode = await PromoCodes.findByPk(id);
+
+        if (!promoCode) {
+            return res.status(404);
+        }
+
+        await promoCode.destroy();
+        return res.status(204);
+    } catch (error) {
+        return res.status(500);
+    }
+};
+
+export const getAllPromoCodes = async (req, res) => {
+    try {
+        const promoCodes = await PromoCodes.findAll();
+        return res.status(200).json(promoCodes);
+    } catch (error) {
+        return res.status(500);
+    }
+};
