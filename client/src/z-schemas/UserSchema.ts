@@ -14,7 +14,16 @@ export const AddUserSchema = z.object({
   password: z.string().min(12, {
     message: "Le mot de passe doit contenir au moins 12 caractères...",
   }),
-  role: z.enum(["SuperAdmin", "Admin", "User"]).default("User"),
+  role: z
+    .enum(["SuperAdmin", "Admin", "User"], {
+      errorMap: (issue, ctx) => {
+        return {
+          message:
+            "Le rôle doit être l'un des suivants: SuperAdmin, Admin, User.",
+        };
+      },
+    })
+    .default("User"),
   isVerified: z.boolean().default(false),
   address: z.string().optional().nullable(),
   country: z.string().optional().nullable(),
@@ -40,7 +49,16 @@ export const EditUserSchema = z.object({
       message: "Le mot de passe doit contenir au moins 12 caractères...",
     })
     .optional(),
-  role: z.enum(["SuperAdmin", "Admin", "User"]).default("User"),
+  role: z
+    .enum(["SuperAdmin", "Admin", "User"], {
+      errorMap: (issue, ctx) => {
+        return {
+          message:
+            "Le rôle doit être l'un des suivants: SuperAdmin, Admin, User.",
+        };
+      },
+    })
+    .default("User"),
   isVerified: z.boolean().default(false),
   address: z.string().optional().nullable(),
   country: z.string().optional().nullable(),

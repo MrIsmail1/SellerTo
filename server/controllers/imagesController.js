@@ -42,8 +42,7 @@ export const createProductWithImages = async (req, res) => {
 
         return res.json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
-        return res
-          .status(500);
+        return res.status(500);
       }
     }
   });
@@ -86,10 +85,14 @@ export const addImagesToProduct = async (req, res) => {
           });
 
           const savedFiles = await Promise.all(filePromises);
+          // Denormalize the product
+          await denormalizeProduct(productId, {
+            Product: Products,
+            Images: Images,
+          });
           return res.json({ files: savedFiles });
         } catch (dbError) {
-          return res
-            .status(500);
+          return res.status(500);
         }
       }
     });
@@ -102,8 +105,7 @@ export const deleteProductImage = async (req, res) => {
   const { productId, imageId } = req.params;
 
   if (!productId || !imageId) {
-    return res
-      .status(400);
+    return res.status(400);
   }
 
   try {

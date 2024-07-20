@@ -24,7 +24,7 @@ import { z } from "zod";
 const router = useRouter();
 const usersStore = useUsersStore();
 
-type FieldType = "string" | "number" | "boolean" | "select";
+type FieldType = "string" | "number" | "boolean" | "select" | "password";
 
 interface UserField {
   value: string | number | boolean;
@@ -51,11 +51,11 @@ const userInfo = ref<Record<string, UserField>>({
   },
   password: {
     value: "",
-    type: "string",
+    type: "password",
     placeholder: "Saisir le mot de passe...",
   },
   role: {
-    value: "User",
+    value: "users",
     type: "select",
     placeholder: "Choisir le rôle",
     options: ["SuperAdmin", "Admin", "User"],
@@ -81,7 +81,8 @@ const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
     ...flattenValues(userInfo.value),
   },
   onSubmit: async (values) => {
-    await usersStore.createUser(values);
+    await usersStore.createUser(JSON.stringify(values));
+    router.push({ name: "AdminUsers" });
   },
 });
 
@@ -119,6 +120,7 @@ const getLabel = (key: string) => {
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
       @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -141,25 +143,28 @@ const getLabel = (key: string) => {
               <Input
                 v-if="field.type === 'string'"
                 :id="key"
-                v-model="values[key]"
+                v-model="values[key].value"
                 :placeholder="field.placeholder"
                 type="text"
               />
               <Input
-                v-if="field.type === 'password'"
-                :id="key"
-                v-model="values[key]"
-                :placeholder="field.placeholder"
-                type="password"
-              />
-              <Input
                 v-if="field.type === 'number'"
                 :id="key"
-                v-model.number="values[key]"
+                v-model.number="values[key].value"
                 :placeholder="field.placeholder"
                 type="number"
               />
-              <Select v-if="field.type === 'select'" v-model="field.value">
+              <Input
+                v-if="field.type === 'password'"
+                :id="key"
+                v-model.number="values[key].value"
+                :placeholder="field.placeholder"
+                type="password"
+              />
+              <Select
+                v-if="field.type === 'select'"
+                v-model="values[key].value"
+              >
                 <SelectTrigger>
                   <SelectValue :placeholder="field.placeholder" />
                 </SelectTrigger>
@@ -177,7 +182,7 @@ const getLabel = (key: string) => {
                 </SelectContent>
               </Select>
               <div v-if="field.type === 'boolean'" class="flex items-center">
-                <Checkbox :id="key.toString()" v-model="values[key]" />
+                <Checkbox :id="key.toString()" v-model="values[key].value" />
                 <Label :for="key.toString()" class="ml-2">{{
                   getLabel(key.toString())
                 }}</Label>

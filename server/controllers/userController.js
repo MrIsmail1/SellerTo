@@ -4,37 +4,37 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
       attributes: {
-        exclude: ["password", "updatedAt"],
-      }, // Exclure le mot de passe des informations renvoyées
+        exclude: ["password"],
+      },
     });
     if (!user) {
       return res.status(404);
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500);
+    res.status(500).json({
+      message: "Échec de la récupération du profil utilisateur.",
+      error,
+    });
   }
 };
 
-export const getUserById = async (userId) => {
+export const getUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(userId, {
-      attributes: [
-        "firstname",
-        "lastname",
-        "address",
-        "email",
-        "city",
-        "postalCode",
-        "country",
-      ],
+    const user = await User.findByPk(req.params.id, {
+      attributes: {
+        exclude: ["password"],
+      },
     });
     if (!user) {
-      throw new Error("User not found");
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
-    return user;
+    res.status(200).json(user);
   } catch (error) {
-    throw new Error("Error fetching user details");
+    res.status(500).json({
+      message: "Échec de la récupération de l'utilisateur par ID.",
+      error,
+    });
   }
 };
 
@@ -55,36 +55,19 @@ export const deleteUserAccount = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      return res.status(404);
+    const [updated] = await User.update(req.body, {
+      where: { id: req.params.id },
+      returning: true,
+    });
+    if (!updated) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
-
-    const {
-      firstname,
-      lastname,
-      email,
-      phoneNumber,
-      address,
-      postalCode,
-      city,
-      country,
-      role,
-    } = req.body;
-    user.firstname = firstname;
-    user.lastname = lastname;
-    user.email = email;
-    user.phoneNumber = phoneNumber;
-    user.address = address;
-    user.postalCode = postalCode;
-    user.city = city;
-    user.country = country;
-    user.role = role;
-
-    await user.save();
-    res.status(200);
+    const updatedUser = await User.findByPk(req.params.id);
+    res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500);
+    res
+      .status(400)
+      .json({ message: "Échec de la mise à jour de l'utilisateur.", error });
   }
 };
 
@@ -107,23 +90,19 @@ export const getUsers = async (req, res) => {
     });
     res.status(200).json(users);
   } catch (error) {
-    res.status(500);
+    res
+      .status(500)
+      .json({ message: "Échec de la récupération des utilisateurs.", error });
   }
 };
+
 export const createUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, password, role } = req.body;
-
-    const user = await User.create({
-      firstname,
-      lastname,
-      email,
-      password,
-      role,
-    });
-
+    const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (error) {
-    res.status(500);
+    res
+      .status(400)
+      .json({ message: "Échec de la création de l'utilisateur.", error });
   }
 };

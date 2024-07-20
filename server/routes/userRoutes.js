@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createUser,
   deleteUserAccount,
+  getUserById,
   getUserProfile,
   getUsers,
   updateUser,
@@ -12,15 +13,22 @@ import { checkRole } from "../middlewares/checkRole.js";
 const router = Router();
 
 router.get(
-  "/profile/:id",
+  "/profile",
   checkAuth,
   checkRole(["User", "Admin", "SuperAdmin"]),
   getUserProfile
+);
+router.get(
+  "/:id",
+  checkAuth,
+  checkRole(["User", "Admin", "SuperAdmin"]),
+  getUserById
 );
 
 router.delete("/:id", checkAuth, checkRole(["Admin"]), deleteUserAccount);
 
 router.put("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateUser);
+router.patch("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateUser);
 
 router.get("/", checkAuth, checkRole(["Admin", "SuperAdmin"]), getUsers);
 

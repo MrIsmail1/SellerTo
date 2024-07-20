@@ -87,7 +87,8 @@ const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
   });
 
 const fetchUser = async () => {
-  const user = await usersStore.findUserById(userId);
+  await usersStore.findUserById(userId);
+  const user = usersStore.user;
   for (const key in userInfo.value) {
     if (user.hasOwnProperty(key)) {
       userInfo.value[key].value = user[key];
@@ -132,7 +133,7 @@ const getLabel = (key: string) => {
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
       @click="handleSubmit"
-      disabled="isSubmitting"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer

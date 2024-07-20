@@ -1,21 +1,21 @@
+import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import logger from "morgan";
 import path from "path";
+import connectedDataBase from "./models/db.js";
 import authRouter from "./routes/authRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import imagesRoutes from "./routes/imagesRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
 import paymentRouter from "./routes/paymentRoutes.js";
 import productRouter from "./routes/productRoutes.js";
-import userRouter from "./routes/userRoutes.js";
-import orderRouter from "./routes/orderRoutes.js";
 import promoCodeRouter from "./routes/promoCodeRoutes.js";
 import stockRouter from "./routes/stockRoutes.js";
-import connectedDataBase from "./models/db.js";
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import stripeWebhookHandler from './webhooks/stripeWebhook.js';
+import userRouter from "./routes/userRoutes.js";
+import stripeWebhookHandler from "./webhooks/stripeWebhook.js";
 
 const app = express();
 
@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
     origin: `${process.env.APP_BASE_URL_CLIENT}`,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     credentials: true, // Pour les cookies
   })
 );
@@ -49,8 +49,8 @@ app.use("/api/users", userRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/upload", imagesRoutes);
 app.use("/api/orders", orderRouter);
-app.use('/api/stocks', stockRouter);
-app.use('/api/promocodes', promoCodeRouter);
+app.use("/api/stocks", stockRouter);
+app.use("/api/promocodes", promoCodeRouter);
 
 connectedDataBase();
 

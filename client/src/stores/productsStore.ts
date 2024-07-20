@@ -32,7 +32,7 @@ export const useProductsStore = defineStore("products", {
     },
     productCategories() {
       const categories = this.products.map(
-          (product) => product.product_category
+        (product) => product.product_category
       );
       return [...new Set(categories)];
     },
@@ -81,7 +81,7 @@ export const useProductsStore = defineStore("products", {
       this.error = null;
       try {
         const response = await axios.delete(
-            `/products/${productId}/images/${imageId}`
+          `/products/${productId}/images/${imageId}`
         );
         return response.data;
       } catch (error) {
@@ -100,13 +100,13 @@ export const useProductsStore = defineStore("products", {
         });
 
         const response = await axios.post(
-            `/products/${productId}/images`,
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
+          `/products/${productId}/images`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         return response.data;
@@ -197,7 +197,7 @@ export const useProductsStore = defineStore("products", {
         console.error("Failed to search products:", error);
       }
     },
-    async updateProductWithImages(
+    async updateProductImages(
       productId: string,
       product: Product,
       files: File[]
@@ -233,6 +233,19 @@ export const useProductsStore = defineStore("products", {
       } finally {
         this.loading = false;
       }
-    }
+    },
+    async updateProduct(id: string, product: Product) {
+      this.loading = true;
+      try {
+        const response = await axios.patch(`/products/${id}`, product);
+        console.log(response.data);
+        this.error = null;
+      } catch (error) {
+        console.error("Failed to update product:", error);
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

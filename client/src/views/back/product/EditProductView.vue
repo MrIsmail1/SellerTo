@@ -10,12 +10,13 @@ import { ProductSchema } from "@/z-schemas/ProductSchema";
 
 import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
-import { onMounted, ref, toRaw, watchEffect } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const productsStore = useProductsStore();
 const router = useRouter();
 const route = useRoute();
+const productDetails = computed(() => productsStore.product);
 
 type FieldType = "string" | "number" | "boolean" | "file" | "textarea";
 
@@ -26,7 +27,6 @@ interface ProductField {
 }
 
 const productId = route.params.id as string;
-const productDetails = ref<Record<string, any>>({});
 const files = ref<File[]>([]);
 
 const basicProductInfo = ref<Record<string, ProductField>>({
@@ -183,56 +183,65 @@ const additionalProductDetails = ref<Record<string, ProductField>>({
     placeholder: "Saisir le clavier et la langue...",
   },
 });
-
-onMounted(async () => {
-  await productsStore.getProductById(productId);
-  productDetails.value = productsStore.product;
-});
-
-watchEffect(() => {
-  if (productDetails.value) {
-    Object.keys(basicProductInfo.value).forEach((key) => {
-      if (productDetails.value[key] !== undefined) {
-        basicProductInfo.value[key].value = productDetails.value[key];
-      }
-    });
-    Object.keys(productSpecifications.value).forEach((key) => {
-      if (productDetails.value[key] !== undefined) {
-        productSpecifications.value[key].value = productDetails.value[key];
-      }
-    });
-    Object.keys(additionalProductDetails.value).forEach((key) => {
-      if (productDetails.value[key] !== undefined) {
-        additionalProductDetails.value[key].value = productDetails.value[key];
-      }
-    });
-  }
-});
-
 const flattenValues = (obj: Record<string, ProductField>) => {
   const result: Record<string, string | number | boolean | File[]> = {};
-  for (let key in obj) {
+
+  for (const key in obj) {
     result[key] = obj[key].value;
   }
   return result;
 };
-const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
-  schema: ProductSchema,
-  initialValues: { ...toRaw(basicProductInfo.value) }, // Initialize with function to ensure it gets the current values
-  onSubmit: async (values) => {
-    if (files.value.length > 0) {
-      await productsStore.addProductWithImages(values, files.value);
-    } else {
-      /* await productsStore.editProduct(values); */
-    }
 
-    if (productsStore.error) {
-      errors["image_urls"] = productsStore.error;
-    } else {
-      router.push({ name: "AdminProducts" });
+const fetchProduct = async () => {
+  await productsStore.getProductById(productId);
+  const product = productsStore.product;
+  for (const key in basicProductInfo.value) {
+    if (product.hasOwnProperty(key)) {
+      basicProductInfo.value[key].value = product[key];
     }
-  },
+  }
+  for (const key in productSpecifications.value) {
+    if (product.hasOwnProperty(key)) {
+      productSpecifications.value[key].value = product[key];
+    }
+  }
+  for (const key in additionalProductDetails.value) {
+    if (product.hasOwnProperty(key)) {
+      additionalProductDetails.value[key].value = product[key];
+    }
+  }
+  setValues(flattenValues(basicProductInfo.value));
+  setValues(flattenValues(productSpecifications.value));
+  setValues(flattenValues(additionalProductDetails.value));
+};
+
+onMounted(() => {
+  fetchProduct();
 });
+
+const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
+  useForm({
+    schema: ProductSchema,
+    initialValues: {
+      ...flattenValues(basicProductInfo.value),
+      ...flattenValues(productSpecifications.value),
+      ...flattenValues(additionalProductDetails.value),
+    },
+    onSubmit: async (values) => {
+      if (files.value.length > 0) {
+        await productsStore.updateProductImages(productId, values, files.value);
+        await productsStore.updateProduct(productId, values);
+      } else {
+        await productsStore.updateProduct(productId, values);
+      }
+
+      if (productsStore.error) {
+        errors["image_urls"] = productsStore.error;
+      } else {
+        router.push({ name: "AdminProducts" });
+      }
+    },
+  });
 
 const handleFileChange = (key: string, event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -364,14 +373,14 @@ const getLabel = (key: string) => {
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
-                  v-model="field.value"
+                  v-model="values[key].value"
                   :placeholder="field.placeholder"
                   type="text"
                 />
                 <Input
                   v-if="field.type === 'number'"
                   :id="key"
-                  v-model.number="field.value"
+                  v-model.number="values[key].value"
                   :placeholder="field.placeholder"
                   type="number"
                 />
@@ -387,6 +396,12 @@ const getLabel = (key: string) => {
                   multiple
                   :placeholder="field.placeholder"
                   @change="handleFileChange($event)"
+                />
+                <Textarea
+                  v-if="field.type === 'textarea'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -414,21 +429,21 @@ const getLabel = (key: string) => {
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
-                  v-model="field.value"
+                  v-model="values[key].value"
                   :placeholder="field.placeholder"
                   type="text"
                 />
                 <Input
                   v-if="field.type === 'number'"
                   :id="key"
-                  v-model.number="field.value"
+                  v-model.number="values[key].value"
                   :placeholder="field.placeholder"
                   type="number"
                 />
                 <Checkbox
                   v-if="field.type === 'boolean'"
                   :id="key.toString()"
-                  v-model="field.value"
+                  v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -520,21 +535,21 @@ const getLabel = (key: string) => {
                 <Input
                   v-if="field.type === 'string'"
                   :id="key"
-                  v-model="field.value"
+                  v-model="values[key].value"
                   :placeholder="field.placeholder"
                   type="text"
                 />
                 <Input
                   v-if="field.type === 'number'"
                   :id="key"
-                  v-model.number="field.value"
+                  v-model.number="values[key].value"
                   type="number"
                   :placeholder="field.placeholder"
                 />
                 <Checkbox
                   v-if="field.type === 'boolean'"
                   :id="key.toString()"
-                  v-model="field.value"
+                  v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}

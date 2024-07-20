@@ -10,8 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/stores/authStore";
-import { useRouter } from "vue-router";
 import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -23,7 +23,10 @@ onMounted(() => {
 const handleLogin = async () => {
   await authStore.login();
   if (!authStore.errorMessage) {
-    if (authStore.user.role === "admin") {
+    if (
+      authStore.user.role == "Admin " ||
+      authStore.user.role == "SuperAdmin"
+    ) {
       router.push("/admin/dashboard");
     } else {
       router.push("/");

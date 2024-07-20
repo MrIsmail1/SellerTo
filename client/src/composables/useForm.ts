@@ -20,7 +20,6 @@ export function useForm<T>({
   const httpError = ref<string | null>(null);
 
   const validate = () => {
-    console.log("values", values);
     const result = schema.safeParse(values);
 
     if (result.success) {
