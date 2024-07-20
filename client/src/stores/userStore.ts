@@ -30,19 +30,7 @@ export const useUsersStore = defineStore("users", {
       this.loading = true;
       try {
         await axios.delete(`/users/${id}`);
-        this.users = this.users.filter((user) => user._id !== id);
-      } catch (error: any) {
-        this.error = error.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-    async updateUser(user: User): Promise<void> {
-      this.loading = true;
-      try {
-        await axios.put(`/users/${user._id}`, user);
-        const index = this.users.findIndex((u) => u._id === user._id);
-        this.users[index] = user;
+        this.users = this.users.filter((user) => user.id !== id);
       } catch (error: any) {
         this.error = error.message;
       } finally {
@@ -52,8 +40,22 @@ export const useUsersStore = defineStore("users", {
     async createUser(user: User): Promise<void> {
       this.loading = true;
       try {
-        await axios.post("/users", user);
-        this.users.push(user);
+        const response = await axios.post("/users", user);
+        this.users.push(response.data);
+      } catch (error: any) {
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    async updateUser(id: string, user: Partial<User>): Promise<void> {
+      this.loading = true;
+      try {
+        const response = await axios.put(`/users/${id}`, user);
+        const index = this.users.findIndex((u) => u.id === id);
+        if (index !== -1) {
+          this.users[index] = response.data;
+        }
       } catch (error: any) {
         this.error = error.message;
       } finally {
@@ -63,10 +65,11 @@ export const useUsersStore = defineStore("users", {
     async findUserById(id: string): Promise<User | undefined> {
       this.loading = true;
       try {
-        const response = await axios.get(`/users/${id}`);
+        const response = await axios.get(`/users/profile/${id}`);
         return response.data;
       } catch (error: any) {
         this.error = error.message;
+        return undefined;
       } finally {
         this.loading = false;
       }

@@ -3,7 +3,9 @@ import User from "../models/postgres/userModel.js";
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] }, // Exclure le mot de passe des informations renvoyées
+      attributes: {
+        exclude: ["password", "updatedAt"],
+      }, // Exclure le mot de passe des informations renvoyées
     });
     if (!user) {
       return res.status(404);
@@ -67,6 +69,7 @@ export const updateUser = async (req, res) => {
       postalCode,
       city,
       country,
+      role,
     } = req.body;
     user.firstname = firstname;
     user.lastname = lastname;
@@ -76,6 +79,7 @@ export const updateUser = async (req, res) => {
     user.postalCode = postalCode;
     user.city = city;
     user.country = country;
+    user.role = role;
 
     await user.save();
     res.status(200);
@@ -102,6 +106,23 @@ export const getUsers = async (req, res) => {
       ],
     });
     res.status(200).json(users);
+  } catch (error) {
+    res.status(500);
+  }
+};
+export const createUser = async (req, res) => {
+  try {
+    const { firstname, lastname, email, password, role } = req.body;
+
+    const user = await User.create({
+      firstname,
+      lastname,
+      email,
+      password,
+      role,
+    });
+
+    res.status(201).json(user);
   } catch (error) {
     res.status(500);
   }

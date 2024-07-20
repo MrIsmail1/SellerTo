@@ -13,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useForm } from "@/composables/useForm";
 import { useUsersStore } from "@/stores/userStore";
-import { UserSchema } from "@/z-schemas/UserSchema";
+import { AddUserSchema } from "@/z-schemas/UserSchema";
 import { Save } from "lucide-vue-next";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -54,10 +55,10 @@ const userInfo = ref<Record<string, UserField>>({
     placeholder: "Saisir le mot de passe...",
   },
   role: {
-    value: "users",
+    value: "User",
     type: "select",
     placeholder: "Choisir le rôle",
-    options: ["SuperAdmin", "Admin", "Users"],
+    options: ["SuperAdmin", "Admin", "User"],
   },
   isVerified: {
     value: false,
@@ -65,30 +66,24 @@ const userInfo = ref<Record<string, UserField>>({
     placeholder: "Indiquer si vérifié...",
   },
 });
+const flattenValues = (obj: Record<string, UserField>) => {
+  const result: Record<string, string | number | boolean> = {};
 
-const errors = ref<Record<string, string>>({});
-
-const save = async () => {
-  try {
-    const userData = Object.fromEntries(
-      Object.entries(userInfo.value).map(([key, field]) => [key, field.value])
-    );
-
-    // Validate userData against the schema
-    UserSchema.parse(userData);
-
-    await usersStore.addUser(userData);
-    router.push({ name: "AdminUsers" });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Validation errors:", error.errors);
-      errors.value = {};
-      error.errors.forEach((err) => {
-        errors.value[err.path[0]] = err.message;
-      });
-    }
+  for (const key in obj) {
+    result[key] = obj[key].value;
   }
+  return result;
 };
+
+const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
+  schema: AddUserSchema,
+  initialValues: {
+    ...flattenValues(userInfo.value),
+  },
+  onSubmit: async (values) => {
+    await usersStore.createUser(values);
+  },
+});
 
 // Function to format labels in French
 const getLabel = (key: string) => {
@@ -123,13 +118,13 @@ const getLabel = (key: string) => {
     </span>
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="save"
+      @click="handleSubmit"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
     </Button>
   </div>
-  <form @submit.prevent="save" class="max-w-full flex flex-col mt-6">
+  <form @submit.prevent="handleSubmit" class="max-w-full flex flex-col mt-6">
     <div class="flex w-full gap-x-2">
       <Card class="w-full p-4">
         <CardHeader class="p-2">
@@ -146,14 +141,21 @@ const getLabel = (key: string) => {
               <Input
                 v-if="field.type === 'string'"
                 :id="key"
-                v-model="field.value"
+                v-model="values[key]"
                 :placeholder="field.placeholder"
                 type="text"
               />
               <Input
+                v-if="field.type === 'password'"
+                :id="key"
+                v-model="values[key]"
+                :placeholder="field.placeholder"
+                type="password"
+              />
+              <Input
                 v-if="field.type === 'number'"
                 :id="key"
-                v-model.number="field.value"
+                v-model.number="values[key]"
                 :placeholder="field.placeholder"
                 type="number"
               />
@@ -175,7 +177,7 @@ const getLabel = (key: string) => {
                 </SelectContent>
               </Select>
               <div v-if="field.type === 'boolean'" class="flex items-center">
-                <Checkbox :id="key.toString()" v-model="field.value" />
+                <Checkbox :id="key.toString()" v-model="values[key]" />
                 <Label :for="key.toString()" class="ml-2">{{
                   getLabel(key.toString())
                 }}</Label>

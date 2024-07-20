@@ -46,7 +46,7 @@ export const useAuthStore = defineStore("auth", {
     },
     async fetchUser() {
       try {
-        const response = await axios.get("/users/profile");
+        const response = await axios.get("/users/profile/:id");
         this.user = response.data;
       } catch (error) {
         this.user = null;

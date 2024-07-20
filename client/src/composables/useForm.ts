@@ -16,7 +16,6 @@ export function useForm<T>({
   const errors = reactive<Record<keyof T, string | null>>(
     {} as Record<keyof T, string | null>
   );
-  console.log("values", values);
   const isSubmitting = ref(false);
   const httpError = ref<string | null>(null);
 
@@ -64,7 +63,9 @@ export function useForm<T>({
     isSubmitting.value = false;
     httpError.value = "Requête annulée";
   };
-
+  const setValues = (newValues: Partial<T>) => {
+    Object.assign(values, newValues);
+  };
   return {
     values: toRefs(values),
     errors,
@@ -72,5 +73,6 @@ export function useForm<T>({
     httpError,
     handleSubmit,
     cancelRequest,
+    setValues,
   };
 }
