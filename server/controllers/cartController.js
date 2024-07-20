@@ -55,9 +55,10 @@ export const addToCart = async (req, res) => {
     }, 3 * 60 * 1000); // 3 minutes
   } catch (error) {
     console.error('Error adding to cart:', error);
-    res.status(500);
+    res.status(500).json({ message: 'Erreur interne du serveur' });
   }
 };
+
 
 
 export const removeFromCart = async (req, res) => {
@@ -74,8 +75,8 @@ export const removeFromCart = async (req, res) => {
     }
 
     await Cart.destroy({ where: { id: cartItem.id } });
-    // TODO : Vu que c'est un remove c'est pas un 204 ?
-    res.status(200);
+
+    res.status(204);
   } catch (error) {
     res.status(500);
   }

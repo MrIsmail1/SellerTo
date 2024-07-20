@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import {useOrdersStore} from '@/stores/orderStore';
-import {storeToRefs} from 'pinia';
-import {onMounted, onUnmounted} from 'vue';
-import {useRouter} from 'vue-router';
-import {Button} from "@/components/ui/button";
+import { useOrdersStore } from '@/stores/orderStore';
+import { storeToRefs } from 'pinia';
+import { onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from '@/stores/authStore';
 
 const ordersStore = useOrdersStore();
-const {orders, loading, error} = storeToRefs(ordersStore);
+const { orders, loading, error } = storeToRefs(ordersStore);
 const router = useRouter();
+const authStore = useAuthStore();
 
 onMounted(() => {
   ordersStore.fetchOrders();
@@ -20,7 +22,6 @@ onMounted(() => {
     clearInterval(interval);
   });
 });
-
 
 const viewProduct = (productId: number) => {
   router.push(`/product/${productId}`);
@@ -46,6 +47,18 @@ const formatDate = (dateString: string) => {
     day: 'numeric',
   };
   return new Date(dateString).toLocaleDateString('fr-FR', options);
+};
+
+// Refund product function
+const createRefund = async (productId, paymentId, quantity) => {
+  try {
+    console.log("Payment ID:", paymentId);  // Ajoutez cette ligne pour vérifier que paymentId est correct
+    await ordersStore.createRefund({ productId, paymentId, quantity });
+    // Optionally, refresh orders after refund
+    await ordersStore.fetchOrders();
+  } catch (error) {
+    console.error('Error refunding product:', error);
+  }
 };
 </script>
 
@@ -95,10 +108,23 @@ const formatDate = (dateString: string) => {
                 <p class="text-base mt-2">Quantité : <strong>{{ product.quantity }}</strong></p>
                 <p class="text-base">Prix : <strong>{{ product.amount }} €</strong></p>
               </div>
-              <div class="mt-4">
-                <Button type="submit" variant="secondary" size="medium" @click="viewProduct(product.product._id)">
-                  Afficher votre article
-                </Button>
+              <div class="flex gap-4">
+                <div class="mt-4">
+                  <Button type="submit" variant="secondary" size="medium" @click="viewProduct(product.product._id)">
+                    Afficher votre article
+                  </Button>
+                </div>
+                <div class="mt-4">
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    size="medium"
+                    @click="createRefund(product.product._id, groupedOrder.paymentProducts[0].paymentId, product.quantity)"
+                    :disabled="product.refundStatus === 'refunded'"
+                  >
+                    {{ product.paymentProducts[0].refundStatus === 'refunded' ? 'Remboursement effectué' : 'Rembourser l\'article' }}
+                  </Button>
+                </div>
               </div>
             </div>
           </li>

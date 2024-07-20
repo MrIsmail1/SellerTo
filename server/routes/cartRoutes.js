@@ -8,6 +8,5 @@ router.post('/', checkAuth, addToCart);
 router.delete('/', checkAuth, removeFromCart);
 router.put('/', checkAuth, updateCartQuantity);
 router.get('/', checkAuth, getCart);
-/* router.post('/clean-expired', cleanExpiredCarts); */
 
 export default router;
