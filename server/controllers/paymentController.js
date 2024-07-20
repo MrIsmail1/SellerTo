@@ -74,7 +74,6 @@ export const createRefund = async (req, res) => {
         productId,
       }
     });
-    console.log(paymentProduct);
     if (!paymentProduct) {
       return res.status(404).json({ message: 'Produit non trouvé pour ce paiement' });
     }

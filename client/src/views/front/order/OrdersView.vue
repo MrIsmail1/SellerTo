@@ -52,9 +52,7 @@ const formatDate = (dateString: string) => {
 // Refund product function
 const createRefund = async (productId, paymentId, quantity) => {
   try {
-    console.log("Payment ID:", paymentId);  // Ajoutez cette ligne pour vérifier que paymentId est correct
     await ordersStore.createRefund({ productId, paymentId, quantity });
-    // Optionally, refresh orders after refund
     await ordersStore.fetchOrders();
   } catch (error) {
     console.error('Error refunding product:', error);
@@ -119,10 +117,10 @@ const createRefund = async (productId, paymentId, quantity) => {
                     type="submit"
                     variant="secondary"
                     size="medium"
-                    @click="createRefund(product.product._id, groupedOrder.paymentProducts[0].paymentId, product.quantity)"
-                    :disabled="product.refundStatus === 'refunded'"
+                    @click="createRefund(product.product._id, groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).paymentId, product.quantity)"
+                    :disabled="groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).refundStatus === 'refunded'"
                   >
-                    {{ product.paymentProducts[0].refundStatus === 'refunded' ? 'Remboursement effectué' : 'Rembourser l\'article' }}
+                    {{ groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).refundStatus === 'refunded' ? 'Remboursement effectué' : 'Rembourser l\'article' }}
                   </Button>
                 </div>
               </div>
