@@ -108,3 +108,8 @@ const navigateToEditUser = () => {
     </div>
   </div>
 </template>
+<style scoped>
+.button:hover .icon {
+  color: white;
+}
+</style>

@@ -37,7 +37,7 @@ const primaryMenuItems = [
     icon: LayoutDashboard,
     text: "Tableau de bord",
   },
-  { route: { name: "" }, icon: FileText, text: "Commandes" },
+  { route: { name: "AdminOrders" }, icon: FileText, text: "Commandes" },
   { route: { name: "AdminProducts" }, icon: ShoppingCart, text: "Produits" },
   {
     route: { name: "" },

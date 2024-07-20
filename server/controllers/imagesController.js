@@ -1,5 +1,6 @@
 import Images from "../models/postgres/imagesModel.js";
 import Products from "../models/postgres/productModel.js";
+import Stock from "../models/postgres/stockModel.js";
 import denormalizeProduct from "../services/denormalization/product.js";
 import { uploadFiles } from "../services/imageUploadService.js";
 
@@ -7,16 +8,15 @@ import { uploadFiles } from "../services/imageUploadService.js";
 export const createProductWithImages = async (req, res) => {
   uploadFiles(req, res, async (err, fileInfos) => {
     if (err) {
-      return res.status(400);
+      return res.status(400).json({ error: err.message });
     } else {
       const productData = JSON.parse(req.body.productData);
       try {
-        // Create the product
         const newProduct = await Products.create(productData, {
           returning: true,
           individualHooks: true,
         });
-        // Create image records
+
         const filePromises = fileInfos.map(async (file) => {
           const newImage = await Images.create({
             title: file.originalname,
@@ -32,9 +32,15 @@ export const createProductWithImages = async (req, res) => {
         });
 
         const savedFiles = await Promise.all(filePromises);
-        console.log("Saved files", newProduct.id);
 
-        // Denormalize the product
+        if (productData.product_stock) {
+          await Stock.create({
+            productId: newProduct.id,
+            quantity: productData.product_stock,
+            operationType: "ADD",
+          });
+        }
+
         await denormalizeProduct(newProduct.id, {
           Product: Products,
           Images: Images,
@@ -42,7 +48,7 @@ export const createProductWithImages = async (req, res) => {
 
         return res.json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
-        return res.status(500);
+        return res.status(500).json({ error: dbError.message });
       }
     }
   });

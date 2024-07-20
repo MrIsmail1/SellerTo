@@ -22,7 +22,7 @@ onMounted(async () => {
   <div class="flex justify-between w-full">
     <span class="flex flex-col">
       <span class="text-xl font-bold text-text-100">Produits</span>
-      <span class="text-md text-text-200">Gérer vos produits ici.</span>
+      <span class="text-md text-text-200">Gérer vos produits içi.</span>
     </span>
     <Button
       class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"

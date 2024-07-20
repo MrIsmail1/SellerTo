@@ -1,6 +1,6 @@
 import Product from "../models/mongo/productModel.js";
 import Products from "../models/postgres/productModel.js";
-
+import Stock from "../models/postgres/stockModel.js";
 export const getProducts = async (req, res) => {
   try {
     const filters = req.query;
@@ -52,12 +52,30 @@ export const createProduct = async (req, res) => {
         returning: true,
         individualHooks: true,
       });
+
+      const stockEntries = newProducts.map((product) => ({
+        productId: product.id,
+        quantity: product.product_stock,
+        operationType: "ADD",
+      }));
+
+      await Stock.bulkCreate(stockEntries);
+
       res.status(201).json(newProducts);
     } else {
       const newProduct = await Products.create(products, {
         returning: true,
         individualHooks: true,
       });
+
+      if (newProduct.product_stock) {
+        await Stock.create({
+          productId: newProduct.id,
+          quantity: newProduct.product_stock,
+          operationType: "ADD",
+        });
+      }
+
       res.status(201).json(newProduct);
     }
   } catch (error) {
