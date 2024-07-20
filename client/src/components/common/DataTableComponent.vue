@@ -25,16 +25,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { valueUpdater } from "@/lib/utils";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import DataTablePagination from "./DataTablePaginationComponent.vue";
 import DataTableToolbar from "./DataTableToolbarComponent.vue";
 
 interface DataTableProps {
   columns: ColumnDef<any>[];
   filterColumn?: string;
-  data: [];
+  data: any[];
 }
+
 const props = defineProps<DataTableProps>();
+const emits = defineEmits(["selectionChange"]);
 
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
@@ -68,8 +70,10 @@ const table = useVueTable({
     valueUpdater(updaterOrValue, columnFilters),
   onColumnVisibilityChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnVisibility),
-  onRowSelectionChange: (updaterOrValue) =>
-    valueUpdater(updaterOrValue, rowSelection),
+  onRowSelectionChange: (updaterOrValue) => {
+    valueUpdater(updaterOrValue, rowSelection);
+    emits("selectionChange", table.getSelectedRowModel().rows);
+  },
   getCoreRowModel: getCoreRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
@@ -78,15 +82,8 @@ const table = useVueTable({
   getFacetedUniqueValues: getFacetedUniqueValues(),
 });
 </script>
-
 <template>
   <div class="space-y-4">
-    <!--  <DataTableToolbar
-      :table="table"
-      :filter-column="props.filterColumn"
-      filter-placeholder="Recherche..."
-      :show-reset-button="true"
-    /> -->
     <div class="rounded-md border">
       <Table>
         <TableHeader>

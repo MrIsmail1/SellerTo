@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.40",
+    "archiver": "^7.0.1",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -27,6 +28,7 @@
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
+    "pdfkit": "^0.15.0",
     "pg": "^8.11.5",
     "sequelize": "^6.37.2",
     "sequelize-mock": "^0.10.2",

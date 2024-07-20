@@ -3,12 +3,38 @@ import DataTableRowActionsComponent from "@/components/common/DataTableRowAction
 import type { Order } from "@/z-schemas/OrderSchema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
+import Checkbox from "../ui/checkbox/Checkbox.vue";
 
 export const columns: ColumnDef<Order>[] = [
   {
+    id: "select",
+    header: ({ table }) =>
+      h(Checkbox, {
+        checked:
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate"),
+        "onUpdate:checked": (value) => table.toggleAllPageRowsSelected(!!value),
+        ariaLabel: "Select all",
+        class: "translate-y-0.5",
+      }),
+    cell: ({ row }) =>
+      h(Checkbox, {
+        checked: row.getIsSelected(),
+        "onUpdate:checked": (value) => row.toggleSelected(!!value),
+        ariaLabel: "Select row",
+        class: "translate-y-0.5",
+      }),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "orderUnique",
     header: ({ column }) =>
-      h(DataTableColumnHeader, { column: column, title: "Commande" }),
+      h(DataTableColumnHeader, {
+        column: column,
+        title: "Commande",
+        searchable: true,
+      }),
     cell: ({ row }) => row.original.orderUnique,
   },
   {
@@ -35,7 +61,7 @@ export const columns: ColumnDef<Order>[] = [
       h(DataTableColumnHeader, { column: column, title: "Code Suivi" }),
     cell: ({ row }) => row.original.trackingCode,
   },
-  {
+  /*  {
     id: "actions",
     header: () => h("span", "Actions"),
     cell: ({ row }) =>
@@ -44,5 +70,5 @@ export const columns: ColumnDef<Order>[] = [
         viewRoute: "/admin/orders/view",
         editRoute: "/admin/orders/edit",
       }),
-  },
+  }, */
 ];
