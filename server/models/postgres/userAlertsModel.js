@@ -2,6 +2,11 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../../config/database.js';
 
 const UserAlerts = sequelize.define('UserAlerts', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     userId: {
         type: DataTypes.INTEGER,
         references: {

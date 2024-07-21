@@ -7,7 +7,8 @@ import dotenv from 'dotenv';
 import { generateTrackingNumber } from '../utils/trackingGenerator.js';
 import Orders from "../models/postgres/orderModel.js";
 import User from '../models/postgres/userModel.js';
-import { sendDeliveryConfirmationEmail } from '../controllers/orderController.js';
+import {sendDeliveryConfirmationEmail} from "../services/mailer/mailService.js";
+
 
 dotenv.config();
 

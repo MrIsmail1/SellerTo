@@ -19,24 +19,22 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-export const getUserById = async (req, res) => {
+export const getUserById = async (id) => {
   try {
-    const user = await User.findByPk(req.params.id, {
+    const user = await User.findByPk(id, {
       attributes: {
         exclude: ["password"],
       },
     });
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
+      throw new Error("Utilisateur non trouvé.");
     }
-    res.status(200).json(user);
+    return user;
   } catch (error) {
-    res.status(500).json({
-      message: "Échec de la récupération de l'utilisateur par ID.",
-      error,
-    });
+    throw new Error("Échec de la récupération de l'utilisateur par ID.");
   }
 };
+
 
 export const deleteUserAccount = async (req, res) => {
   try {

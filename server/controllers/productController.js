@@ -1,6 +1,9 @@
 import Product from "../models/mongo/productModel.js";
 import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
+import {sendPriceChangeAlertEmail} from "../services/mailer/mailService.js";
+import {getUserById} from "./userController.js";
+import UserAlert from "../models/postgres/userAlertsModel.js";
 export const getProducts = async (req, res) => {
   try {
     const filters = req.query;
@@ -101,15 +104,48 @@ export const updateProduct = async (req, res) => {
 
 export const patchProduct = async (req, res) => {
   try {
+    // Récupérer le produit avant la mise à jour
+    const existingProduct = await Products.findByPk(req.params.id);
+    if (!existingProduct) {
+      return res.status(404);
+    }
+
     const [updated] = await Products.update(req.body, {
       where: { id: req.params.id },
       individualHooks: true,
     });
+
     if (!updated) {
-      return res.status(404).json({ message: "Produit non trouvé." });
+      return res.status(404);
     }
-    const product = await Products.findByPk(req.params.id);
-    res.status(200).json(product);
+
+    const updatedProduct = await Products.findByPk(req.params.id);
+
+
+    if (existingProduct.product_price !== updatedProduct.product_price) {
+      const userAlerts = await UserAlert.findAll({
+        where: {
+          alertId: 4,
+          productId: req.params.id,
+          isActive: true,
+        }
+      });
+
+
+      // TODO : Gérer mieux les erreurs
+      for (const alert of userAlerts) {
+        try {
+          const user = await getUserById(alert.userId);
+          if (user && user.email) {
+            await sendPriceChangeAlertEmail(user.email, updatedProduct);
+          }
+        } catch (userError) {
+          console.error('Error fetching user:', userError.message);
+        }
+      }
+    }
+
+    res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500);
   }
