@@ -11,7 +11,12 @@ import { checkRole } from "../middlewares/checkRole.js";
 const router = express.Router();
 
 router.get("/", checkAuth, checkRole(["User"]), getUserOrders);
-router.get("/dashboard", checkRole(["Admin", "SuperAdmin"]), getDashboardData);
+router.post(
+  "/dashboard",
+  checkAuth,
+  checkRole(["Admin", "SuperAdmin"]),
+  getDashboardData
+);
 router.get("/all", checkAuth, checkRole(["Admin", "SuperAdmin"]), getOrders);
 router.post(
   "/invoice",

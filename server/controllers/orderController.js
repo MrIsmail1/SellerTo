@@ -4,11 +4,11 @@ import nodemailer from "nodemailer";
 import path from "path";
 import Order from "../models/mongo/orderModel.js";
 import Orders from "../models/postgres/orderModel.js";
+import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
 import Users from "../models/postgres/userModel.js";
 import { createInvoicePDF } from "../services/invoiceService.js";
 import { getProductById } from "./productController.js";
 import { getUserById } from "./userController.js";
-import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
 
 async function getProductDetails(productId) {
   return await getProductById(productId);
@@ -28,41 +28,41 @@ export const getUserOrders = async (req, res) => {
       },
     });
 
-        const detailedOrders = await Promise.all(
-            orders.map(async (order) => {
-                const productDetails = await getProductDetails(order.productId);
-                const userDetails = await getUserDetails(order.userId);
+    const detailedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const productDetails = await getProductDetails(order.productId);
+        const userDetails = await getUserDetails(order.userId);
 
-                // Find the payment record using paymentIntentId
-                const payment = await Payment.findOne({
-                    where: {
-                        paymentIntentId: order.paymentIntentId,
-                    }
-                });
+        // Find the payment record using paymentIntentId
+        const payment = await Payment.findOne({
+          where: {
+            paymentIntentId: order.paymentIntentId,
+          },
+        });
 
-                let paymentProducts = [];
-                if (payment) {
-                    // Get PaymentProduct using paymentId
-                    paymentProducts = await PaymentProduct.findAll({
-                        where: {
-                            paymentId: payment.id,
-                        }
-                    });
-                }
+        let paymentProducts = [];
+        if (payment) {
+          // Get PaymentProduct using paymentId
+          paymentProducts = await PaymentProduct.findAll({
+            where: {
+              paymentId: payment.id,
+            },
+          });
+        }
 
-                return {
-                    ...order.toJSON(),
-                    product: productDetails,
-                    user: userDetails,
-                    paymentProducts: paymentProducts,
-                };
-            })
-        );
+        return {
+          ...order.toJSON(),
+          product: productDetails,
+          user: userDetails,
+          paymentProducts: paymentProducts,
+        };
+      })
+    );
 
-        res.status(200).json(detailedOrders);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(detailedOrders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export async function sendDeliveryConfirmationEmail(
@@ -125,11 +125,84 @@ export async function sendDeliveryConfirmationEmail(
   });
 }
 
-export const getDashboardData = async (req, res) => {
-  const { timeFrame } = req.query;
+const generateXAxisDates = (startDate, now, timeFrame) => {
+  const dates = [];
+  let currentDate = new Date(startDate);
 
-  if (!timeFrame) {
-    return res.status(400);
+  switch (timeFrame) {
+    case "-1h":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(11, 16)); // HH:MM
+        currentDate.setMinutes(currentDate.getMinutes() + 1);
+      }
+      break;
+    case "-12h":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(11, 13) + ":00"); // HH:00
+        currentDate.setHours(currentDate.getHours() + 1);
+      }
+      break;
+    case "-1d":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(11, 13) + ":00"); // HH:00
+        currentDate.setHours(currentDate.getHours() + 1);
+      }
+      break;
+    case "-1w":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(0, 10)); // YYYY-MM-DD
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      break;
+    case "-1m":
+    case "-3m":
+    case "-6m":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(0, 10)); // YYYY-MM-DD
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      break;
+    case "-1y":
+    case "-3y":
+      while (currentDate <= now) {
+        dates.push(currentDate.toISOString().substring(0, 7)); // YYYY-MM
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+      break;
+    default:
+      throw new Error("Invalid time frame");
+  }
+
+  return dates;
+};
+const formatCreatedAtDate = (date, timeFrame) => {
+  switch (timeFrame) {
+    case "-1h":
+      return date.toISOString().substring(11, 16); // HH:MM
+    case "-12h":
+    case "-1d":
+      return date.toISOString().substring(11, 13) + ":00"; // HH:00
+    case "-1w":
+    case "-1m":
+    case "-3m":
+    case "-6m":
+      return date.toISOString().substring(0, 10); // YYYY-MM-DD
+    case "-1y":
+    case "-3y":
+      return date.toISOString().substring(0, 7); // YYYY-MM
+    default:
+      throw new Error("Invalid time frame");
+  }
+};
+
+export const getDashboardData = async (req, res) => {
+  const { timeFrame, dataType, bestSalesOption, selectedProductOrCategory } =
+    req.body;
+
+  if (!timeFrame || !dataType) {
+    return res
+      .status(400)
+      .json({ message: "Time frame and data type are required" });
   }
 
   try {
@@ -168,39 +241,107 @@ export const getDashboardData = async (req, res) => {
         throw new Error("Invalid time frame");
     }
 
-    const bestSellingProducts = await Order.aggregate([
-      { $match: { createdAt: { $gte: startDate } } },
-      {
-        $group: {
-          _id: "$productId",
-          product_title: { $first: "$product.product_title" },
-          product_category: { $first: "$product.product_category" },
-          totalQuantity: { $sum: "$quantity" },
-          totalRevenue: {
-            $sum: { $multiply: ["$quantity", "$product.product_price"] },
-          },
-        },
-      },
-      { $sort: { totalQuantity: -1 } },
-      { $limit: 10 },
-    ]);
+    const matchCriteria = { createdAt: { $gte: startDate } };
 
-    const totalRevenue = await Order.aggregate([
-      { $match: { createdAt: { $gte: startDate } } },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$amount" },
-        },
+    if (
+      dataType === "Meilleur ventes" &&
+      bestSalesOption &&
+      selectedProductOrCategory
+    ) {
+      if (bestSalesOption === "product") {
+        matchCriteria.productId = selectedProductOrCategory;
+      } else if (bestSalesOption === "category") {
+        matchCriteria["product.product_category"] = selectedProductOrCategory;
+      }
+    }
+
+    const formatDateField = {
+      $dateToString: {
+        format: "",
+        date: "$createdAt",
       },
-    ]);
+    };
+
+    switch (timeFrame) {
+      case "-1h":
+        formatDateField.$dateToString.format = "%Y-%m-%dT%H:%M";
+        break;
+      case "-12h":
+      case "-1d":
+        formatDateField.$dateToString.format = "%Y-%m-%dT%H:00";
+        break;
+      case "-1w":
+      case "-1m":
+      case "-3m":
+      case "-6m":
+        formatDateField.$dateToString.format = "%Y-%m-%d";
+        break;
+      case "-1y":
+      case "-3y":
+        formatDateField.$dateToString.format = "%Y-%m";
+        break;
+    }
+
+    let responseData;
+
+    switch (dataType) {
+      case "Meilleur ventes":
+        responseData = await Order.aggregate([
+          { $match: matchCriteria },
+          {
+            $group: {
+              _id: {
+                productId: "$productId",
+                date: formatDateField,
+              },
+              product_title: { $first: "$product.product_title" },
+              product_category: { $first: "$product.product_category" },
+              totalQuantity: { $sum: "$quantity" },
+              totalRevenue: {
+                $sum: { $multiply: ["$quantity", "$product.product_price"] },
+              },
+            },
+          },
+          { $sort: { "_id.date": 1, totalQuantity: -1 } },
+        ]);
+        break;
+      case "Revenue totales":
+        responseData = await Order.aggregate([
+          { $match: matchCriteria },
+          {
+            $group: {
+              _id: formatDateField,
+              totalRevenue: { $sum: "$amount" },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]);
+        break;
+      case "Nombre de commandes":
+        responseData = await Order.aggregate([
+          { $match: matchCriteria },
+          {
+            $group: {
+              _id: formatDateField,
+              totalOrders: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]);
+        break;
+      default:
+        throw new Error("Invalid data type");
+    }
+
+    const xAxisDates = generateXAxisDates(startDate, now, timeFrame);
+    console.log(responseData, xAxisDates);
 
     res.json({
-      bestSellingProducts,
-      totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0,
+      responseData,
+      xAxisDates,
     });
   } catch (error) {
-    res.status(500);
+    res.status(500).json({ message: error.message });
   }
 };
 

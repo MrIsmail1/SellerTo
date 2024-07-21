@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-vue-next";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import Button from "../ui/button/Button.vue";
 
 const authStore = useAuthStore();
 const route = useRoute();
