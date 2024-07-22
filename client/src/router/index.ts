@@ -197,6 +197,55 @@ const routes = [
         component: () => import("@/views/back/order/SingleOrderView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
+      {
+        path: "stocks",
+        name: "AdminStocks",
+        component: () => import("@/views/back/stock/StocksView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "stocks/new",
+        name: "AdminAddStock",
+        component: () => import("@/views/back/stock/AddStockView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "stocks/edit/:id",
+        name: "AdminEditStock",
+        component: () => import("@/views/back/stock/EditStockView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "stocks/delete/:id",
+        name: "AdminDeleteStock",
+        component: () => import("@/views/back/stock/DeleteStockView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+
+      {
+        path: "promocodes",
+        name: "AdminPromoCodes",
+        component: () => import("@/views/back/promo-code/PromoCodesView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "promocodes/new",
+        name: "AdminAddPromoCode",
+        component: () => import("@/views/back/promo-code/AddPromoCodeView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "promocodes/edit/:id",
+        name: "AdminEditPromoCode",
+        component: () => import("@/views/back/promo-code/EditPromoCodeView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: "promocodes/delete/:id",
+        name: "AdminDeletePromoCode",
+        component: () => import("@/views/back/promo-code/DeletePromoCodeView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
     ],
   },
   {
