@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../../config/database.js";
+import sequelize from "../../config/sequelize-config.js";
 import ProductMongo from "../../models/mongo/productModel.js";
 import denormalizeProduct from "../../services/denormalization/product.js";
 import Images from "./imagesModel.js";

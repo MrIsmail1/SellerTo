@@ -7,7 +7,11 @@
     "dev": "node --watch ./bin/www",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "db:drop": "node scripts/db-drop.js",
+    "db:create": "node scripts/db-create.js",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:undo": "node scripts/db-undo.js"
   },
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.40",
