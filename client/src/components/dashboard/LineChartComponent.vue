@@ -95,6 +95,8 @@ const iconComponents = {
   Users,
 };
 
+
+
 const IconComponent = computed(() => iconComponents[props.icon]);
 
 /* watch(props.chartData, (newData) => {

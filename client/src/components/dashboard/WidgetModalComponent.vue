@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "@/composables/useForm";
-import { useOrdersStore } from "@/stores/orderStore";
 import { useProductsStore } from "@/stores/productsStore";
 import { WidgetSchema } from "@/z-schemas/WidgetSchema";
 import { X } from "lucide-vue-next";
@@ -53,7 +52,6 @@ const selectedStep = ref(steps[timeFrames[0]][0]);
 const selectedProduct = ref({});
 const products = ref([]);
 
-const orderStore = useOrdersStore();
 const productsStore = useProductsStore();
 
 const initialValues = {
@@ -73,6 +71,7 @@ const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
     initialValues,
     onSubmit: async (values) => {
       try {
+        values.dataType = dataTypes[values.dataType];
         if (selectedStep.value) {
           values.selectedStep = selectedStep.value;
         }
@@ -83,9 +82,6 @@ const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
           delete values.chartType;
           delete values.selectedStep;
         }
-        await orderStore.getDashboardData(values);
-        const data = orderStore.dashboardData;
-        console.log(data);
         emit("chartDataFetched", { values });
         emit("close");
       } catch (error) {
@@ -273,7 +269,7 @@ onMounted(async () => {
             >
             <Select v-model="selectedProduct.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Sélectionner un produit..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>

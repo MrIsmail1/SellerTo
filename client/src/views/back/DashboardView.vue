@@ -49,7 +49,8 @@ const saveLayoutToLocalStorage = () => {
 
 const addChart = (chartData) => {
   const { values, data } = chartData;
-  const chartType = getChartComponent(values.chartType, values.displayMode);
+  const displayType = values.displayType == "KPI" ? "KPI" : values.chartType;
+  const chartType = getChartComponent(displayType);
   const { colNum, rowHeight } = initialSizes[chartType.__name] || {
     colNum: 12,
     rowHeight: 5,
@@ -61,8 +62,7 @@ const addChart = (chartData) => {
     y: 0,
     w: colNum,
     h: rowHeight,
-    type: values.chartType,
-    displayMode: values.displayMode,
+    type: displayType,
     data: mockData,
     icon: icons[values.dataType],
     dataType: values.dataType,
@@ -87,14 +87,16 @@ onMounted(() => {
   loadLayoutFromLocalStorage();
 });
 
-const getChartComponent = (type, displayMode) => {
+const getChartComponent = (type) => {
+  if (type === "KPI") {
+    return LineChartCardComponent;
+  }
   if (type === "Ligne") {
-    return displayMode == "Carte" ? LineChartCardComponent : LineChartComponent;
+    return LineChartComponent;
   }
   if (type === "Camembert") {
-    return displayMode == "Carte" && PieChartComponent;
+    return PieChartComponent;
   }
-  return LineChartComponent;
 };
 
 watch(layout, saveLayoutToLocalStorage, { deep: true });
@@ -137,7 +139,7 @@ watch(layout, saveLayoutToLocalStorage, { deep: true });
         :i="item.i"
       >
         <component
-          :is="getChartComponent(item.type, item.displayMode)"
+          :is="getChartComponent(item.type)"
           :chartData="item.data"
           :dataType="item.dataType"
           @remove="removeWidget(item.i)"
