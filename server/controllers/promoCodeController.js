@@ -74,3 +74,51 @@ export const getAllPromoCodes = async (req, res) => {
         return res.status(500);
     }
 };
+
+export const findPromoCodeById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const stock = await PromoCodes.findByPk(id);
+        if (!stock) {
+            return res.status(404);
+        }
+
+        res.status(200).json(stock);
+    } catch (error) {
+        res.status(500);
+    }
+};
+
+export const patchPromoCode = async (req, res) => {
+    const { id } = req.params;
+    const { code, discount, expiry_date, product_id, category } = req.body;
+
+    try {
+        const promoCode = await PromoCodes.findByPk(id);
+        if (!promoCode) {
+            return res.status(404);
+        }
+
+        if (code !== undefined) {
+            promoCode.code = code;
+        }
+        if (discount !== undefined) {
+            promoCode.discount = discount;
+        }
+        if (expiry_date !== undefined) {
+            promoCode.expiry_date = expiry_date;
+        }
+        if (product_id !== undefined) {
+            promoCode.product_id = product_id;
+        }
+        if (category !== undefined) {
+            promoCode.category = category;
+        }
+
+        await promoCode.save();
+        res.status(200).json(promoCode);
+    } catch (error) {
+        res.status(500);
+    }
+};

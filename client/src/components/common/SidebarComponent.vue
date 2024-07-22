@@ -15,10 +15,10 @@ import {
   Ellipsis,
   FileText,
   LayoutDashboard,
-  LogOut,
+  LogOut, MailPlus,
   PackageOpen,
   Settings,
-  ShoppingCart,
+  ShoppingCart, Tag,
   Users,
 } from "lucide-vue-next";
 import { RouterLink, useRoute, useRouter } from "vue-router";
@@ -40,11 +40,9 @@ const primaryMenuItems = [
   },
   { route: { name: "AdminOrders" }, icon: FileText, text: "Commandes" },
   { route: { name: "AdminProducts" }, icon: ShoppingCart, text: "Produits" },
-  {
-    route: { name: "" },
-    icon: PackageOpen,
-    text: "Stock",
-  },
+  { route: { name: "AdminStocks" }, icon: PackageOpen, text: "Stocks" },
+  { route: { name: "AdminPromoCodes" }, icon: Tag, text: "Promo codes" },
+  { route: { name: "AdminPromoCodes" }, icon: MailPlus, text: "Newsletters" },
   { route: { name: "AdminUsers" }, icon: Users, text: "Utilisateurs" },
 ];
 
