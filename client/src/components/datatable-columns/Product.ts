@@ -51,6 +51,16 @@ export const columns: ColumnDef<Product>[] = [
     enableSorting: true,
   },
   {
+    accessorKey: "active",
+    header: ({ column }) =>
+      h(DataTableColumnHeader, {
+        column: column,
+        title: "En vente",
+      }),
+    cell: ({ row }) => (row.original.active == true ? "Oui" : "Non"),
+    enableSorting: true,
+  },
+  {
     accessorKey: "product_price",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Prix" }),
     cell: ({ row }) => {

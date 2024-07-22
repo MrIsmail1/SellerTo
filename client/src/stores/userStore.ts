@@ -67,12 +67,16 @@ export const useUsersStore = defineStore("users", {
       }
     },
     async findUserById(id: string) {
+      this.loading = true;
       try {
         const response = await axios.get(`/users/${id}`);
         this.user = response.data;
         this.error = null;
       } catch (error) {
+        this.error = error.message;
         this.user = null;
+      } finally {
+        this.loading = false;
       }
     },
   },

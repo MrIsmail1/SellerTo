@@ -8,6 +8,13 @@ import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
 import { AddProductSchema } from "@/z-schemas/ProductSchema";
 
+import Select from "@/components/ui/select/Select.vue";
+import SelectContent from "@/components/ui/select/SelectContent.vue";
+import SelectGroup from "@/components/ui/select/SelectGroup.vue";
+import SelectItem from "@/components/ui/select/SelectItem.vue";
+import SelectLabel from "@/components/ui/select/SelectLabel.vue";
+import SelectTrigger from "@/components/ui/select/SelectTrigger.vue";
+import SelectValue from "@/components/ui/select/SelectValue.vue";
 import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
 import { ref } from "vue";
@@ -16,12 +23,20 @@ import { useRouter } from "vue-router";
 const productsStore = useProductsStore();
 const router = useRouter();
 
-type FieldType = "string" | "number" | "boolean" | "file" | "textarea";
+type FieldType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "file"
+  | "textarea"
+  | "select";
 
 interface ProductField {
   value: string | number | boolean | File[];
+  selectLabel?: string;
   type: FieldType;
   placeholder: string;
+  options?: string[];
 }
 const files = ref<File[]>([]);
 
@@ -48,8 +63,17 @@ const basicProductInfo = ref<Record<string, ProductField>>({
   },
   product_category: {
     value: "",
-    type: "string",
-    placeholder: "Saisir la catégorie du produit...",
+    type: "select",
+    selectLabel: "Catégories",
+    placeholder: "Choisir la catégorie du produit...",
+    options: [
+      "Iphone",
+      "MacBook",
+      "Ordinateurs",
+      "Consoles",
+      "Smartphones",
+      "Tablettes",
+    ],
   },
   delivery: {
     value: "",
@@ -60,6 +84,13 @@ const basicProductInfo = ref<Record<string, ProductField>>({
     value: "",
     type: "number",
     placeholder: "Saisir le stock du produit...",
+  },
+  active: {
+    value: "",
+    type: "select",
+    selectLabel: "Options",
+    placeholder: "Mise en vente...",
+    options: ["Oui", "Non"],
   },
   product_description: {
     value: "",
@@ -197,6 +228,11 @@ const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
     ...flattenValues(additionalProductDetails.value),
   },
   onSubmit: async (values) => {
+    if (values.active === "Oui") {
+      values.active = true;
+    } else {
+      values.active = false;
+    }
     if (files) {
       await productsStore.addProductWithImages(values, files.value);
     } else {
@@ -292,6 +328,8 @@ const getLabel = (key: string) => {
       return "Série";
     case "keyboardAndLanguage":
       return "Clavier et langue";
+    case "active":
+      return "Produit en vente*";
     default:
       return key;
   }
@@ -303,13 +341,13 @@ const getLabel = (key: string) => {
     <span class="flex flex-col">
       <span class="text-xl font-bold text-text-100">Ajouter un produit</span>
       <span class="text-md text-text-200"
-      >Remplissez les détails du produit à ajouter.</span
+        >Remplissez les détails du produit à ajouter.</span
       >
     </span>
     <Button
-        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-        @click="handleSubmit"
-        :disabled="isSubmitting"
+      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+      @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -321,50 +359,70 @@ const getLabel = (key: string) => {
         <Card class="h-fit p-3">
           <CardHeader class="p-2">
             <CardTitle class="text-text-100 font-medium text-md mb-4"
-            >Informations de base</CardTitle
-            >
+              >Informations de base
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
               <div
-                  v-for="(field, key) in basicProductInfo"
-                  :key="key"
-                  class="grid gap-2"
+                v-for="(field, key) in basicProductInfo"
+                :key="key"
+                class="grid gap-2"
               >
                 <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
-                    v-if="field.type === 'string'"
-                    :id="key"
-                    v-model="values[key].value"
-                    :placeholder="field.placeholder"
-                    type="text"
+                  v-if="field.type === 'string'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="text"
                 />
                 <Input
-                    v-if="field.type === 'number'"
-                    :id="key"
-                    v-model.number="values[key].value"
-                    :placeholder="field.placeholder"
-                    type="number"
+                  v-if="field.type === 'number'"
+                  :id="key"
+                  v-model.number="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="number"
                 />
                 <Checkbox
-                    v-if="field.type === 'boolean'"
-                    :id="key"
-                    v-model="values[key].value"
+                  v-if="field.type === 'boolean'"
+                  :id="key"
+                  v-model="values[key].value"
                 />
                 <Input
-                    v-if="field.type === 'file'"
-                    :id="key"
-                    type="file"
-                    multiple
-                    :placeholder="field.placeholder"
-                    @change="(event) => handleFileChange(key, event)"
+                  v-if="field.type === 'file'"
+                  :id="key"
+                  type="file"
+                  multiple
+                  :placeholder="field.placeholder"
+                  @change="(event) => handleFileChange(key, event)"
                 />
                 <Textarea
-                    v-if="field.type === 'textarea'"
-                    :id="key"
-                    v-model="values[key].value"
-                    :placeholder="field.placeholder"
+                  v-if="field.type === 'textarea'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
                 />
+                <Select
+                  v-if="field.type == 'select'"
+                  v-model="values[key].value"
+                >
+                  <SelectTrigger>
+                    <SelectValue :placeholder="field.placeholder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>{{ field.selectLabel }}</SelectLabel>
+                      <SelectItem
+                        v-for="option in field.options"
+                        :key="option"
+                        :value="option"
+                      >
+                        {{ option }}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
                 </span>
@@ -375,35 +433,35 @@ const getLabel = (key: string) => {
         <Card class="p-4">
           <CardHeader class="p-2">
             <CardTitle class="text-text-100 font-medium text-md mb-4"
-            >Informations complémentaires</CardTitle
+              >Informations complémentaires</CardTitle
             >
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
               <div
-                  v-for="(field, key) in additionalProductDetails"
-                  :key="key"
-                  class="grid gap-2"
+                v-for="(field, key) in additionalProductDetails"
+                :key="key"
+                class="grid gap-2"
               >
                 <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
-                    v-if="field.type === 'string'"
-                    :id="key"
-                    v-model="values[key].value"
-                    :placeholder="field.placeholder"
-                    type="text"
+                  v-if="field.type === 'string'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="text"
                 />
                 <Input
-                    v-if="field.type === 'number'"
-                    :id="key"
-                    v-model.number="values[key].value"
-                    :placeholder="field.placeholder"
-                    type="number"
+                  v-if="field.type === 'number'"
+                  :id="key"
+                  v-model.number="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="number"
                 />
                 <Checkbox
-                    v-if="field.type === 'boolean'"
-                    :id="key"
-                    v-model="values[key].value"
+                  v-if="field.type === 'boolean'"
+                  :id="key"
+                  v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -417,35 +475,35 @@ const getLabel = (key: string) => {
       <Card class="w-1/2">
         <CardHeader class="p-2">
           <CardTitle class="text-text-100 font-medium text-md mb-4"
-          >Spécifications techniques</CardTitle
+            >Spécifications techniques</CardTitle
           >
         </CardHeader>
         <CardContent>
           <div class="grid gap-4">
             <div
-                v-for="(field, key) in productSpecifications"
-                :key="key"
-                class="grid gap-2"
+              v-for="(field, key) in productSpecifications"
+              :key="key"
+              class="grid gap-2"
             >
               <Label :for="key">{{ getLabel(key) }}</Label>
               <Input
-                  v-if="field.type === 'string'"
-                  :id="key"
-                  v-model="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="text"
+                v-if="field.type === 'string'"
+                :id="key"
+                v-model="values[key].value"
+                :placeholder="field.placeholder"
+                type="text"
               />
               <Input
-                  v-if="field.type === 'number'"
-                  :id="key"
-                  v-model.number="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="number"
+                v-if="field.type === 'number'"
+                :id="key"
+                v-model.number="values[key].value"
+                :placeholder="field.placeholder"
+                type="number"
               />
               <Checkbox
-                  v-if="field.type === 'boolean'"
-                  :id="key"
-                  v-model="values[key].value"
+                v-if="field.type === 'boolean'"
+                :id="key"
+                v-model="values[key].value"
               />
               <span v-if="errors[key]" class="text-red-500 text-sm">
                 {{ errors[key] }}
@@ -455,6 +513,9 @@ const getLabel = (key: string) => {
         </CardContent>
       </Card>
     </div>
+    <p v-if="httpError" class="text-red-500 text-xs mt-2">
+      {{ httpError }}
+    </p>
   </form>
 </template>
 

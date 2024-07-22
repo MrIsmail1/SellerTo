@@ -55,13 +55,13 @@ const userInfo = ref<Record<string, UserField>>({
     placeholder: "Saisir le mot de passe...",
   },
   role: {
-    value: "users",
+    value: "",
     type: "select",
-    placeholder: "Choisir le rôle",
+    placeholder: "Choisir le rôle...",
     options: ["SuperAdmin", "Admin", "User"],
   },
   isVerified: {
-    value: false,
+    value: true,
     type: "boolean",
     placeholder: "Indiquer si vérifié...",
   },
@@ -81,6 +81,7 @@ const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
     ...flattenValues(userInfo.value),
   },
   onSubmit: async (values) => {
+    console.log(values);
     await usersStore.createUser(JSON.stringify(values));
     router.push({ name: "AdminUsers" });
   },
@@ -102,7 +103,7 @@ const getLabel = (key: string) => {
     case "isVerified":
       return "Vérifié*";
     default:
-      return key; // fallback to key name if no specific label found
+      return key;
   }
 };
 </script>
@@ -137,9 +138,7 @@ const getLabel = (key: string) => {
         <CardContent>
           <div class="grid gap-4">
             <div v-for="(field, key) in userInfo" :key="key" class="grid gap-2">
-              <Label :for="key.toString()">{{
-                getLabel(key.toString())
-              }}</Label>
+              <Label :for="key">{{ getLabel(key) }}</Label>
               <Input
                 v-if="field.type === 'string'"
                 :id="key"
@@ -182,10 +181,8 @@ const getLabel = (key: string) => {
                 </SelectContent>
               </Select>
               <div v-if="field.type === 'boolean'" class="flex items-center">
-                <Checkbox :id="key.toString()" v-model="values[key].value" />
-                <Label :for="key.toString()" class="ml-2">{{
-                  getLabel(key.toString())
-                }}</Label>
+                <Checkbox :id="key" :v-model="values[key].value" />
+                <Label :for="key" class="ml-2">{{ getLabel(key) }}</Label>
               </div>
               <span v-if="errors[key]" class="text-red-500 text-sm">
                 {{ errors[key] }}
@@ -195,6 +192,9 @@ const getLabel = (key: string) => {
         </CardContent>
       </Card>
     </div>
+    <p v-if="httpError" class="text-red-500 text-xs mt-2">
+      {{ httpError }}
+    </p>
   </form>
 </template>
 

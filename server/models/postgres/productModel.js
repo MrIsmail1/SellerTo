@@ -7,6 +7,11 @@ import Images from "./imagesModel.js";
 const Products = sequelize.define(
   "Products",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     product_title: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -164,10 +169,7 @@ const Products = sequelize.define(
         await denormalizeProduct({ id: product.id }, { Product: Products });
       },
       afterUpdate: async (product, options) => {
-        await denormalizeProduct(
-          { id: product.id },
-          { Product: Products, Images: Images }
-        );
+        await denormalizeProduct({ id: product.id }, { Product: Products });
       },
       afterDestroy: async (product, options) => {
         await ProductMongo.findByIdAndDelete(product.id);
