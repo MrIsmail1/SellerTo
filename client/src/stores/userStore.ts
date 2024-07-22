@@ -1,7 +1,9 @@
 import type { User } from "@/z-schemas/UserSchema";
 import { defineStore } from "pinia";
+import { useRouter } from "vue-router";
 import axios from "../plugins/axios";
 
+const router = useRouter();
 interface UsersState {
   users: User[];
   user: User | null;
@@ -35,7 +37,6 @@ export const useUsersStore = defineStore("users", {
         this.users = this.users.filter((user) => user._id !== id);
       } catch (error: any) {
         if (error.response && error.response.status === 403) {
-          throw new Error("403");
         } else {
           this.error = error.message;
         }
