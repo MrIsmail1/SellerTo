@@ -334,10 +334,24 @@ export const getDashboardData = async (req, res) => {
     }
 
     const xAxisDates = generateXAxisDates(startDate, now, timeFrame);
-    console.log(responseData, xAxisDates);
 
+    // Ensure every date in xAxisDates has an entry in responseData
+    const responseDataMap = new Map(
+      responseData.map((item) => [item._id, item])
+    );
+
+    const filledResponseData = xAxisDates.map((date) => {
+      if (responseDataMap.has(date)) {
+        return responseDataMap.get(date);
+      } else {
+        return {
+          _id: date,
+          totalOrders: 0,
+        };
+      }
+    });
     res.json({
-      responseData,
+      responseData: filledResponseData,
       xAxisDates,
     });
   } catch (error) {

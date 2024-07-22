@@ -19,6 +19,7 @@ import {
   PackageOpen,
   Settings,
   ShoppingCart,
+  Store,
   Users,
 } from "lucide-vue-next";
 import { RouterLink, useRoute, useRouter } from "vue-router";
@@ -51,7 +52,9 @@ const primaryMenuItems = [
 
 const secondaryMenuItems = [
   /*   { route: { name: "" }, icon: Settings, text: "Paramètres" },
-   */ {
+   */
+  { route: { name: "Homepage" }, icon: Store, text: "Boutique" },
+  {
     route: { name: "" },
     icon: LogOut,
     text: "Déconnexion",

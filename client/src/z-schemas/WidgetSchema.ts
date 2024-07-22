@@ -1,6 +1,14 @@
 import { z } from "zod";
 
 export const WidgetSchema = z.object({
+  displayType: z.enum(["KPI", "Chart", "Tableau"], {
+    errorMap: (issue, ctx) => {
+      return {
+        message:
+          "Type d'affichage invalide. Les options valides sont 'KPI', 'Chart' et 'Tableau'.",
+      };
+    },
+  }),
   chartType: z.enum(["Ligne", "Camembert"], {
     errorMap: (issue, ctx) => {
       return {
@@ -21,24 +29,22 @@ export const WidgetSchema = z.object({
     }
   ),
   dataType: z.enum(
-    ["Meilleur ventes", "Nombre de commandes", "Nouveaux clients", "Stock"],
+    [
+      "count_products",
+      "ca_product",
+      "count_orders",
+      "ca_orders",
+      "count_users",
+    ],
     {
       errorMap: (issue, ctx) => {
         return {
           message:
-            "Type de données invalide. Les options valides sont 'Meilleur ventes', 'Nombre de commandes', 'Stock' et 'Nouveaux clients'.",
+            "Type de données invalide. Les options valides sont 'Total produits', 'Chiffre d'affaire produit', 'Total commandes', 'Chiffre d'affaire commandes', et 'Total utilisateurs'.",
         };
       },
     }
   ),
-  displayMode: z.enum(["Carte", "Graphique simple"], {
-    errorMap: (issue, ctx) => {
-      return {
-        message:
-          "Type de données invalide. Les options valides sont 'Carte', 'Graphique simple'.",
-      };
-    },
-  }),
 });
 
 export type Widget = z.infer<typeof WidgetSchema>;
