@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
+import { useUserAlertsStore } from '@/stores/userAlertsStore';
 import PersonalInfoModal from '@/components/modal/PersonalInfoModal.vue';
 import ChangePasswordModal from '@/components/modal/ChangePasswordModal.vue';
 
 const authStore = useAuthStore();
+const userAlertsStore = useUserAlertsStore();
 const showModal = ref(false);
 const showChangePasswordModal = ref(false);
 const modalContent = ref('personal'); // State variable to track which form to show
+const newsletterSubscription = ref(false);
 
 const fetchUser = async () => {
   await authStore.fetchUser();
+  await fetchNewsletterSubscription();
+};
+
+const fetchNewsletterSubscription = async () => {
+  const alerts = await userAlertsStore.getAlertsByUserId(authStore.user.id);
+  const newsletterAlert = alerts.find(alert => alert.alertId === 4); // Assuming 4 is the ID for the newsletter alert
+  newsletterSubscription.value = newsletterAlert ? newsletterAlert.isActive : false;
 };
 
 const updatePersonalInfo = async (user) => {
@@ -27,10 +37,20 @@ const openChangePasswordModal = () => {
   showChangePasswordModal.value = true;
 };
 
+const updateNewsletterSubscription = async () => {
+  const updates = {
+    userId: authStore.user.id,
+    alertId: 1, // Assuming 4 is the ID for the newsletter alert
+    isActive: newsletterSubscription.value,
+  };
+  await userAlertsStore.updateUserAlerts([updates]);
+};
+
 onMounted(() => {
   fetchUser();
 });
 </script>
+
 
 <template>
   <link rel="stylesheet"
@@ -71,13 +91,9 @@ onMounted(() => {
         </button>
       </div>
       <div class="bg-white p-6 rounded shadow-lg">
-          <h2 class="font-bold text-2xl mb-4">Préférences en matière d’e-mail</h2>
-        <label class="flex items-center mb-2">
-          <input type="checkbox" class="form-checkbox text-blue-600"/>
-          <span class="ml-2 text-lg">Recevoir nos bons plans dans votre boite mail</span>
-        </label>
+        <h2 class="font-bold text-2xl mb-4">Préférences en matière d’e-mail</h2>
         <label class="flex items-center">
-          <input type="checkbox" class="form-checkbox text-blue-600"/>
+          <input type="checkbox" class="form-checkbox text-blue-600" v-model="newsletterSubscription" @change="updateNewsletterSubscription" />
           <span class="ml-2 text-lg">Recevoir notre newsletter sur l'actualité du reconditionné.</span>
         </label>
       </div>
@@ -92,6 +108,7 @@ onMounted(() => {
     <ChangePasswordModal v-if="showChangePasswordModal" @close="showChangePasswordModal = false" />
   </div>
 </template>
+
 
 <style scoped>
 .container {

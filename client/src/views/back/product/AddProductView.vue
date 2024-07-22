@@ -303,13 +303,13 @@ const getLabel = (key: string) => {
     <span class="flex flex-col">
       <span class="text-xl font-bold text-text-100">Ajouter un produit</span>
       <span class="text-md text-text-200"
-        >Remplissez les détails du produit à ajouter.</span
+      >Remplissez les détails du produit à ajouter.</span
       >
     </span>
     <Button
-      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="handleSubmit"
-      :disabled="isSubmitting"
+        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+        @click="handleSubmit"
+        :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -321,49 +321,49 @@ const getLabel = (key: string) => {
         <Card class="h-fit p-3">
           <CardHeader class="p-2">
             <CardTitle class="text-text-100 font-medium text-md mb-4"
-              >Informations de base</CardTitle
+            >Informations de base</CardTitle
             >
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
               <div
-                v-for="(field, key) in basicProductInfo"
-                :key="key"
-                class="grid gap-2"
+                  v-for="(field, key) in basicProductInfo"
+                  :key="key"
+                  class="grid gap-2"
               >
                 <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
-                  v-if="field.type === 'string'"
-                  :id="key"
-                  v-model="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="text"
+                    v-if="field.type === 'string'"
+                    :id="key"
+                    v-model="values[key].value"
+                    :placeholder="field.placeholder"
+                    type="text"
                 />
                 <Input
-                  v-if="field.type === 'number'"
-                  :id="key"
-                  v-model.number="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="number"
+                    v-if="field.type === 'number'"
+                    :id="key"
+                    v-model.number="values[key].value"
+                    :placeholder="field.placeholder"
+                    type="number"
                 />
                 <Checkbox
-                  v-if="field.type === 'boolean'"
-                  :id="key"
-                  v-model="values[key].value"
+                    v-if="field.type === 'boolean'"
+                    :id="key"
+                    v-model="values[key].value"
                 />
                 <Input
-                  v-if="field.type === 'file'"
-                  :id="key"
-                  type="file"
-                  multiple
-                  :placeholder="field.placeholder"
-                  @change="(event) => handleFileChange(key, event)"
+                    v-if="field.type === 'file'"
+                    :id="key"
+                    type="file"
+                    multiple
+                    :placeholder="field.placeholder"
+                    @change="(event) => handleFileChange(key, event)"
                 />
                 <Textarea
-                  v-if="field.type === 'textarea'"
-                  :id="key"
-                  v-model="values[key].value"
-                  :placeholder="field.placeholder"
+                    v-if="field.type === 'textarea'"
+                    :id="key"
+                    v-model="values[key].value"
+                    :placeholder="field.placeholder"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -375,35 +375,35 @@ const getLabel = (key: string) => {
         <Card class="p-4">
           <CardHeader class="p-2">
             <CardTitle class="text-text-100 font-medium text-md mb-4"
-              >Informations complémentaires</CardTitle
+            >Informations complémentaires</CardTitle
             >
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
               <div
-                v-for="(field, key) in additionalProductDetails"
-                :key="key"
-                class="grid gap-2"
+                  v-for="(field, key) in additionalProductDetails"
+                  :key="key"
+                  class="grid gap-2"
               >
                 <Label :for="key">{{ getLabel(key) }}</Label>
                 <Input
-                  v-if="field.type === 'string'"
-                  :id="key"
-                  v-model="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="text"
+                    v-if="field.type === 'string'"
+                    :id="key"
+                    v-model="values[key].value"
+                    :placeholder="field.placeholder"
+                    type="text"
                 />
                 <Input
-                  v-if="field.type === 'number'"
-                  :id="key"
-                  v-model.number="values[key].value"
-                  :placeholder="field.placeholder"
-                  type="number"
+                    v-if="field.type === 'number'"
+                    :id="key"
+                    v-model.number="values[key].value"
+                    :placeholder="field.placeholder"
+                    type="number"
                 />
                 <Checkbox
-                  v-if="field.type === 'boolean'"
-                  :id="key"
-                  v-model="values[key].value"
+                    v-if="field.type === 'boolean'"
+                    :id="key"
+                    v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
@@ -417,35 +417,35 @@ const getLabel = (key: string) => {
       <Card class="w-1/2">
         <CardHeader class="p-2">
           <CardTitle class="text-text-100 font-medium text-md mb-4"
-            >Spécifications techniques</CardTitle
+          >Spécifications techniques</CardTitle
           >
         </CardHeader>
         <CardContent>
           <div class="grid gap-4">
             <div
-              v-for="(field, key) in productSpecifications"
-              :key="key"
-              class="grid gap-2"
+                v-for="(field, key) in productSpecifications"
+                :key="key"
+                class="grid gap-2"
             >
               <Label :for="key">{{ getLabel(key) }}</Label>
               <Input
-                v-if="field.type === 'string'"
-                :id="key"
-                v-model="values[key].value"
-                :placeholder="field.placeholder"
-                type="text"
+                  v-if="field.type === 'string'"
+                  :id="key"
+                  v-model="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="text"
               />
               <Input
-                v-if="field.type === 'number'"
-                :id="key"
-                v-model.number="values[key].value"
-                :placeholder="field.placeholder"
-                type="number"
+                  v-if="field.type === 'number'"
+                  :id="key"
+                  v-model.number="values[key].value"
+                  :placeholder="field.placeholder"
+                  type="number"
               />
               <Checkbox
-                v-if="field.type === 'boolean'"
-                :id="key"
-                v-model="values[key].value"
+                  v-if="field.type === 'boolean'"
+                  :id="key"
+                  v-model="values[key].value"
               />
               <span v-if="errors[key]" class="text-red-500 text-sm">
                 {{ errors[key] }}

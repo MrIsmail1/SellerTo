@@ -3,6 +3,9 @@ import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
 import denormalizeProduct from "../services/denormalization/product.js";
 import { uploadFiles } from "../services/imageUploadService.js";
+import {sendNewProductAlertEmail} from "../services/mailer/mailService.js";
+import {getUserById} from "./userController.js";
+import UserAlert from "../models/postgres/userAlertsModel.js";
 
 // Controller function to handle product creation with image validation
 export const createProductWithImages = async (req, res) => {
@@ -46,13 +49,34 @@ export const createProductWithImages = async (req, res) => {
           Images: Images,
         });
 
+        const userAlerts = await UserAlert.findAll({
+          where: {
+            alertId: 3,
+            category: newProduct.product_category,
+            isActive: true,
+          }
+        });
+
+        // TODO : Gérer mieux les erreurs
+        for (const alert of userAlerts) {
+          try {
+            const user = await getUserById(alert.userId);
+            if (user && user.email) {
+              await sendNewProductAlertEmail(user.email, newProduct);
+            }
+          } catch (userError) {
+            console.error('Error fetching user:', userError.message);
+          }
+        }
+
         return res.json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
-        return res.status(500).json({ error: dbError.message });
+        return res.status(500);
       }
     }
   });
 };
+
 
 // Controller function to handle image creation for an existing product
 export const addImagesToProduct = async (req, res) => {
@@ -125,6 +149,7 @@ export const deleteProductImage = async (req, res) => {
       return res.status(404);
     }
 
+    // TODO : Retour incorrect
     await image.destroy();
     return res.json({ message: "Image deleted successfully" });
   } catch (error) {
