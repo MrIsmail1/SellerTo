@@ -4,12 +4,16 @@ import LineChartComponent from "@/components/dashboard/LineChartComponent.vue";
 import PieChartComponent from "@/components/dashboard/PieChartComponent.vue";
 import WidgetModalComponent from "@/components/dashboard/WidgetModalComponent.vue";
 import Button from "@/components/ui/button/Button.vue";
-import { Plus, Store, WalletMinimal } from "lucide-vue-next";
+import { useOrdersStore } from "@/stores/orderStore";
+import { useWidgetsStore } from "@/stores/widgetStore";
+import { Plus } from "lucide-vue-next";
 import { onMounted, ref, watch } from "vue";
 import { GridItem, GridLayout } from "vue3-grid-layout-next";
 
 const isModalOpen = ref(false);
 const layout = ref([]);
+const orderStore = useOrdersStore();
+const widgetStore = useWidgetsStore();
 
 const openModal = () => {
   isModalOpen.value = true;
@@ -20,17 +24,24 @@ const closeModal = () => {
 };
 
 const icons = {
-  "Nombre de commandes": "WalletMinimal",
-  "Meilleur ventes": "WalletMinimal",
-  "Revenue totales": "Store",
-  Stock: "Store",
-  "Nouveaux clients": "Users",
+  count_products: "WalletMinimal",
+  ca_product: "WalletMinimal",
+  count_orders: "Store",
+  ca_orders: "Store",
+  count_users: "Users",
 };
 
 const initialSizes = {
-  LineChartCardComponent: { colNum: 3, rowHeight: 4 },
-  LineChartComponent: { colNum: 15, rowHeight: 10 },
-  PieChartComponent: { colNum: 5, rowHeight: 10 },
+  LineChartCardComponent: { colNum: 4, rowHeight: 4 },
+  LineChartComponent: { colNum: 15, rowHeight: 9 },
+  PieChartComponent: { colNum: 5, rowHeight: 11 },
+};
+const dataTypes = {
+  count_products: "Total produits",
+  ca_product: "Chiffre d'affaire produit",
+  count_orders: "Total commandes",
+  ca_orders: "Chiffre d'affaire commandes",
+  count_users: "Total utilisateurs",
 };
 
 const mockData = {
@@ -47,31 +58,8 @@ const saveLayoutToLocalStorage = () => {
   localStorage.setItem("dashboardLayout", JSON.stringify(layout.value));
 };
 
-const addChart = (chartData) => {
-  const { values, data } = chartData;
-  const displayType = values.displayType == "KPI" ? "KPI" : values.chartType;
-  const chartType = getChartComponent(displayType);
-  const { colNum, rowHeight } = initialSizes[chartType.__name] || {
-    colNum: 12,
-    rowHeight: 5,
-  };
-
-  const newChart = {
-    i: `chart-${layout.value.length + 1}`,
-    x: 0,
-    y: 0,
-    w: colNum,
-    h: rowHeight,
-    type: displayType,
-    data: mockData,
-    icon: icons[values.dataType],
-    dataType: values.dataType,
-  };
-  layout.value.push(newChart);
-  saveLayoutToLocalStorage();
-};
-
 const removeWidget = (id) => {
+  widgetStore.deleteWidget(id);
   layout.value = layout.value.filter((item) => item.i !== id);
   saveLayoutToLocalStorage();
 };
@@ -83,8 +71,44 @@ const loadLayoutFromLocalStorage = () => {
   }
 };
 
+const fetchWidgetsFromStore = async () => {
+  await orderStore.getDashboardData();
+  const widgets = orderStore.dashboardData;
+  if (!widgets) return;
+  layout.value = widgets.map((item, index) => {
+    const widget = item.widget;
+    const displayType = widget.displayType == "KPI" ? "KPI" : widget.chartType;
+    const amount = widget.KPIdata > 0 ? widget.KPIdata : 0;
+    return {
+      i: widget._id,
+      x: widget.x,
+      y: widget.y,
+      w: initialSizes[getChartComponent(displayType).__name]?.colNum,
+      h: initialSizes[getChartComponent(displayType).__name]?.rowHeight,
+      type: displayType,
+      data: mockData,
+      icon: icons[widget.dataType],
+      dataType: dataTypes[widget.dataType],
+      amount: amount,
+    };
+  });
+  console.log(widgets);
+  saveLayoutToLocalStorage();
+};
+
+const updateWidgetPositionInStore = async (layout) => {
+  if (!layout) return;
+  for (const item of layout) {
+    const widgetId = item.i;
+    const x = item.x;
+    const y = item.y;
+    await widgetStore.updateWidget(widgetId, { x, y });
+  }
+};
+
 onMounted(() => {
   loadLayoutFromLocalStorage();
+  fetchWidgetsFromStore();
 });
 
 const getChartComponent = (type) => {
@@ -99,7 +123,14 @@ const getChartComponent = (type) => {
   }
 };
 
-watch(layout, saveLayoutToLocalStorage, { deep: true });
+watch(
+  layout,
+  (newLayout) => {
+    saveLayoutToLocalStorage();
+    updateWidgetPositionInStore(newLayout); // Update the positions in the database
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -126,8 +157,9 @@ watch(layout, saveLayoutToLocalStorage, { deep: true });
       :row-height="20"
       :is-draggable="true"
       :is-resizable="true"
-      :vertical-compact="true"
+      :vertical-compact="false"
       :use-css-transforms="true"
+      @layout-updated="(newLayout) => updateWidgetPositionInStore(newLayout)"
     >
       <GridItem
         v-for="(item, index) in layout"
@@ -144,14 +176,11 @@ watch(layout, saveLayoutToLocalStorage, { deep: true });
           :dataType="item.dataType"
           @remove="removeWidget(item.i)"
           :icon="item.icon"
+          :amount="item.amount"
         />
       </GridItem>
     </GridLayout>
   </div>
 
-  <WidgetModalComponent
-    v-if="isModalOpen"
-    @close="closeModal"
-    @chartDataFetched="addChart"
-  />
+  <WidgetModalComponent v-if="isModalOpen" @close="closeModal" />
 </template>

@@ -95,13 +95,8 @@ const iconComponents = {
   Users,
 };
 
-
-
 const IconComponent = computed(() => iconComponents[props.icon]);
 
-/* watch(props.chartData, (newData) => {
-  chartData.value = newData;
-}); */
 const pieColors = ["#4BC0C0"];
 
 props.chartData.datasets.forEach((dataset) => {
@@ -125,7 +120,6 @@ props.chartData.datasets.forEach((dataset) => {
       </span>
       <div class="flex flex-col items-start">
         <span class="text-text-200 text-sm">{{ dataType }}</span>
-        <span class="text-accent-100 text-lg font-bold">3000</span>
       </div>
     </div>
     <div class="w-full pt-3 px-5 h-full">

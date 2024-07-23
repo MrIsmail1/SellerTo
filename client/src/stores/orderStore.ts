@@ -118,10 +118,10 @@ export const useOrdersStore = defineStore("orders", {
         this.error = error.response.data.message || error.message;
       }
     },
-    async getDashboardData(values) {
+    async getDashboardData() {
       this.loading = true;
       try {
-        const response = await axios.post("/orders/dashboard", values);
+        const response = await axios.get("/orders/dashboard");
         this.dashboardData = response.data;
         this.error = null;
       } catch (error) {

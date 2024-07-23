@@ -20,16 +20,25 @@ async function getUserDetails(userId) {
   return await getUserById(userId);
 }
 
-export async function sendDeliveryConfirmationEmail(userEmail, trackingNumber, userName, userAddress, orderDate, products) {
+export async function sendDeliveryConfirmationEmail(
+  userEmail,
+  trackingNumber,
+  userName,
+  userAddress,
+  orderDate,
+  products
+) {
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD,
     },
   });
 
-  const productItems = products.map(product => `
+  const productItems = products
+    .map(
+      (product) => `
     <div style="display: flex; align-items: center; margin-bottom: 20px;">
       <img src="${product.photo}" alt="Product Image" style="width: 200px; height: 200px; object-fit: cover; margin-right: 20px; border-radius: 5px;">
       <div>
@@ -37,12 +46,14 @@ export async function sendDeliveryConfirmationEmail(userEmail, trackingNumber, u
         <p style="color: #000;">Vendu par ${product.vendor}<br>Qté : ${product.quantity}<br>EUR : ${product.price} €</p>
       </div>
     </div>
-  `).join('');
+  `
+    )
+    .join("");
 
   let info = await transporter.sendMail({
     from: '"SellerTo" <no-reply@sellerto.com>',
     to: userEmail,
-    subject: 'Confirmation de livraison par SellerTo',
+    subject: "Confirmation de livraison par SellerTo",
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #000; border: 1px solid #e0e0e0; padding: 20px; border-radius: 5px;">
         <h2 style="color: #000;">Bonjour,</h2>
@@ -75,34 +86,34 @@ export const getUserOrders = async (req, res) => {
     });
 
     const detailedOrders = await Promise.all(
-        orders.map(async (order) => {
-          const productDetails = await getProductDetails(order.productId);
-          const userDetails = await getUserDetails(order.userId);
+      orders.map(async (order) => {
+        const productDetails = await getProductDetails(order.productId);
+        const userDetails = await getUserDetails(order.userId);
 
-          // Find the payment record using paymentIntentId
-          const payment = await Payment.findOne({
+        // Find the payment record using paymentIntentId
+        const payment = await Payment.findOne({
+          where: {
+            paymentIntentId: order.paymentIntentId,
+          },
+        });
+
+        let paymentProducts = [];
+        if (payment) {
+          // Get PaymentProduct using paymentId
+          paymentProducts = await PaymentProduct.findAll({
             where: {
-              paymentIntentId: order.paymentIntentId,
+              paymentId: payment.id,
             },
           });
+        }
 
-          let paymentProducts = [];
-          if (payment) {
-            // Get PaymentProduct using paymentId
-            paymentProducts = await PaymentProduct.findAll({
-              where: {
-                paymentId: payment.id,
-              },
-            });
-          }
-
-          return {
-            ...order.toJSON(),
-            product: productDetails,
-            user: userDetails,
-            paymentProducts: paymentProducts,
-          };
-        })
+        return {
+          ...order.toJSON(),
+          product: productDetails,
+          user: userDetails,
+          paymentProducts: paymentProducts,
+        };
+      })
     );
 
     res.status(200).json(detailedOrders);
@@ -110,7 +121,6 @@ export const getUserOrders = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 export const calculateData = async (widget) => {
   const now = new Date();
   let startDate;
@@ -129,16 +139,16 @@ export const calculateData = async (widget) => {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       break;
     case "-1m":
-      startDate = new Date(now.getTime() - 30 * 24 * 60 * 1000);
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       break;
     case "-3m":
-      startDate = new Date(now.getTime() - 90 * 24 * 60 * 1000);
+      startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
       break;
     case "-6m":
-      startDate = new Date(now.getTime() - 180 * 24 * 60 * 1000);
+      startDate = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
       break;
     case "-1y":
-      startDate = new Date(now.getTime() - 365 * 24 * 60 * 1000);
+      startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
       break;
     case "-3y":
       startDate = new Date(now.getTime() - 3 * 365 * 24 * 60 * 1000);
@@ -204,78 +214,15 @@ export const calculateData = async (widget) => {
         throw new Error("Invalid data type");
     }
   } else {
-    let groupInterval;
-    switch (widget.selectedStep) {
-      case "1 minute":
-      case "2 minutes":
-      case "5 minutes":
-      case "10 minutes":
-      case "20 minutes":
-      case "30 minutes":
-        groupInterval = "%Y-%m-%dT%H:%M";
-        break;
-      case "1 heure":
-      case "2 heures":
-      case "3 heures":
-      case "6 heures":
-      case "12 heures":
-        groupInterval = "%Y-%m-%dT%H";
-        break;
-      case "1 jour":
-      case "2 jours":
-      case "3 jours":
-      case "5 jours":
-      case "7 jours":
-        groupInterval = "%Y-%m-%d";
-        break;
-      case "1 semaine":
-      case "2 semaines":
-      case "3 semaines":
-      case "1 mois":
-        groupInterval = "%Y-%W";
-        break;
-      case "1 mois":
-      case "2 mois":
-      case "3 mois":
-        groupInterval = "%Y-%m";
-        break;
-      case "1 an":
-      case "2 ans":
-      case "3 ans":
-        groupInterval = "%Y";
-        break;
-      default:
-        throw new Error("Invalid selected step");
-    }
-
+    const groupInterval = getGroupInterval(widget.selectedStep);
     const orders = await Order.find(matchCriteria);
-
     const xAxisDates = generateXAxisDates(startDate, now, widget.timeFrame, widget.selectedStep);
+    const dataMap = new Map(xAxisDates.map((date) => [date, 0]));
 
-    const dataMap = new Map(xAxisDates.map(date => [date, 0]));
-
-    orders.forEach(order => {
+    orders.forEach((order) => {
       const closestDate = findClosestDate(order.createdAt, xAxisDates);
       if (dataMap.has(closestDate)) {
-        switch (widget.dataType) {
-          case "count_orders":
-            dataMap.set(closestDate, dataMap.get(closestDate) + 1);
-            break;
-          case "ca_orders":
-            dataMap.set(closestDate, dataMap.get(closestDate) + order.amount);
-            break;
-          case "count_products":
-            dataMap.set(closestDate, dataMap.get(closestDate) + order.quantity);
-            break;
-          case "ca_product":
-            dataMap.set(closestDate, dataMap.get(closestDate) + order.amount);
-            break;
-          case "count_users":
-            dataMap.set(closestDate, dataMap.get(closestDate) + 1);
-            break;
-          default:
-            throw new Error("Invalid data type");
-        }
+        updateDataMap(dataMap, closestDate, widget.dataType, order);
       }
     });
 
@@ -294,84 +241,121 @@ export const calculateData = async (widget) => {
   }
 };
 
-const generateXAxisDates = (startDate, now, timeFrame, selectedStep) => {
-  const dates = [];
-  let currentDate = new Date(startDate);
-
+const getGroupInterval = (selectedStep) => {
   switch (selectedStep) {
     case "1 minute":
     case "2 minutes":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 16)); // YYYY-MM-DDTHH:MM
-        currentDate.setMinutes(currentDate.getMinutes() + (selectedStep === "1 minute" ? 1 : 2));
-      }
-      break;
     case "5 minutes":
     case "10 minutes":
     case "20 minutes":
     case "30 minutes":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 16)); // YYYY-MM-DDTHH:MM
-        currentDate.setMinutes(currentDate.getMinutes() + parseInt(selectedStep));
-      }
-      break;
+      return "%Y-%m-%dT%H:%M";
     case "1 heure":
     case "2 heures":
     case "3 heures":
     case "6 heures":
     case "12 heures":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 13)); // YYYY-MM-DDTHH
-        currentDate.setHours(currentDate.getHours() + parseInt(selectedStep.split(" ")[0]));
-      }
-      break;
+      return "%Y-%m-%dT%H";
     case "1 jour":
     case "2 jours":
     case "3 jours":
     case "5 jours":
     case "7 jours":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 10)); // YYYY-MM-DD
-        currentDate.setDate(currentDate.getDate() + parseInt(selectedStep.split(" ")[0]));
-      }
-      break;
+      return "%Y-%m-%d";
     case "1 semaine":
     case "2 semaines":
     case "3 semaines":
     case "1 mois":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 10)); // YYYY-MM-DD
-        currentDate.setDate(currentDate.getDate() + (selectedStep.includes("semaine") ? parseInt(selectedStep.split(" ")[0]) * 7 : 30));
-      }
-      break;
+      return "%Y-%W";
     case "1 mois":
     case "2 mois":
     case "3 mois":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 7)); // YYYY-MM
-        currentDate.setMonth(currentDate.getMonth() + parseInt(selectedStep.split(" ")[0]));
-      }
-      break;
+      return "%Y-%m";
     case "1 an":
     case "2 ans":
     case "3 ans":
-      while (currentDate <= now) {
-        dates.push(currentDate.toISOString().substring(0, 4)); // YYYY
-        currentDate.setFullYear(currentDate.getFullYear() + parseInt(selectedStep.split(" ")[0]));
-      }
-      break;
+      return "%Y";
     default:
       throw new Error("Invalid selected step");
   }
+};
+
+const generateXAxisDates = (startDate, now, timeFrame, selectedStep) => {
+  const dates = [];
+  let currentDate = new Date(startDate);
+
+  const interval = getStepInterval(selectedStep);
+
+  while (currentDate <= now) {
+    dates.push(currentDate.toISOString().substring(0, interval.length)); // Adjust the length based on interval
+    currentDate = new Date(currentDate.getTime() + interval.ms);
+  }
 
   return dates;
+};
+
+const getStepInterval = (selectedStep) => {
+  switch (selectedStep) {
+    case "1 minute":
+      return { ms: 60 * 1000, length: 16 }; // YYYY-MM-DDTHH:MM
+    case "2 minutes":
+      return { ms: 2 * 60 * 1000, length: 16 };
+    case "5 minutes":
+      return { ms: 5 * 60 * 1000, length: 16 };
+    case "10 minutes":
+      return { ms: 10 * 60 * 1000, length: 16 };
+    case "20 minutes":
+      return { ms: 20 * 60 * 1000, length: 16 };
+    case "30 minutes":
+      return { ms: 30 * 60 * 1000, length: 16 };
+    case "1 heure":
+      return { ms: 60 * 60 * 1000, length: 13 }; // YYYY-MM-DDTHH
+    case "2 heures":
+      return { ms: 2 * 60 * 60 * 1000, length: 13 };
+    case "3 heures":
+      return { ms: 3 * 60 * 60 * 1000, length: 13 };
+    case "6 heures":
+      return { ms: 6 * 60 * 60 * 1000, length: 13 };
+    case "12 heures":
+      return { ms: 12 * 60 * 60 * 1000, length: 13 };
+    case "1 jour":
+      return { ms: 24 * 60 * 60 * 1000, length: 10 }; // YYYY-MM-DD
+    case "2 jours":
+      return { ms: 2 * 24 * 60 * 60 * 1000, length: 10 };
+    case "3 jours":
+      return { ms: 3 * 24 * 60 * 60 * 1000, length: 10 };
+    case "5 jours":
+      return { ms: 5 * 24 * 60 * 60 * 1000, length: 10 };
+    case "7 jours":
+      return { ms: 7 * 24 * 60 * 60 * 1000, length: 10 };
+    case "1 semaine":
+      return { ms: 7 * 24 * 60 * 60 * 1000, length: 10 };
+    case "2 semaines":
+      return { ms: 14 * 24 * 60 * 60 * 1000, length: 10 };
+    case "3 semaines":
+      return { ms: 21 * 24 * 60 * 60 * 1000, length: 10 };
+    case "1 mois":
+      return { ms: 30 * 24 * 60 * 60 * 1000, length: 7 }; // YYYY-MM
+    case "2 mois":
+      return { ms: 60 * 24 * 60 * 60 * 1000, length: 7 };
+    case "3 mois":
+      return { ms: 90 * 24 * 60 * 60 * 1000, length: 7 };
+    case "1 an":
+      return { ms: 365 * 24 * 60 * 60 * 1000, length: 4 }; // YYYY
+    case "2 ans":
+      return { ms: 2 * 365 * 24 * 60 * 60 * 1000, length: 4 };
+    case "3 ans":
+      return { ms: 3 * 365 * 24 * 60 * 60 * 1000, length: 4 };
+    default:
+      throw new Error("Invalid selected step");
+  }
 };
 
 const findClosestDate = (targetDate, dates) => {
   let closestDate = null;
   let minDiff = Infinity;
 
-  dates.forEach(date => {
+  dates.forEach((date) => {
     const diff = Math.abs(new Date(date) - new Date(targetDate));
     if (diff < minDiff) {
       minDiff = diff;
@@ -381,6 +365,29 @@ const findClosestDate = (targetDate, dates) => {
 
   return closestDate;
 };
+
+const updateDataMap = (dataMap, closestDate, dataType, order) => {
+  switch (dataType) {
+    case "count_orders":
+      dataMap.set(closestDate, dataMap.get(closestDate) + 1);
+      break;
+    case "ca_orders":
+      dataMap.set(closestDate, dataMap.get(closestDate) + order.amount);
+      break;
+    case "count_products":
+      dataMap.set(closestDate, dataMap.get(closestDate) + order.quantity);
+      break;
+    case "ca_product":
+      dataMap.set(closestDate, dataMap.get(closestDate) + order.amount);
+      break;
+    case "count_users":
+      dataMap.set(closestDate, dataMap.get(closestDate) + 1);
+      break;
+    default:
+      throw new Error("Invalid data type");
+  }
+};
+
 
 export const getDashboardData = async (req, res) => {
   try {
@@ -395,10 +402,7 @@ export const getDashboardData = async (req, res) => {
       }
 
       await widget.save();
-      return {
-        widgetId: widget._id,
-        data,
-      };
+      return { widget };
     });
 
     const widgetData = await Promise.all(widgetDataPromises);
@@ -408,38 +412,37 @@ export const getDashboardData = async (req, res) => {
   }
 };
 
-
 export const getOrders = async (req, res) => {
   try {
     const orders = await Orders.findAll();
 
     const detailedOrders = await Promise.all(
-        orders.map(async (order) => {
-          const productDetails = await getProductDetails(order.productId);
-          const userDetails = await Users.findByPk(order.userId, {
-            attributes: {
-              exclude: [
-                "password",
-                "resetPasswordToken",
-                "resetPasswordExpire",
-                "passwordChangedAt",
-                "role",
-                "confirmationToken",
-                "confirmationTokenExpires",
-                "isVerified",
-                "loginAttempts",
-                "lockUntil",
-                "createdAt",
-                "updatedAt",
-              ],
-            },
-          });
-          return {
-            ...order.toJSON(),
-            product: productDetails,
-            user: userDetails,
-          };
-        })
+      orders.map(async (order) => {
+        const productDetails = await getProductDetails(order.productId);
+        const userDetails = await Users.findByPk(order.userId, {
+          attributes: {
+            exclude: [
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpire",
+              "passwordChangedAt",
+              "role",
+              "confirmationToken",
+              "confirmationTokenExpires",
+              "isVerified",
+              "loginAttempts",
+              "lockUntil",
+              "createdAt",
+              "updatedAt",
+            ],
+          },
+        });
+        return {
+          ...order.toJSON(),
+          product: productDetails,
+          user: userDetails,
+        };
+      })
     );
 
     res.status(200).json(detailedOrders);
@@ -463,8 +466,8 @@ export const generateInvoices = async (req, res) => {
       const pdfBuffer = await createInvoicePDF(order);
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
-          "Content-Disposition",
-          `attachment; filename=facture_${order.orderUnique}.pdf`
+        "Content-Disposition",
+        `attachment; filename=facture_${order.orderUnique}.pdf`
       );
       return res.send(pdfBuffer);
     }
@@ -477,8 +480,8 @@ export const generateInvoices = async (req, res) => {
     }
 
     const zipFilePath = path.join(
-        tempDir,
-        `facture_orders_${new Date().toISOString()}.zip`
+      tempDir,
+      `facture_orders_${new Date().toISOString()}.zip`
     );
     const output = fs.createWriteStream(zipFilePath);
     const archive = archiver("zip", {
@@ -488,8 +491,8 @@ export const generateInvoices = async (req, res) => {
     output.on("close", () => {
       res.setHeader("Content-Type", "application/zip");
       res.setHeader(
-          "Content-Disposition",
-          `attachment; filename=facture_orders_${new Date().toISOString()}.zip`
+        "Content-Disposition",
+        `attachment; filename=facture_orders_${new Date().toISOString()}.zip`
       );
       res.sendFile(zipFilePath, (err) => {
         if (err) {

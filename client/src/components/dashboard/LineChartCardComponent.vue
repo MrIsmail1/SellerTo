@@ -37,6 +37,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  amount: {
+    type: Number,
+    required: true,
+  },
 });
 
 const emit = defineEmits(["remove"]);
@@ -116,7 +120,9 @@ watch(props.chartData, (newData) => {
       </span>
       <div class="flex flex-col">
         <span class="text-text-200 text-sm text-nowrap">{{ dataType }}</span>
-        <span class="text-accent-100 text-xl font-bold">3000</span>
+        <span class="text-accent-100 text-xl font-bold">{{
+          amount == null ? 0 : amount
+        }}</span>
       </div>
     </div>
     <div class="w-full h-12 pt-3 px-3">
