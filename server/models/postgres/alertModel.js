@@ -1,19 +1,19 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../../config/database.js';
+import sequelize from "../../config/sequelize-config.js";
 
 const Alerts = sequelize.define('Alerts', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
 }, {
-    timestamps: false,
+  timestamps: false,
 });
 
 export default Alerts;
