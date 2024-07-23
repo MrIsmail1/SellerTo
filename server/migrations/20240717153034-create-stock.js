@@ -1,15 +1,15 @@
-/** @type {import('sequelize-cli').Migration} */
+import { DataTypes } from 'sequelize';
 
-export const up = async (queryInterface, Sequelize) => {
+export const up = async ({ context: queryInterface }) => {
   await queryInterface.createTable('Stocks', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
       allowNull: false,
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Products',
@@ -19,29 +19,29 @@ export const up = async (queryInterface, Sequelize) => {
       onDelete: 'CASCADE',
     },
     quantity: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     operationType: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         isIn: [['ADD', 'REMOVE']],
       },
     },
     createdAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW,
+      defaultValue: DataTypes.NOW,
     },
     updatedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW,
+      defaultValue: DataTypes.NOW,
     },
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable('Stocks');
 };

@@ -1,13 +1,15 @@
-export const up = async (queryInterface, Sequelize) => {
+import { DataTypes } from 'sequelize';
+
+export const up = async ({ context: queryInterface }) => {
   await queryInterface.createTable('Carts', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: DataTypes.INTEGER
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Products',
@@ -17,36 +19,36 @@ export const up = async (queryInterface, Sequelize) => {
       onDelete: 'CASCADE'
     },
     userId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     quantity: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1
     },
     reservedUntil: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: true
     },
     addedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn('now')
+      defaultValue: DataTypes.NOW
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now')
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now')
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
     }
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable('Carts');
 };

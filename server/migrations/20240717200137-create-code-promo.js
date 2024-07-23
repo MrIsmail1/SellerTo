@@ -1,27 +1,28 @@
-/** @type {import('sequelize-cli').Migration} */
+import { DataTypes } from 'sequelize';
 
-export const up = async (queryInterface, Sequelize) => {
+export const up = async ({ context: queryInterface }) => {
+  const { sequelize } = queryInterface;
   await queryInterface.createTable('PromoCodes', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     code: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     discount: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     expiry_date: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     product_id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: 'Products',
@@ -31,22 +32,22 @@ export const up = async (queryInterface, Sequelize) => {
       onUpdate: 'CASCADE',
     },
     category: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable('PromoCodes');
 };

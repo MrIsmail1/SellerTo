@@ -1,15 +1,15 @@
-/** @type {import('sequelize-cli').Migration} */
+import { DataTypes } from 'sequelize';
 
-export const up = async (queryInterface, Sequelize) => {
+export const up = async ({ context: queryInterface }) => {
   // Create Payments table
   await queryInterface.createTable('Payments', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     userId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Users',
@@ -17,43 +17,43 @@ export const up = async (queryInterface, Sequelize) => {
       },
     },
     amount: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     paymentIntentId: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
       unique: true,
     },
     refundId: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     status: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
   });
 
   // Create PaymentProducts table
   await queryInterface.createTable('PaymentProducts', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     paymentId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Payments',
@@ -61,7 +61,7 @@ export const up = async (queryInterface, Sequelize) => {
       },
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Products',
@@ -69,39 +69,39 @@ export const up = async (queryInterface, Sequelize) => {
       },
     },
     quantity: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     amount: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     refundId: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     refundAmount: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: true,
     },
     refundStatus: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable('PaymentProducts');
   await queryInterface.dropTable('Payments');
 };

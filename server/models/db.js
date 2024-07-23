@@ -1,16 +1,10 @@
-// db.js
-import { Sequelize } from '@sequelize/sequelize';
+import sequelizeConfig from '../config/sequelize-config.js';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
-// Sequelize connection
-const sequelizeConnection = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-});
-
 const sqlConnect = async () => {
   try {
-    await sequelizeConnection.authenticate();
+    await sequelizeConfig.authenticate();
     console.log('SQL connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the SQL database:', error);
@@ -18,13 +12,9 @@ const sqlConnect = async () => {
   }
 };
 
-// MongoDB connection
 const mongoConnect = async () => {
   try {
-    const connect = await mongoose.connect(process.env.MONGO_CONNECTION, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const connect = await mongoose.connect(process.env.MONGO_CONNECTION);
     console.log('MongoDB connected:', connect.connection.host);
   } catch (err) {
     console.error('MongoDB connection error:', err);
@@ -38,4 +28,3 @@ const connectDatabases = async () => {
 };
 
 export default connectDatabases;
-export { sequelizeConnection };

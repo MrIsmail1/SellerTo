@@ -1,41 +1,43 @@
-export const up = async (queryInterface, Sequelize) => {
+import { DataTypes } from 'sequelize';
+
+export const up = async ({ context: queryInterface }) => {
   await queryInterface.createTable("Images", {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     title: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     url: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     description: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     size: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     width: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     height: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
     },
     format: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       references: {
         model: "Products",
         key: "id",
@@ -47,6 +49,6 @@ export const up = async (queryInterface, Sequelize) => {
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable("Images");
 };

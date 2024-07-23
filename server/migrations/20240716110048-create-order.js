@@ -1,23 +1,23 @@
-/** @type {import('sequelize-cli').Migration} */
+import { DataTypes } from 'sequelize';
 
-export const up = async (queryInterface, Sequelize) => {
+export const up = async ({ context: queryInterface }) => {
   // Create Orders table
   await queryInterface.createTable('Orders', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     orderUnique: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     quantity: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     userId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Users',
@@ -27,7 +27,7 @@ export const up = async (queryInterface, Sequelize) => {
       onDelete: 'CASCADE',
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Products',
@@ -37,15 +37,15 @@ export const up = async (queryInterface, Sequelize) => {
       onDelete: 'CASCADE',
     },
     amount: {
-      type: Sequelize.FLOAT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     status: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     paymentIntentId: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
       references: {
         model: 'Payments',
@@ -55,22 +55,22 @@ export const up = async (queryInterface, Sequelize) => {
       onDelete: 'CASCADE',
     },
     trackingCode: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('now'),
+      type: DataTypes.DATE,
+      defaultValue: queryInterface.sequelize.fn('now'),
     },
   });
 };
 
-export const down = async (queryInterface, Sequelize) => {
+export const down = async ({ context: queryInterface }) => {
   await queryInterface.dropTable('Orders');
 };
