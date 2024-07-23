@@ -1,5 +1,5 @@
 import OrderMongo from "../../models/mongo/orderModel.js";
-import sequelize from "../../config/database.js";
+import sequelize from "../../config/sequelize-config.js";
 
 // TODO : Dénormalization peut être à changer car je l'ai fais sans association donc il est bizarre
 export default async function denormalizeOrder(orderId, models) {

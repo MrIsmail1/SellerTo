@@ -1,12 +1,7 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../../config/sequelize-config.js";
-import ProductMongo from "../../models/mongo/productModel.js";
-import denormalizeProduct from "../../services/denormalization/product.js";
-import Images from "./imagesModel.js";
+import { DataTypes } from 'sequelize';
 
-const Products = sequelize.define(
-  "Products",
-  {
+export const up = async ({ context: queryInterface }) => {
+  await queryInterface.createTable("Products", {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -161,32 +156,19 @@ const Products = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-  },
-  {
-    timestamps: true,
-    hooks: {
-      afterCreate: async (product, options) => {
-        await denormalizeProduct({ id: product.id }, { Product: Products });
-      },
-      afterUpdate: async (product, options) => {
-        await denormalizeProduct({ id: product.id }, { Product: Products });
-      },
-      afterDestroy: async (product, options) => {
-        await ProductMongo.findByIdAndDelete(product.id);
-      },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
-  }
-);
-Products.hasMany(Images, {
-  foreignKey: "productId",
-  as: "images",
-  onDelete: "CASCADE",
-});
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  });
+};
 
-Images.belongsTo(Products, {
-  foreignKey: "productId",
-  as: "product",
-  onDelete: "CASCADE",
-});
-
-export default Products;
+export const down = async ({ context: queryInterface }) => {
+  await queryInterface.dropTable("Products");
+};

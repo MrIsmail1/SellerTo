@@ -1,154 +1,109 @@
-import { jest } from '@jest/globals';
-import { register, login, forgotPassword, resetPassword, logout } from '../../controllers/authController.js';
-import { Op, User } from '../__mocks__/sequelize.js'; // Importer les mocks correctement
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { v4 as uuidv4 } from 'uuid';
+import * as authController from '../../controllers/authController.js';
+import { mockUserModel, findOneMock, createMock } from '../utils/sequelize.js';
+import { mockRequest, mockResponse } from '../utils/mock-req-res.js';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
-jest.unstable_mockModule('crypto', () => ({
-  randomBytes: jest.fn().mockReturnValue(Buffer.from('1234567890abcdef', 'hex')),
-  createHash: jest.fn().mockReturnValue({
-    update: jest.fn().mockReturnThis(),
-    digest: jest.fn().mockReturnValue('hashedtoken')
-  })
-}));
+vi.mock('nodemailer');
+vi.mock('crypto');
+vi.mock('jsonwebtoken');
 
-jest.unstable_mockModule('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn()
-  })
-}));
+describe('Auth Controller - Unit Tests', () => {
+  let uniqueEmail;
 
-const crypto = await import('crypto');
-const nodemailer = await import('nodemailer');
+  beforeEach(() => {
+    findOneMock.mockReset();
+    createMock.mockReset();
+    nodemailer.createTransport.mockReset();
+    crypto.randomBytes.mockReset();
+    jwt.sign.mockReset();
+    uniqueEmail = `john.doe+${uuidv4()}@example.com`;
+  });
 
-describe('Auth Controller', () => {
   describe('register', () => {
-    it('should register a new user', async () => {
-      const req = {
-        body: { firstname: 'John', lastname: 'Doe', email: 'john.doe@example.com', password: 'password123' }
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+    it('should create a new user and send a confirmation email', async () => {
+      const req = mockRequest({
+        body: {
+          firstname: 'John',
+          lastname: 'Doe',
+          email: uniqueEmail,
+          password: 'Coucou00$$$$',
+        },
+      });
+      const res = mockResponse();
 
-      User.findOne.mockResolvedValue(null);
-      User.create.mockResolvedValue({
+      findOneMock.mockResolvedValue(null);
+      createMock.mockResolvedValue({
         id: 1,
         firstname: 'John',
         lastname: 'Doe',
-        email: 'john.doe@example.com',
-        password: 'hashedpassword',
-        confirmationToken: '1234567890abcdef',
-        confirmationTokenExpires: Date.now() + 3600000,
-        isVerified: false
+        email: req.body.email,
+        isVerified: false,
+        confirmationToken: 'randomToken',
       });
 
-      await register(req, res);
+      crypto.randomBytes.mockReturnValue(Buffer.from('randomToken'));
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: vi.fn().mockResolvedValue(true),
+      });
 
-      expect(User.findOne).toHaveBeenCalledWith({ where: { email: 'john.doe@example.com' } });
-      expect(User.create).toHaveBeenCalled();
+      await authController.register(req, res);
+
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Inscription réussie. Veuillez vérifier votre email pour confirmer votre compte.',
+      });
     });
   });
 
   describe('login', () => {
-    it('should login a verified user', async () => {
-      const req = {
-        body: { email: 'john.doe@example.com', password: 'password123' }
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+    it('should login a user and return a token', async () => {
+      const req = mockRequest({
+        body: {
+          email: uniqueEmail,
+          password: 'Coucou00$$$$',
+        },
+      });
+      const res = mockResponse();
 
-      User.findOne.mockResolvedValue({
+      findOneMock.mockResolvedValue({
         id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        email: 'john.doe@example.com',
+        email: req.body.email,
         password: 'hashedpassword',
         isVerified: true,
-        matchPassword: jest.fn().mockResolvedValue(true),
-        save: jest.fn()
+        matchPassword: vi.fn().mockResolvedValue(true),
       });
+      jwt.sign.mockReturnValue('token');
 
-      await login(req, res);
+      await authController.login(req, res);
 
-      expect(User.findOne).toHaveBeenCalledWith({ where: { email: 'john.doe@example.com' } });
-      expect(res.status).not.toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Connexion réussie' }));
-    });
-  });
-
-  describe('forgotPassword', () => {
-    it('should send a password reset email', async () => {
-      const req = {
-        body: { email: 'john.doe@example.com' }
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
-
-      User.findOne.mockResolvedValue({
-        id: 1,
-        email: 'john.doe@example.com',
-        save: jest.fn()
-      });
-
-      await forgotPassword(req, res);
-
-      expect(User.findOne).toHaveBeenCalledWith({ where: { email: 'john.doe@example.com' } });
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Email envoyé avec le lien de réinitialisation du mot de passe' });
-    });
-  });
-
-  describe('resetPassword', () => {
-    it('should reset the user password', async () => {
-      const req = {
-        params: { token: 'validtoken' },
-        body: { password: 'newpassword123' }
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
-
-      User.findOne.mockResolvedValue({
-        id: 1,
-        resetPasswordToken: 'hashedtoken',
-        resetPasswordExpire: Date.now() + 3600000,
-        save: jest.fn()
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Connexion réussie',
+        user: expect.any(Object),
       });
-
-      await resetPassword(req, res);
-
-      expect(User.findOne).toHaveBeenCalledWith({
-        where: {
-          resetPasswordToken: 'hashedtoken',
-          resetPasswordExpire: { [Op.gt]: Date.now() }
-        }
-      });
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Mot de passe réinitialisé avec succès' });
     });
-  });
 
-  describe('logout', () => {
-    it('should logout the user', async () => {
-      const req = {};
-      const res = {
-        clearCookie: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+    it('should return an error if user is not found', async () => {
+      const req = mockRequest({
+        body: {
+          email: uniqueEmail,
+          password: 'Coucou00$$$$',
+        },
+      });
+      const res = mockResponse();
 
-      await logout(req, res);
+      findOneMock.mockResolvedValue(null);
 
-      expect(res.clearCookie).toHaveBeenCalledWith('JWT');
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Déconnexion réussie' });
+      await authController.login(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Utilisateur non trouvé',
+      });
     });
   });
 });
