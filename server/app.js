@@ -15,6 +15,7 @@ import productRouter from "./routes/productRoutes.js";
 import promoCodeRouter from "./routes/promoCodeRoutes.js";
 import stockRouter from "./routes/stockRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import widgetRouter from "./routes/widgetRoutes.js";
 import stripeWebhookHandler from "./webhooks/stripeWebhook.js";
 
 const app = express();
@@ -51,6 +52,7 @@ app.use("/api/upload", imagesRoutes);
 app.use("/api/orders", orderRouter);
 app.use("/api/stocks", stockRouter);
 app.use("/api/promocodes", promoCodeRouter);
+app.use("/api/widgets", widgetRouter)
 
 connectedDataBase();
 

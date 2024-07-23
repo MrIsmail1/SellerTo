@@ -8,13 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm } from "@/composables/useForm";
-import { useProductsStore } from "@/stores/productsStore";
-import { WidgetSchema } from "@/z-schemas/WidgetSchema";
-import { X } from "lucide-vue-next";
-import { computed, onMounted, ref } from "vue";
+import {useForm} from "@/composables/useForm";
+import {useProductsStore} from "@/stores/productsStore";
+import {WidgetSchema} from "@/z-schemas/WidgetSchema";
+import {X} from "lucide-vue-next";
+import {computed, onMounted, ref} from "vue";
 import Button from "../ui/button/Button.vue";
 import Label from "../ui/label/Label.vue";
+import {useWidgetsStore} from "@/stores/widgetStore";
 
 const displayTypes = ["KPI", "Chart", "Tableau"];
 const chartTypes = ["Ligne", "Camembert"];
@@ -40,56 +41,58 @@ const steps = {
   "-1y": ["1 mois", "2 mois", "3 mois", "6 mois", "12 mois"],
   "-3y": ["6 mois", "1 an", "2 ans", "3 ans"],
 };
-const dataTypes = {
-  count_products: "Total produits",
-  ca_product: "Chiffre d'affaire produit",
-  count_orders: "Total commandes",
-  ca_orders: "Chiffre d'affaire commandes",
-  count_users: "Total utilisateurs",
-};
+  const dataTypes = {
+    count_products: "Total produits", // vendu
+    ca_product: "Chiffre d'affaire produit",
+    count_orders: "Total commandes",
+    ca_orders: "Chiffre d'affaire commandes",
+    count_users: "Total utilisateurs",
+  };
 
 const selectedStep = ref(steps[timeFrames[0]][0]);
-const selectedProduct = ref({});
+const selectedProduct = ref(null);
 const products = ref([]);
 
 const productsStore = useProductsStore();
+const widgetsStore = useWidgetsStore();
 
 const initialValues = {
   displayType: displayTypes[0],
   chartType: chartTypes[0],
   timeFrame: timeFrames[0],
   dataType: Object.keys(dataTypes)[0],
-  selectedStep: null,
+  selectedStep: steps[timeFrames[0]][0],
   selectedProduct: null,
 };
 
 const emit = defineEmits(["close", "chartDataFetched"]);
 
-const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
-  useForm({
-    schema: WidgetSchema,
-    initialValues,
-    onSubmit: async (values) => {
-      try {
-        values.dataType = dataTypes[values.dataType];
-        if (selectedStep.value) {
-          values.selectedStep = selectedStep.value;
+const {values, errors, isSubmitting, httpError, handleSubmit, setValues} =
+    useForm({
+      schema: WidgetSchema,
+      initialValues,
+      onSubmit: async (values) => {
+        try {
+          values.dataType = dataTypes[values.dataType];
+          if (selectedStep.value) {
+            values.selectedStep = selectedStep.value;
+          }
+          if (selectedProduct.value) {
+            values.selectedProduct = selectedProduct.value;
+          }
+          if (values.displayType === "KPI") {
+            delete values.chartType;
+            delete values.selectedStep;
+          }
+          await widgetsStore.createWidget(values); // Create a new widget
+          emit("chartDataFetched", {values});
+          emit("close");
+        } catch (error) {
+          console.error(error);
+          httpError.value = error.message || "Une erreur est survenue";
         }
-        if (selectedProduct.value) {
-          values.selectedProduct = selectedProduct.value;
-        }
-        if (values.displayType === "KPI") {
-          delete values.chartType;
-          delete values.selectedStep;
-        }
-        emit("chartDataFetched", { values });
-        emit("close");
-      } catch (error) {
-        console.error(error);
-        httpError.value = error.message || "Une erreur est survenue";
-      }
-    },
-  });
+      },
+    });
 
 const availableSteps = computed(() => {
   return steps[values.timeFrame.value] || [];
@@ -100,213 +103,134 @@ onMounted(async () => {
   products.value = productsStore.products;
 });
 </script>
+
 <template>
-  <div
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-  >
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
     <div class="bg-white p-8 rounded shadow-lg w-full max-w-md relative">
-      <Button
-        @click="$emit('close')"
-        class="absolute bg-transparent top-2 right-2 cursor-pointer hover:bg-transparent"
-      >
-        <X class="w-5 h-5 text-text-200 hover:text-primary-100" />
+      <Button @click="$emit('close')" class="absolute bg-transparent top-2 right-2 cursor-pointer hover:bg-transparent">
+        <X class="w-5 h-5 text-text-200 hover:text-primary-100"/>
       </Button>
       <div>
         <h2 class="text-2xl font-bold mb-4">Ajouter un Widget</h2>
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <!-- Type d'affichage -->
           <div>
-            <Label
-              for="displayType"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Type d'affichage</Label
-            >
+            <Label for="displayType" class="block text-sm font-medium text-gray-700 mb-1">Type d'affichage</Label>
             <Select v-model="values.displayType.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Types d'affichage</SelectLabel>
-                  <SelectItem
-                    v-for="type in displayTypes"
-                    :key="type"
-                    :value="type"
-                  >
+                  <SelectItem v-for="type in displayTypes" :key="type" :value="type">
                     {{ type }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.displayType" class="text-red-500 text-xs mt-1">
-              {{ errors.displayType }}
-            </p>
+            <p v-if="errors.displayType" class="text-red-500 text-xs mt-1">{{ errors.displayType }}</p>
           </div>
 
-          <!-- Type de graphique  -->
           <div v-if="values.displayType.value === 'Chart'">
-            <Label
-              for="chartType"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Type de Graphique</Label
-            >
+            <Label for="chartType" class="block text-sm font-medium text-gray-700 mb-1">Type de Graphique</Label>
             <Select v-model="values.chartType.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Types de Graphique</SelectLabel>
-                  <SelectItem
-                    v-for="type in chartTypes"
-                    :key="type"
-                    :value="type"
-                  >
+                  <SelectItem v-for="type in chartTypes" :key="type" :value="type">
                     {{ type }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.chartType" class="text-red-500 text-xs mt-1">
-              {{ errors.chartType }}
-            </p>
+            <p v-if="errors.chartType" class="text-red-500 text-xs mt-1">{{ errors.chartType }}</p>
           </div>
 
-          <!-- Période -->
           <div>
-            <label
-              for="timeFrame"
-              class="block text-sm font-medium text-gray-700"
-              >Période</label
-            >
+            <Label for="timeFrame" class="block text-sm font-medium text-gray-700">Période</Label>
             <Select v-model="values.timeFrame.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Période</SelectLabel>
-                  <SelectItem
-                    v-for="frame in timeFrames"
-                    :key="frame"
-                    :value="frame"
-                  >
+                  <SelectItem v-for="frame in timeFrames" :key="frame" :value="frame">
                     {{ frame }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.timeFrame" class="text-red-500 text-xs mt-1">
-              {{ errors.timeFrame }}
-            </p>
+            <p v-if="errors.timeFrame" class="text-red-500 text-xs mt-1">{{ errors.timeFrame }}</p>
           </div>
 
-          <!-- Intervalle -->
-          <div
-            v-if="
-              availableSteps.length > 0 && values.displayType.value === 'Chart'
-            "
-          >
-            <label for="step" class="block text-sm font-medium text-gray-700"
-              >Intervalle</label
-            >
-            <Select v-model="selectedStep">
+          <div v-if="availableSteps.length > 0 && values.displayType.value === 'Chart'">
+            <Label for="step" class="block text-sm font-medium text-gray-700">Intervalle</Label>
+            <Select v-model="selectedStep.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Intervalle</SelectLabel>
-                  <SelectItem
-                    v-for="step in availableSteps"
-                    :key="step"
-                    :value="step"
-                  >
+                  <SelectItem v-for="step in availableSteps" :key="step" :value="step">
                     {{ step }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.selectedStep" class="text-red-500 text-xs mt-1">
-              {{ errors.selectedStep }}
-            </p>
+            <p v-if="errors.selectedStep" class="text-red-500 text-xs mt-1">{{ errors.selectedStep }}</p>
           </div>
 
-          <!-- Data à utiliser -->
           <div>
-            <label
-              for="dataType"
-              class="block text-sm font-medium text-gray-700"
-              >Données à utiliser</label
-            >
+            <Label for="dataType" class="block text-sm font-medium text-gray-700">Données à utiliser</Label>
             <Select v-model="values.dataType.value">
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Options</SelectLabel>
-                  <SelectItem
-                    v-for="(label, key) in dataTypes"
-                    :key="key"
-                    :value="key"
-                  >
+                  <SelectItem v-for="(label, key) in dataTypes" :key="key" :value="key">
                     {{ label }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.dataType" class="text-red-500 text-xs mt-1">
-              {{ errors.dataType }}
-            </p>
+            <p v-if="errors.dataType" class="text-red-500 text-xs mt-1">{{ errors.dataType }}</p>
           </div>
 
-          <div v-if="values.dataType.value == 'ca_product'">
-            <Label
-              for="selectedProduct"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Produit</Label
-            >
+          <div v-if="values.dataType.value === 'ca_product'">
+            <Label for="selectedProduct" class="block text-sm font-medium text-gray-700 mb-1">Produit</Label>
             <Select v-model="selectedProduct.value">
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un produit..." />
+                <SelectValue/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem
-                    v-for="product in products"
-                    :key="product._id"
-                    :value="product._id"
-                  >
+                  <SelectItem v-for="product in products" :key="product._id" :value="product._id">
                     {{ product.product_title }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <p v-if="errors.selectedProduct" class="text-red-500 text-xs mt-1">
-              {{ errors.selectedProduct.message }}
-            </p>
+            <p v-if="errors.selectedProduct" class="text-red-500 text-xs mt-1">{{ errors.selectedProduct.message }}</p>
           </div>
 
-          <!-- Annuler et submit -->
           <div class="flex justify-end space-x-4 mt-4">
-            <Button
-              @click="$emit('close')"
-              class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white hover:border-primary-200"
-            >
+            <Button @click="$emit('close')"
+                    class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white hover:border-primary-200">
               Annuler
             </Button>
-            <Button
-              type="submit"
-              :disabled="isSubmitting"
-              class="button bg-transparent border text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-            >
+            <Button type="submit" :disabled="isSubmitting"
+                    class="button bg-transparent border text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white">
               Valider
             </Button>
           </div>
-          <p v-if="httpError" class="text-red-500 text-xs mt-2">
-            {{ httpError }}
-          </p>
+          <p v-if="httpError" class="text-red-500 text-xs mt-2">{{ httpError }}</p>
         </form>
       </div>
     </div>

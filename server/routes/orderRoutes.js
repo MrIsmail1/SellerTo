@@ -13,14 +13,17 @@ const router = express.Router();
 router.get(
   "/",
   checkAuth,
-  checkRole(["User", "Admin", "SuperAdmin"]),
-  getUserOrders
-);
-router.post(
-  "/dashboard",
-  checkAuth,
-  checkRole(["Admin", "SuperAdmin"]),
+  // checkRole(["User", "Admin", "SuperAdmin"]),
+  getUserOrders,
   getDashboardData
+
+);
+router.get(
+    "/dashboard",
+    // checkAuth,
+    // checkRole(["User", "Admin", "SuperAdmin"]),
+    getDashboardData
+
 );
 router.get("/all", checkAuth, checkRole(["Admin", "SuperAdmin"]), getOrders);
 router.post(
