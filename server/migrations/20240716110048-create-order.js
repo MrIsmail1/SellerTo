@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 
 export const up = async ({ context: queryInterface }) => {
-  // Create Orders table
   await queryInterface.createTable('Orders', {
     id: {
       type: DataTypes.INTEGER,
@@ -57,6 +56,38 @@ export const up = async ({ context: queryInterface }) => {
     trackingCode: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    firstname: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    lastname: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    country: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    postalCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     createdAt: {
       allowNull: false,

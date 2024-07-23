@@ -1,4 +1,4 @@
-import {DataTypes} from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../../config/sequelize-config.js';
 import denormalizeOrder from "../../services/denormalization/order.js";
 import OrderMongo from "../../models/mongo/orderModel.js";
@@ -11,17 +11,14 @@ const Orders = sequelize.define('Orders', {
         autoIncrement: true,
         primaryKey: true,
     },
-
     orderUnique: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-
-    quantity : {
+    quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -30,7 +27,6 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
-
     productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -39,17 +35,14 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
-
     amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-
     status: {
         type: DataTypes.STRING,
         allowNull: true,
     },
-
     paymentIntentId: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -62,13 +55,71 @@ const Orders = sequelize.define('Orders', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-},  {
+    firstname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    lastname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    country: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    postalCode: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    city: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+}, {
     timestamps: true,
     hooks: {
         afterCreate: async (order, options) => {
+            const user = await Users.findByPk(order.userId);
+            if (user) {
+                await order.update({
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    email: user.email,
+                    address: user.address,
+                    country: user.country,
+                    phoneNumber: user.phoneNumber,
+                    postalCode: user.postalCode,
+                    city: user.city,
+                });
+            }
             await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
         },
         afterUpdate: async (order, options) => {
+            const user = await Users.findByPk(order.userId);
+            if (user) {
+                await order.update({
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    email: user.email,
+                    address: user.address,
+                    country: user.country,
+                    phoneNumber: user.phoneNumber,
+                    postalCode: user.postalCode,
+                    city: user.city,
+                });
+            }
             await denormalizeOrder(order.id, { Order: Orders, Product: Products, User: Users });
         },
         afterDestroy: async (order, options) => {
