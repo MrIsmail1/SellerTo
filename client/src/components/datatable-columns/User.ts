@@ -4,6 +4,7 @@ import { useUsersStore } from "@/stores/userStore";
 import type { User } from "@/z-schemas/UserSchema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
+import { useRouter } from "vue-router";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -44,9 +45,6 @@ export const columns: ColumnDef<User>[] = [
         deleteFunction: async (id: string) => {
           const userStore = useUsersStore();
           await userStore.deleteUser(id);
-          if (userStore.error) {
-            return { error: { status: 403 } };
-          }
         },
       }),
   },

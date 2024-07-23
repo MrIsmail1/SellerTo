@@ -8,6 +8,18 @@ import Textarea from "@/components/ui/textarea/Textarea.vue";
 import { useProductsStore } from "@/stores/productsStore";
 import { EditProductSchema } from "@/z-schemas/ProductSchema";
 
+import Carousel from "@/components/ui/carousel/Carousel.vue";
+import CarouselContent from "@/components/ui/carousel/CarouselContent.vue";
+import CarouselItem from "@/components/ui/carousel/CarouselItem.vue";
+import CarouselNext from "@/components/ui/carousel/CarouselNext.vue";
+import CarouselPrevious from "@/components/ui/carousel/CarouselPrevious.vue";
+import Select from "@/components/ui/select/Select.vue";
+import SelectContent from "@/components/ui/select/SelectContent.vue";
+import SelectGroup from "@/components/ui/select/SelectGroup.vue";
+import SelectItem from "@/components/ui/select/SelectItem.vue";
+import SelectLabel from "@/components/ui/select/SelectLabel.vue";
+import SelectTrigger from "@/components/ui/select/SelectTrigger.vue";
+import SelectValue from "@/components/ui/select/SelectValue.vue";
 import { useForm } from "@/composables/useForm";
 import { Save } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
@@ -18,12 +30,20 @@ const router = useRouter();
 const route = useRoute();
 const productDetails = computed(() => productsStore.product);
 
-type FieldType = "string" | "number" | "boolean" | "file" | "textarea";
+type FieldType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "file"
+  | "textarea"
+  | "select";
 
 interface ProductField {
   value: string | number | boolean | File[];
   type: FieldType;
   placeholder: string;
+  selectLabel?: string;
+  options?: string[];
 }
 
 const productId = route.params.id as string;
@@ -52,13 +72,29 @@ const basicProductInfo = ref<Record<string, ProductField>>({
   },
   product_category: {
     value: "",
-    type: "string",
-    placeholder: "Saisir la catégorie du produit...",
+    type: "select",
+    selectLabel: "Catégories",
+    placeholder: "Choisir la catégorie du produit...",
+    options: [
+      "Iphone",
+      "MacBook",
+      "Ordinateurs",
+      "Consoles",
+      "Smartphones",
+      "Tablettes",
+    ],
   },
   delivery: {
     value: "",
     type: "string",
     placeholder: "Saisir le délai de livraison...",
+  },
+  active: {
+    value: "",
+    type: "select",
+    selectLabel: "Options",
+    placeholder: "Mise en vente...",
+    options: ["Oui", "Non"],
   },
   product_description: {
     value: "",
@@ -178,6 +214,7 @@ const additionalProductDetails = ref<Record<string, ProductField>>({
     placeholder: "Saisir le clavier et la langue...",
   },
 });
+
 const flattenValues = (obj: Record<string, ProductField>) => {
   const result: Record<string, string | number | boolean | File[]> = {};
 
@@ -322,6 +359,8 @@ const getLabel = (key: string) => {
       return "Série";
     case "keyboardAndLanguage":
       return "Clavier et langue";
+    case "active":
+      return "Mise en vente*";
     default:
       return key;
   }
@@ -398,6 +437,43 @@ const getLabel = (key: string) => {
                   v-model="values[key].value"
                   :placeholder="field.placeholder"
                 />
+                <Select
+                  v-if="key === 'product_category'"
+                  v-model="values[key].value"
+                >
+                  <SelectTrigger>
+                    <SelectValue>{{ values[key].value }} </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>{{ field.selectLabel }}</SelectLabel>
+                      <SelectItem
+                        v-for="option in field.options"
+                        :key="option"
+                        :value="option"
+                      >
+                        {{ option }}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Select v-if="key === 'active'" v-model="values[key].value">
+                  <SelectTrigger>
+                    <SelectValue>{{ values[key].value }} </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>{{ field.selectLabel }}</SelectLabel>
+                      <SelectItem
+                        v-for="option in field.options"
+                        :key="option"
+                        :value="option"
+                      >
+                        {{ option }}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 <span v-if="errors[key]" class="text-red-500 text-sm">
                   {{ errors[key] }}
                 </span>
@@ -543,7 +619,7 @@ const getLabel = (key: string) => {
                 />
                 <Checkbox
                   v-if="field.type === 'boolean'"
-                  :id="key.toString()"
+                  :id="key"
                   v-model="values[key].value"
                 />
                 <span v-if="errors[key]" class="text-red-500 text-sm">
@@ -555,6 +631,10 @@ const getLabel = (key: string) => {
         </Card>
       </div>
     </div>
+    <p v-if="httpError" class="text-red-500 text-xs mt-2">
+      {{ httpError }}
+    </p>
+    
   </form>
 </template>
 

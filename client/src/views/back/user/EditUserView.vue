@@ -179,9 +179,7 @@ const getLabel = (key: string) => {
                 v-model="values[key].value"
               >
                 <SelectTrigger>
-                  <SelectValue :placeholder="field.placeholder">{{
-                    values[key].value
-                  }}</SelectValue>
+                  <SelectValue>{{ values[key].value }}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -214,6 +212,9 @@ const getLabel = (key: string) => {
         </CardContent>
       </Card>
     </div>
+    <p v-if="httpError" class="text-red-500 text-xs mt-2">
+      {{ httpError }}
+    </p>
   </form>
 </template>
 
