@@ -19,8 +19,8 @@ router.get(
 );
 router.get(
   "/dashboard",
-  /*   checkAuth,
-  checkRole(["User", "Admin", "SuperAdmin"]), */
+  checkAuth,
+  checkRole(["User", "Admin", "SuperAdmin"]),
   getDashboardData
 );
 router.get("/all", checkAuth, checkRole(["Admin", "SuperAdmin"]), getOrders);
