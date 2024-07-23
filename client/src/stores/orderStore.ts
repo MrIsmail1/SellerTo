@@ -6,6 +6,7 @@ export const useOrdersStore = defineStore("orders", {
   state: () => ({
     orders: [],
     order: null,
+    dashboardData: null,
     loading: false,
     error: null,
   }),
@@ -107,10 +108,26 @@ export const useOrdersStore = defineStore("orders", {
     },
     async createRefund({ productId, paymentId, quantity }) {
       try {
-        const response = await axios.post('/payments/refund', { productId, paymentId, quantity }, { withCredentials: true });
+        const response = await axios.post(
+          "/payments/refund",
+          { productId, paymentId, quantity },
+          { withCredentials: true }
+        );
         return response.data;
       } catch (error) {
         this.error = error.response.data.message || error.message;
+      }
+    },
+    async getDashboardData() {
+      this.loading = true;
+      try {
+        const response = await axios.get("/orders/dashboard");
+        this.dashboardData = response.data;
+        this.error = null;
+      } catch (error) {
+        this.error = error.response.data.message || error.message;
+      } finally {
+        this.loading = false;
       }
     },
   },

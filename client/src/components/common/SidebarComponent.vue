@@ -15,13 +15,17 @@ import {
   Ellipsis,
   FileText,
   LayoutDashboard,
-  LogOut, MailPlus,
+  LogOut,
+  MailPlus,
   PackageOpen,
   Settings,
-  ShoppingCart, Tag,
+  ShoppingCart,
+  Store,
+  Tag,
   Users,
 } from "lucide-vue-next";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import Button from "../ui/button/Button.vue";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -48,7 +52,9 @@ const primaryMenuItems = [
 
 const secondaryMenuItems = [
   /*   { route: { name: "" }, icon: Settings, text: "Paramètres" },
-   */ {
+   */
+  { route: { name: "Homepage" }, icon: Store, text: "Boutique" },
+  {
     route: { name: "" },
     icon: LogOut,
     text: "Déconnexion",

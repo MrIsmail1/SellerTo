@@ -1,8 +1,11 @@
+import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import logger from "morgan";
 import path from "path";
+import connectedDataBase from "./models/db.js";
 import authRouter from "./routes/authRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import imagesRoutes from "./routes/imagesRoutes.js";
@@ -12,10 +15,8 @@ import productRouter from "./routes/productRoutes.js";
 import promoCodeRouter from "./routes/promoCodeRoutes.js";
 import stockRouter from "./routes/stockRoutes.js";
 import userAlertRouter from "./routes/userAlertRoutes.js";
-import connectedDataBase from "./models/db.js";
-import cors from 'cors';
-import bodyParser from 'body-parser';
 import userRouter from "./routes/userRoutes.js";
+import widgetRouter from "./routes/widgetRoutes.js";
 import stripeWebhookHandler from "./webhooks/stripeWebhook.js";
 
 const app = express();
@@ -53,6 +54,7 @@ app.use("/api/orders", orderRouter);
 app.use("/api/stocks", stockRouter);
 app.use("/api/promocodes", promoCodeRouter);
 app.use("/api/alert", userAlertRouter);
+app.use("/api/widgets", widgetRouter);
 
 connectedDataBase();
 
