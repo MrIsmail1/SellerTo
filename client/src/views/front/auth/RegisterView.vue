@@ -18,9 +18,13 @@ const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
     firstname: '',
     lastname: '',
     email: '',
-    password: ''
+    password: '',
+    acceptLegal: false
   },
   onSubmit: async (values) => {
+    // Convert acceptLegal to boolean
+    values.acceptLegal = Boolean(values.acceptLegal);
+    
     await authStore.register(values);
     if (authStore.successMessage) {
       router.push({
@@ -85,6 +89,13 @@ watch(() => authStore.successMessage, (newMessage) => {
             <Label for="password">Mot de passe</Label>
             <Input id="password" type="password" v-model="values.password.value" />
             <p v-if="errors.password" class="text-red-500">{{ errors.password }}</p>
+          </div>
+          <div class="grid gap-2">
+            <Label for="accept-legal">
+              <input id="accept-legal" type="checkbox" v-model="values.acceptLegal.value" />
+              J'accepte les mentions légales
+            </Label>
+            <p v-if="errors.acceptLegal" class="text-red-500">{{ errors.acceptLegal }}</p>
           </div>
           <Button type="submit" class="w-full" :disabled="isSubmitting">
             Créer un compte

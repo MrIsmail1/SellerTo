@@ -17,7 +17,11 @@ const { values, errors, isSubmitting, httpError, handleSubmit, cancelRequest } =
     password: ''
   },
   onSubmit: async (values) => {
-    await authStore.resetPassword({ token, ...values });
+    try {
+      await authStore.resetPassword({ token, ...values });
+    } catch (error: any) {
+      console.error('Erreur lors de la réinitialisation du mot de passe', error);
+    }
   }
 });
 </script>
@@ -48,9 +52,6 @@ const { values, errors, isSubmitting, httpError, handleSubmit, cancelRequest } =
           </div>
           <Button type="submit" class="w-full" :disabled="isSubmitting">
             Réinitialiser votre mot de passe
-          </Button>
-          <Button type="button" class="w-full mt-2" @click="cancelRequest" :disabled="!isSubmitting">
-            Annuler
           </Button>
         </div>
       </form>

@@ -5,7 +5,6 @@ import { useProductsStore } from '@/stores/productsStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import CardSellComponent from '@/components/CardSellComponent.vue';
-import BreadCrumbComponent from '@/components/common/BreadCrumbComponent.vue';
 import Hr from '@/components/common/HrComponent.vue';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Button from '@/components/ui/button/Button.vue';
@@ -117,7 +116,6 @@ onMounted(async () => {
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
   <main>
-    <BreadCrumbComponent />
     <div v-if="loading" class="text-center">Chargement...</div>
     <div v-else-if="error" class="text-center text-red-500">Erreur: {{ error }}</div>
     <div v-else-if="productDetail" class="flex flex-col justify-between md:flex-row gap-8 mt-8 relative">
@@ -188,7 +186,7 @@ onMounted(async () => {
                     <h2>{{ productDetail.product_title }}</h2>
                     <SheetDescription>
                       <h4 class="mt-2">Marchand vérifié</h4>
-                      <p>Tous les produits vendus sur SellerTo proviennent de reconditionneurs experts et vérifiés, qui s'engagent à tester chaque appareil selon notre charte qualité. Chaque produit est 100% fonctionnel, parfaitement nettoyé et garanti.</p>
+                      <p>Tous les produits vendus sur SellerTo sont 100% fonctionnel, parfaitement nettoyé et garanti.</p>
                       <ul class="mt-4">
                         <li v-if="productDetail.brand"><strong>Marque:</strong> {{ productDetail.brand }} <Hr class="my-4" /></li>
                         <li v-if="productDetail.itemModelNumber"><strong>Numéro de modèle:</strong> {{ productDetail.itemModelNumber }} <Hr class="my-4" /></li>

@@ -14,6 +14,7 @@ const router = useRouter(); // Déclarez le router ici
 
 const removeItem = async (cartItemId) => {
   await cartStore.removeFromCart(cartItemId);
+  await cartStore.fetchCart();
 };
 
 const updateQuantity = async (productId, quantity) => {
@@ -72,7 +73,7 @@ const applyPromoCode = async () => {
     <div class="flex-1">
       <h1 class="text-3xl font-bold mb-4">Mon Panier</h1>
       <div>
-        <div class="mt-4">
+        <div class="mt-4 lg:w-[70%] w-full">
           <CartComponent
               v-for="item in cart"
               :key="item.id"
@@ -104,10 +105,6 @@ const applyPromoCode = async () => {
         <div class="flex justify-between border-t pt-2 mt-2">
           <span>Sous-total</span>
           <span>{{ subTotal }} €</span>
-        </div>
-        <div class="flex justify-between border-t pt-2 mt-2">
-          <span>Frais de service SellerTo</span>
-          <span>{{ 6 }} €</span>
         </div>
         <div v-if="discountAmount > 0" class="flex justify-between border-t pt-2 mt-2 font-bold">
           <span>Remise appliquée</span>

@@ -88,7 +88,7 @@ const closeSheet = (closeFn) => {
         <RouterLink to="/">
           <img
             src="@/assets/SellerTo-logo.svg"
-            class="h-32"
+            class="h-20"
             alt="SellerTo Logo"
           />
         </RouterLink>

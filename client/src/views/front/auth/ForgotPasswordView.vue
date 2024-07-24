@@ -11,7 +11,7 @@ import { useForm } from '@/composables/useForm';
 const authStore = useAuthStore();
 const router = useRouter();
 
-const { values, errors, isSubmitting, httpError, handleSubmit, cancelRequest } = useForm({
+const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
   schema: forgotPasswordSchema,
   initialValues: {
     email: ''
@@ -74,9 +74,6 @@ watch(() => authStore.successMessage, (newMessage) => {
           </div>
           <Button type="submit" class="w-full" :disabled="isSubmitting">
             Envoyer
-          </Button>
-          <Button type="button" class="w-full mt-2" @click="cancelRequest" :disabled="!isSubmitting">
-            Annuler
           </Button>
         </div>
       </form>

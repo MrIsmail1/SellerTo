@@ -83,7 +83,7 @@ const toggleSidebar = () => {
     </Button>
     <div
       :class="[
-        'lg:block lg:sticky lg:h-full lg:max-h-screen lg:overflow-auto lg:bg-bg-200',
+        'lg:fixed lg:h-full lg:max-h-screen lg:overflow-auto lg:bg-bg-200',
         'fixed inset-0 bg-bg-200 transition-transform transform w-72 lg:z-0 xs:z-50',
         { 'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen },
       ]"
