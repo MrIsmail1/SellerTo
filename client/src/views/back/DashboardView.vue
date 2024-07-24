@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LineChartCardComponent from "@/components/dashboard/LineChartCardComponent.vue";
+import KpiCardComponent from "@/components/dashboard/KpiCardComponent.vue";
 import LineChartComponent from "@/components/dashboard/LineChartComponent.vue";
 import PieChartComponent from "@/components/dashboard/PieChartComponent.vue";
 import WidgetModalComponent from "@/components/dashboard/WidgetModalComponent.vue";
@@ -24,15 +24,15 @@ const closeModal = () => {
 };
 
 const icons = {
-  count_products: "WalletMinimal",
-  ca_product: "WalletMinimal",
+  count_products: "ShoppingCart",
+  ca_product: "ShoppingCart",
   count_orders: "Store",
   ca_orders: "Store",
   count_users: "Users",
 };
 
 const initialSizes = {
-  LineChartCardComponent: { colNum: 4, rowHeight: 4 },
+  KpiCardComponent: { colNum: 3, rowHeight: 4 },
   LineChartComponent: { colNum: 15, rowHeight: 9 },
   PieChartComponent: { colNum: 5, rowHeight: 11 },
 };
@@ -42,16 +42,6 @@ const dataTypes = {
   count_orders: "Total commandes",
   ca_orders: "Chiffre d'affaire commandes",
   count_users: "Total utilisateurs",
-};
-
-const mockData = {
-  labels: ["2010", "2011", "2012", "2013", "2014", "2015", "2016"],
-  datasets: [
-    {
-      label: "Mock Sales Data",
-      data: [10, -30, -50, -60, -100, -120, -201, -300],
-    },
-  ],
 };
 
 const saveLayoutToLocalStorage = () => {
@@ -74,11 +64,17 @@ const loadLayoutFromLocalStorage = () => {
 const fetchWidgetsFromStore = async () => {
   await orderStore.getDashboardData();
   const widgets = orderStore.dashboardData;
+
   if (!widgets) return;
   layout.value = widgets.map((item, index) => {
     const widget = item.widget;
     const displayType = widget.displayType == "KPI" ? "KPI" : widget.chartType;
     const amount = widget.KPIdata > 0 ? widget.KPIdata : 0;
+    if (displayType !== "KPI") {
+      if (widget.data.labels.length === 0) {
+        return;
+      }
+    }
     return {
       i: widget._id,
       x: widget.x,
@@ -86,13 +82,12 @@ const fetchWidgetsFromStore = async () => {
       w: initialSizes[getChartComponent(displayType).__name]?.colNum,
       h: initialSizes[getChartComponent(displayType).__name]?.rowHeight,
       type: displayType,
-      data: mockData,
+      data: widget.data,
       icon: icons[widget.dataType],
       dataType: dataTypes[widget.dataType],
       amount: amount,
     };
   });
-  console.log(widgets);
   saveLayoutToLocalStorage();
 };
 
@@ -113,7 +108,7 @@ onMounted(() => {
 
 const getChartComponent = (type) => {
   if (type === "KPI") {
-    return LineChartCardComponent;
+    return KpiCardComponent;
   }
   if (type === "Ligne") {
     return LineChartComponent;
@@ -182,5 +177,14 @@ watch(
     </GridLayout>
   </div>
 
-  <WidgetModalComponent v-if="isModalOpen" @close="closeModal" />
+  <WidgetModalComponent
+    v-if="isModalOpen"
+    @close="closeModal"
+    @fetchDashboard="fetchWidgetsFromStore"
+  />
 </template>
+<style scoped>
+.button:hover .icon {
+  color: white;
+}
+</style>

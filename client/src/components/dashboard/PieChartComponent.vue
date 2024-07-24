@@ -1,6 +1,13 @@
 <script lang="ts" setup>
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
-import { Calculator, Store, Users, WalletMinimal, X } from "lucide-vue-next";
+import {
+  Calculator,
+  ShoppingCart,
+  Store,
+  Users,
+  WalletMinimal,
+  X,
+} from "lucide-vue-next";
 import { computed, defineProps, ref, watch } from "vue";
 import { Pie } from "vue-chartjs";
 import Button from "../ui/button/Button.vue";
@@ -53,6 +60,7 @@ const iconComponents = {
   Store: Store,
   WalletMinimal: WalletMinimal,
   Users: Users,
+  ShoppingCart,
 };
 
 const IconComponent = computed(() => iconComponents[props.icon]);

@@ -13,14 +13,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "@/composables/useForm";
+import { useProductsStore } from "@/stores/productsStore";
 import { useStockStore } from "@/stores/stockStore";
+import { AddStockSchema } from "@/z-schemas/StockShema";
 import { Save } from "lucide-vue-next";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import {AddStockSchema} from "@/z-schemas/StockShema";
 
 const router = useRouter();
 const stockStore = useStockStore();
+const productStore = useProductsStore();
+const products = ref([]);
 
 type FieldType = "string" | "number" | "select";
 
@@ -31,10 +34,11 @@ interface StockField {
   options?: string[];
 }
 
-const stockInfo = ref<Record<string, StockField>>({  productId: {
+const stockInfo = ref<Record<string, StockField>>({
+  productId: {
     value: "",
-    type: "number",
-    placeholder: "Entrer un produit ID ...",
+    type: "select",
+    placeholder: "Choisir un produit...",
   },
   quantity: {
     value: 0,
@@ -58,22 +62,26 @@ const flattenValues = (obj: Record<string, StockField>) => {
   return result;
 };
 
+onMounted(async () => {
+  await productStore.fetchProducts();
+  products.value = productStore.products;
+});
+
 const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
   schema: AddStockSchema,
   initialValues: {
     ...flattenValues(stockInfo.value),
   },
   onSubmit: async (values) => {
-    values.productId = Number(values.productId);
     await stockStore.createStock(values);
-    await router.push({name: "AdminStocks"});
+    router.push({ name: "AdminStocks" });
   },
 });
 
 const getLabel = (key: string) => {
   switch (key) {
     case "productId":
-      return "Produit ID*";
+      return "Produit*";
     case "quantity":
       return "Quantité*";
     case "operationType":
@@ -88,12 +96,14 @@ const getLabel = (key: string) => {
   <div class="flex justify-between w-full">
     <span class="flex flex-col">
       <span class="text-xl font-bold text-text-100">Ajouter un stock</span>
-      <span class="text-md text-text-200">Remplissez les détails du stock à ajouter.</span>
+      <span class="text-md text-text-200"
+        >Remplissez les détails du stock à ajouter.</span
+      >
     </span>
     <Button
-        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-        @click="handleSubmit"
-        :disabled="isSubmitting"
+      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+      @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -103,40 +113,67 @@ const getLabel = (key: string) => {
     <div class="flex w-full gap-x-2">
       <Card class="w-full p-4">
         <CardHeader class="p-2">
-          <CardTitle class="text-text-100 font-medium text-md mb-4">Information stock</CardTitle>
+          <CardTitle class="text-text-100 font-medium text-md mb-4"
+            >Information stock</CardTitle
+          >
         </CardHeader>
         <CardContent>
           <div class="grid gap-4">
-            <div v-for="(field, key) in stockInfo" :key="key" class="grid gap-2">
-              <Label :for="key.toString()">{{ getLabel(key.toString()) }}</Label>
+            <div
+              v-for="(field, key) in stockInfo"
+              :key="key"
+              class="grid gap-2"
+            >
+              <Label :for="key.toString()">{{
+                getLabel(key.toString())
+              }}</Label>
               <Input
-                  v-if="field.type === 'number'"
-                  :id="key"
-                  v-model.number="values[key]"
-                  :placeholder="field.placeholder"
-                  type="number"
+                v-if="field.type === 'number'"
+                :id="key"
+                v-model.number="values[key].value"
+                :placeholder="field.placeholder"
+                type="number"
               />
               <Select
-                  v-if="field.type === 'select'"
-                  v-model="values[key]"
+                v-if="field.type === 'select' && key !== 'productId'"
+                v-model="values[key].value"
               >
                 <SelectTrigger>
                   <SelectValue :placeholder="field.placeholder" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Operation Type</SelectLabel>
+                    <SelectLabel>Options</SelectLabel>
                     <SelectItem
-                        v-for="option in field.options"
-                        :key="option"
-                        :value="option"
+                      v-for="option in field.options"
+                      :key="option"
+                      :value="option"
                     >
                       {{ option }}
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <span v-if="errors[key]" class="text-red-500 text-sm">{{ errors[key] }}</span>
+              <Select v-if="key == 'productId'" v-model="values[key].value">
+                <SelectTrigger>
+                  <SelectValue :placeholder="field.placeholder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Options</SelectLabel>
+                    <SelectItem
+                      v-for="option in products"
+                      :key="option._id"
+                      :value="option._id.toString()"
+                    >
+                      {{ option.product_title }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <span v-if="errors[key]" class="text-red-500 text-sm">{{
+                errors[key]
+              }}</span>
             </div>
           </div>
         </CardContent>

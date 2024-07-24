@@ -81,7 +81,6 @@ const { values, errors, isSubmitting, httpError, handleSubmit } = useForm({
     ...flattenValues(userInfo.value),
   },
   onSubmit: async (values) => {
-    console.log(values);
     await usersStore.createUser(JSON.stringify(values));
     router.push({ name: "AdminUsers" });
   },

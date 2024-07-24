@@ -4,6 +4,7 @@ import {
   addImagesToProduct,
   createProductWithImages,
   deleteProductImage,
+  getImageId,
 } from "../controllers/imagesController.js";
 import { checkAuth } from "../middlewares/checkAuth.js";
 import { checkRole } from "../middlewares/checkRole.js";
@@ -22,9 +23,11 @@ router.post(
   checkRole(["Admin", "SuperAdmin"]),
   addImagesToProduct
 );
+router.get("/product/images/uploads/:imageUrl", getImageId);
 router.delete(
   "/products/:productId/images/:imageId",
   checkAuth,
+  checkRole(["Admin", "SuperAdmin"]),
   deleteProductImage
 );
 

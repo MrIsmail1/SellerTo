@@ -90,7 +90,6 @@ export const useOrdersStore = defineStore("orders", {
         });
 
         const fileType = orders.length > 1 ? "zip" : "pdf";
-        console.log(fileType);
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
         link.href = url;

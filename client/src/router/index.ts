@@ -237,21 +237,18 @@ const routes = [
       {
         path: "promocodes/edit/:id",
         name: "AdminEditPromoCode",
-        component: () => import("@/views/back/promo-code/EditPromoCodeView.vue"),
+        component: () =>
+          import("@/views/back/promo-code/EditPromoCodeView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
         path: "promocodes/delete/:id",
         name: "AdminDeletePromoCode",
-        component: () => import("@/views/back/promo-code/DeletePromoCodeView.vue"),
+        component: () =>
+          import("@/views/back/promo-code/DeletePromoCodeView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
     ],
-  },
-  {
-    path: "/admin/login",
-    name: "AdminLogin",
-    component: () => import("@/views/back/AdminLoginView.vue"),
   },
   {
     path: "/403_forbidden",
@@ -268,10 +265,10 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
-   if (!authStore.user) {
+  if (!authStore.user) {
     await authStore.fetchUser();
   }
-  
+
   if (to.meta.requiresAuth) {
     if (!authStore.user) {
       next({ name: "Login" });

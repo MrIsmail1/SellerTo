@@ -8,11 +8,6 @@ export const AddProductSchema = z.object({
   product_price: z
     .number({ message: "Le prix du produit est requis" })
     .min(0.01, { message: "Le prix du produit doit être supérieur à zéro" }),
-  product_minimum_offer_price: z
-    .number({ message: "Le prix minimum de l'offre et requis" })
-    .min(0.01, {
-      message: "Le prix minimum de l'offre doit être supérieur à zéro",
-    }),
   product_category: z
     .string()
     .min(1, { message: "La catégorie du produit est requise" }),
@@ -58,11 +53,6 @@ export const EditProductSchema = z.object({
   product_price: z
     .number({ message: "Le prix du produit est requis" })
     .min(0.01, { message: "Le prix du produit doit être supérieur à zéro" }),
-  product_minimum_offer_price: z
-    .number({ message: "Le prix minimum de l'offre et requis" })
-    .min(0.01, {
-      message: "Le prix minimum de l'offre doit être supérieur à zéro",
-    }),
   product_category: z
     .string()
     .min(1, { message: "La catégorie du produit est requise" }),

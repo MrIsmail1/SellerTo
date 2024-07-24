@@ -61,14 +61,4 @@ export const columns: ColumnDef<Order>[] = [
       h(DataTableColumnHeader, { column: column, title: "Code Suivi" }),
     cell: ({ row }) => row.original.trackingCode,
   },
-  /*  {
-    id: "actions",
-    header: () => h("span", "Actions"),
-    cell: ({ row }) =>
-      h(DataTableRowActionsComponent, {
-        row,
-        viewRoute: "/admin/orders/view",
-        editRoute: "/admin/orders/edit",
-      }),
-  }, */
 ];

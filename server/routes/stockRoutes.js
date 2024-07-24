@@ -1,22 +1,32 @@
-import express from 'express';
+import express from "express";
 import {
-    getAllStock,
-    createStock,
-    deleteStock,
-    updateStock,
-    findStockById,
-    patchStock
-} from '../controllers/stockController.js';
-import {checkRole} from "../middlewares/checkRole.js";
-
+  createStock,
+  deleteStock,
+  findStockById,
+  getAllStock,
+  patchStock,
+  updateStock,
+} from "../controllers/stockController.js";
+import { checkAuth } from "../middlewares/checkAuth.js";
+import { checkRole } from "../middlewares/checkRole.js";
+console.log(checkAuth);
 const router = express.Router();
 
-router.get('/', getAllStock, checkRole(["Admin", "SuperAdmin"]));
-router.post('/', createStock, checkRole(["Admin", "SuperAdmin"]));
-router.get('/:id', findStockById, checkRole(["Admin", "SuperAdmin"]));
-router.patch('/:id', patchStock, checkRole(["Admin", "SuperAdmin"]));
-router.delete('/:id', deleteStock, checkRole(["Admin", "SuperAdmin"]));
-router.put('/:id', updateStock, checkRole(["Admin", "SuperAdmin"]));
-
+router.get("/", getAllStock, checkAuth, checkRole(["Admin", "SuperAdmin"]));
+router.post("/", createStock, checkAuth, checkRole(["Admin", "SuperAdmin"]));
+router.get(
+  "/:id",
+  findStockById,
+  checkAuth,
+  checkRole(["Admin", "SuperAdmin"])
+);
+router.patch("/:id", patchStock, checkAuth, checkRole(["Admin", "SuperAdmin"]));
+router.delete(
+  "/:id",
+  deleteStock,
+  checkAuth,
+  checkRole(["Admin", "SuperAdmin"])
+);
+router.put("/:id", updateStock, checkAuth, checkRole(["Admin", "SuperAdmin"]));
 
 export default router;

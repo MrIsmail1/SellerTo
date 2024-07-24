@@ -23,10 +23,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    product_minimum_offer_price: {
-      type: Number,
-      required: false,
-    },
     product_category: {
       type: String,
       required: false,

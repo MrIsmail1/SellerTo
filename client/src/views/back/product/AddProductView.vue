@@ -56,11 +56,6 @@ const basicProductInfo = ref<Record<string, ProductField>>({
     type: "number",
     placeholder: "Saisir le prix du produit......",
   },
-  product_minimum_offer_price: {
-    value: "",
-    type: "number",
-    placeholder: "Saisir le prix minimum d'offre...",
-  },
   product_category: {
     value: "",
     type: "select",

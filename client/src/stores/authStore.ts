@@ -102,7 +102,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const response = await axios.put("/users/update", updatedUser);
         this.user = response.data;
-        this.successMessage = "User updated successfully";
+        this.successMessage = "Utilisateur mis à jour avec succés !";
       } catch (error: any) {
         this.errorMessage = error.response.data.message;
       }

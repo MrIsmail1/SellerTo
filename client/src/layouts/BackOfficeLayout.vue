@@ -5,10 +5,10 @@ import { RouterView } from "vue-router";
 
 <template>
   <div
-    class="grid min-h-screen w-full lg:grid-cols-[280px_1fr] overflow-x-hidden"
+    class="relative min-h-screen w-full lg:grid lg:grid-cols-[280px_1fr] overflow-x-hidden"
   >
     <SidebarComponent />
-    <div class="p-7 overflow-x-hidden">
+    <div class="lg:ml-0 p-7 overflow-x-hidden">
       <main class="max-w-full overflow-x-hidden">
         <RouterView />
       </main>

@@ -81,7 +81,23 @@ export const useProductsStore = defineStore("products", {
       this.error = null;
       try {
         const response = await axios.delete(
-          `/products/${productId}/images/${imageId}`
+          `/upload/products/${productId}/images/${imageId}`
+        );
+        return response.data;
+      } catch (error) {
+        this.error = error.message;
+        console.error("Failed to delete image:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async getImageId(imageUrl: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const cleanedImageId = imageUrl.replace(/^\/+/, "");
+        const response = await axios.get(
+          `/upload/product/images/${cleanedImageId}`
         );
         return response.data;
       } catch (error) {
@@ -238,7 +254,6 @@ export const useProductsStore = defineStore("products", {
       this.loading = true;
       try {
         const response = await axios.patch(`/products/${id}`, product);
-        console.log(response.data);
         this.error = null;
       } catch (error) {
         console.error("Failed to update product:", error);

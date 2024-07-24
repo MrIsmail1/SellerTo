@@ -6,6 +6,7 @@ import {
   getUserProfile,
   getUsers,
   updateUser,
+  updateUserProfile,
 } from "../controllers/userController.js";
 import { checkAuth } from "../middlewares/checkAuth.js";
 import { checkRole } from "../middlewares/checkRole.js";
@@ -18,6 +19,7 @@ router.get(
   checkRole(["User", "Admin", "SuperAdmin"]),
   getUserProfile
 );
+
 router.get(
   "/:id",
   checkAuth,
@@ -27,7 +29,12 @@ router.get(
 
 router.delete("/:id", checkAuth, checkRole(["Admin"]), deleteUserAccount);
 
-router.put("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateUser);
+router.put(
+  "/update",
+  checkAuth,
+  checkRole(["User", "Admin", "SuperAdmin"]),
+  updateUserProfile
+);
 router.patch("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateUser);
 
 router.get("/", checkAuth, checkRole(["Admin", "SuperAdmin"]), getUsers);

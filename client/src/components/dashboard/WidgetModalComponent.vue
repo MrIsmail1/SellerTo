@@ -17,7 +17,7 @@ import { computed, onMounted, ref } from "vue";
 import Button from "../ui/button/Button.vue";
 import Label from "../ui/label/Label.vue";
 
-const displayTypes = ["KPI", "Chart", "Tableau"];
+const displayTypes = ["KPI", "Chart"];
 const chartTypes = ["Ligne", "Camembert"];
 const timeFrames = [
   "-1h",
@@ -65,7 +65,7 @@ const initialValues = {
   selectedProduct: null,
 };
 
-const emit = defineEmits(["close", "chartDataFetched"]);
+const emit = defineEmits(["close", "fetchDashboard"]);
 
 const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
   useForm({
@@ -84,6 +84,7 @@ const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
           delete values.selectedStep;
         }
         await widgetsStore.createWidget(values);
+        emit("fetchDashboard");
         emit("close");
       } catch (error) {
         console.error(error);
