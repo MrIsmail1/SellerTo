@@ -1,9 +1,9 @@
 import Product from "../models/mongo/productModel.js";
 import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
+import {sendPriceChangeAlertEmail} from "../services/mailer/mailService.js";
+import { getUserByIdDiff} from "./userController.js";
 import UserAlert from "../models/postgres/userAlertsModel.js";
-import { sendPriceChangeAlertEmail } from "../services/mailer/mailService.js";
-import { getUserById } from "./userController.js";
 export const getProducts = async (req, res) => {
   try {
     const filters = req.query;
@@ -37,9 +37,9 @@ export const getProductById = async (productId) => {
       "_id product_title product_price product_description product_category"
     );
     if (!product) {
-      res.status(404);
+     throw new Error("Product not found");
     }
-    res.status(200).json(product);
+    return product
   } catch (error) {
     throw new Error("Error fetching product details");
   }
@@ -133,7 +133,7 @@ export const patchProduct = async (req, res) => {
       // TODO : Gérer mieux les erreurs
       for (const alert of userAlerts) {
         try {
-          const user = await getUserById(alert.userId);
+          const user = await getUserByIdDiff(alert.userId);
           if (user && user.email) {
             await sendPriceChangeAlertEmail(user.email, updatedProduct);
           }

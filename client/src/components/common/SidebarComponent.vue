@@ -51,7 +51,7 @@ const primaryMenuItems = [
   { route: { name: "AdminProducts" }, icon: ShoppingCart, text: "Produits" },
   { route: { name: "AdminStocks" }, icon: PackageOpen, text: "Stocks" },
   { route: { name: "AdminPromoCodes" }, icon: Tag, text: "Promo codes" },
-  { route: { name: "" }, icon: MailPlus, text: "Newsletters" },
+  { route: { name: "AddNewsletterView" }, icon: MailPlus, text: "Newsletters" },
   { route: { name: "AdminUsers" }, icon: Users, text: "Utilisateurs" },
 ];
 

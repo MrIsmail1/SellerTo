@@ -1,12 +1,21 @@
 import express from 'express';
-import { addUserAlert, getAlertsByUserId, getAlertsByUserIdAndProductId, getAlertsByUserIdAndCategory, updateUserAlerts } from '../controllers/userAlertController.js';
+import {
+    getAlertsByUserId,
+    getAlertsByUserIdAndProductId,
+    getAlertsByUserIdAndCategory,
+    updateUserAlerts,
+    sendNewsletter
+} from '../controllers/userAlertController.js';
+import {checkAuth} from "../middlewares/checkAuth.js";
+import {checkRole} from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-router.post('/user-alerts', addUserAlert);
-router.get('/user-alerts/:userId', getAlertsByUserId);
-router.get('/user-alerts/:userId/:productId', getAlertsByUserIdAndProductId);
-router.get('/user-alerts/category/:userId/:category', getAlertsByUserIdAndCategory);
-router.put('/user-alerts', updateUserAlerts);
+// TODO: Faire du restfull ici
+router.post('/send-newsletter', checkAuth, checkRole(["Admin", "SuperAdmin"]), sendNewsletter);
+router.get('/user-alerts/:userId', checkAuth, getAlertsByUserId);
+router.get('/user-alerts/:userId/:productId', checkAuth, getAlertsByUserIdAndProductId);
+router.get('/user-alerts/category/:userId/:category', checkAuth, getAlertsByUserIdAndCategory);
+router.put('/user-alerts', checkAuth, updateUserAlerts);
 
 export default router;

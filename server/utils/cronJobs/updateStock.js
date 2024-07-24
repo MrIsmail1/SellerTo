@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import Stock from '../../models/postgres/stockModel.js';
 import Product from '../../models/postgres/productModel.js';
 import UserAlert from '../../models/postgres/userAlertsModel.js';
-import {getUserById} from "../../controllers/userController.js";
+import { getUserByIdDiff } from "../../controllers/userController.js";
 import {sendLowStockAlertEmail, sendRestockAlertEmail} from "../../services/mailer/mailService.js";
 
 const updateProductStock = async () => {
@@ -36,7 +36,7 @@ const updateProductStock = async () => {
                 // TODO : Gérer mieux les erreurs
                 for (const alert of userAlerts) {
                     try {
-                        const user = await getUserById({ params: { id: alert.userId } });
+                        const user = await getUserByIdDiff({ params: { id: alert.userId } });
                         if (user && user.email) {
                             await sendRestockAlertEmail(user.email, product);
                             console.log('Restock email sent to:', user.email);
