@@ -160,10 +160,10 @@ const closeSheet = (closeFn) => {
           </DropdownMenuContent>
         </DropdownMenu>
         <RouterLink to="/cart">
-          <ShoppingBasket class="h-5 w-5" />
-          <span v-if="cartStore.cart.length" class="text-sm">{{
+          <span v-if="cartStore.cart.length" class="text-sm absolute ml-3 -mt-4">{{
             cartStore.cart.length
           }}</span>
+          <ShoppingBasket class="h-5 w-5" />
         </RouterLink>
       </div>
     </div>

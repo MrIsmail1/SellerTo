@@ -134,8 +134,7 @@ watch(() => route.query, (newQuery) => {
 .notification-icon {
   position: absolute;
   top: 1rem; /* Adjusted for a bit lower position */
-  right: 0.1rem; /* Adjusted to move more to the right */
-  transform: translateX(50%); /* Move the icon further to the right */
+  right: 1rem; /* Adjusted to move more to the right */
   cursor: pointer;
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useProductsStore } from '@/stores/productsStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -96,7 +96,13 @@ const similarProducts = computed(() => {
 const showAlertModal = ref(false);
 const alertTypesFilter = ref([2, 4]); // Correct IDs for alerts
 
+const router = useRouter();
+
 const addToCart = async () => {
+  if (!authStore.user) {
+    router.push('/login'); // Redirigez vers la page de connexion si l'utilisateur n'est pas connecté
+    return;
+  }
   await cartStore.addToCart(productId);
 };
 
@@ -159,8 +165,14 @@ onMounted(async () => {
           </Carousel>
         </div>
       </div>
-      <div class="w-full md:w-1/2">
-        <h1 class="text-2xl font-bold mb-4">{{ productDetail.product_title }}</h1>
+        <div class="w-full md:w-1/2">
+      <div class="flex gap-2">
+          <h1 class="text-2xl font-bold mb-4">{{ productDetail.product_title }}</h1>
+          <!-- Notification Icon -->
+        <div @click="showAlertModal = true" class="cursor-pointer">
+          <span class="material-symbols-outlined border-2 border-black">notifications</span>
+        </div>
+      </div>
         <p class="mb-2"><strong>Description:</strong> {{ productDetail.product_description }}</p>
         <p class="mb-2"><strong>Prix:</strong> {{ productDetail.product_price }} €</p>
 
@@ -309,11 +321,6 @@ onMounted(async () => {
       </template>
     </div>
 
-    <!-- Notification Icon -->
-    <div @click="showAlertModal = true" class="notification-icon cursor-pointer">
-      <span class="material-symbols-outlined">notifications</span>
-    </div>
-
     <transition name="modal">
       <div v-if="showAlertModal" class="modal-overlay" @click.self="showAlertModal = false">
         <div class="modal-container">
@@ -345,12 +352,4 @@ onMounted(async () => {
   max-width: 500px;
 }
 
-.notification-icon {
-  position: absolute;
-  top: 18rem;
-  right: 40rem;
-  padding: 0.5rem;
-  border: 2px solid #000;
-  border-radius: 0.25rem;
-}
 </style>
