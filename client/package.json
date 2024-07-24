@@ -32,6 +32,7 @@
     "vue": "^3.4.21",
     "vue-chartjs": "^5.3.1",
     "vue-router": "^4.3.0",
+    "vue-toastification": "^2.0.0-rc.5",
     "vue3-grid-layout-next": "^1.0.7"
   },
   "devDependencies": {

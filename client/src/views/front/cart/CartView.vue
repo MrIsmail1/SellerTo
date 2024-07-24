@@ -1,3 +1,71 @@
+<script setup lang='ts'>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore'; 
+import Button from '@/components/ui/button/Button.vue';
+import CartComponent from '@/components/cart/CartComponent.vue';
+import toast from '@/plugins/toast';
+
+const cartStore = useCartStore();
+const authStore = useAuthStore(); // Déclarez le store d'authentification ici
+const cart = computed(() => cartStore.groupedCart);
+const router = useRouter(); // Déclarez le router ici
+
+const removeItem = async (cartItemId) => {
+  await cartStore.removeFromCart(cartItemId);
+};
+
+const updateQuantity = async (productId, quantity) => {
+  await cartStore.updateQuantity(productId, quantity);
+};
+
+const handleCheckout = async () => {
+  const user = authStore.user;
+
+  if (!user || !user.address) {
+    router.push('/account');
+    toast.error('Remplissez votre adresse avant de passer commande', {
+      position: 'top-right',
+      timeout: 3000,
+    });
+    return;
+  }
+
+  await cartStore.confirmPurchase();
+};
+
+const generatePaymentLink = async () => {
+  await cartStore.generatePaymentLink();
+};
+
+let cleanInterval;
+
+onMounted(async () => {
+  await cartStore.fetchCart();
+  cleanInterval = setInterval(async () => {
+    await cartStore.fetchCart();
+  }, 15000);
+});
+
+onUnmounted(() => {
+  clearInterval(cleanInterval);
+});
+
+const subTotal = computed(() => cartStore.subTotal);
+const total = computed(() => cartStore.total);
+const paymentLink = computed(() => cartStore.paymentLink);
+const promoCode = ref('');
+const discount = computed(() => cartStore.discount);
+const discountPercentage = computed(() => cartStore.discountPercentage);
+const discountAmount = computed(() => cartStore.discountAmount);
+const errorMessage = computed(() => cartStore.errorMessage);
+
+const applyPromoCode = async () => {
+  await cartStore.applyPromoCode(promoCode.value);
+};
+</script>
+
 <template>
   <div v-if="!cart.length" class="text-center text-lg">Votre panier est vide</div>
   <main v-else class="block md:flex flex-col md:flex-row p-0 md:p-4 ml-0 md:ml-32">
@@ -75,55 +143,3 @@
     </div>
   </main>
 </template>
-
-<script setup lang='ts'>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useCartStore } from '@/stores/cartStore';
-import Button from '@/components/ui/button/Button.vue';
-import CartComponent from '@/components/cart/CartComponent.vue';
-
-const cartStore = useCartStore();
-const cart = computed(() => cartStore.groupedCart);
-
-const removeItem = async (cartItemId) => {
-  await cartStore.removeFromCart(cartItemId);
-};
-
-const updateQuantity = async (productId, quantity) => {
-  await cartStore.updateQuantity(productId, quantity);
-};
-
-const handleCheckout = async () => {
-  await cartStore.confirmPurchase(); // Assurez-vous d'appeler la bonne méthode
-};
-
-const generatePaymentLink = async () => {
-  await cartStore.generatePaymentLink();
-};
-
-let cleanInterval;
-
-onMounted(async () => {
-  await cartStore.fetchCart();
-  cleanInterval = setInterval(async () => {
-    await cartStore.fetchCart();
-  }, 15000);
-});
-
-onUnmounted(() => {
-  clearInterval(cleanInterval);
-});
-
-const subTotal = computed(() => cartStore.subTotal);
-const total = computed(() => cartStore.total);
-const paymentLink = computed(() => cartStore.paymentLink);
-const promoCode = ref('');
-const discount = computed(() => cartStore.discount);
-const discountPercentage = computed(() => cartStore.discountPercentage);
-const discountAmount = computed(() => cartStore.discountAmount);
-const errorMessage = computed(() => cartStore.errorMessage);
-
-const applyPromoCode = async () => {
-  await cartStore.applyPromoCode(promoCode.value);
-};
-</script>

@@ -100,7 +100,7 @@ const router = useRouter();
 
 const addToCart = async () => {
   if (!authStore.user) {
-    router.push('/login'); // Redirigez vers la page de connexion si l'utilisateur n'est pas connecté
+    router.push('/login');
     return;
   }
   await cartStore.addToCart(productId);
@@ -166,11 +166,11 @@ onMounted(async () => {
         </div>
       </div>
         <div class="w-full md:w-1/2">
-      <div class="flex gap-2">
-          <h1 class="text-2xl font-bold mb-4">{{ productDetail.product_title }}</h1>
+      <div class="flex gap-4 items-center mb-4">
+          <h1 class="text-2xl font-bold">{{ productDetail.product_title }}</h1>
           <!-- Notification Icon -->
-        <div @click="showAlertModal = true" class="cursor-pointer">
-          <span class="material-symbols-outlined border-2 border-black">notifications</span>
+        <div @click="showAlertModal = true" class="cursor-pointer notification-icon">
+          <span class="material-symbols-outlined ">notifications</span>
         </div>
       </div>
         <p class="mb-2"><strong>Description:</strong> {{ productDetail.product_description }}</p>
@@ -350,6 +350,22 @@ onMounted(async () => {
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
+}
+
+.notification-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: white;
+  border: 1px solid #e2e8f0; /* Gray-300 */
+  border-radius: 9999px; /* Full rounding */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Small shadow */
+  transition: background-color 0.2s;
+}
+
+.notification-icon:hover {
+  background-color: #f7fafc; /* Gray-100 */
 }
 
 </style>
