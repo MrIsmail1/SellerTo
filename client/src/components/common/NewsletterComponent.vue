@@ -10,9 +10,9 @@ import Input from '@/components/ui/input/Input.vue';
             <h2>Vous voulez recevoir des newsletters <br> sur le meilleur de nos produits</h2>
             <p class="mt-2">Inscrivez-vous pour recevoir nos bons plans et nos actus.</p>
             
-                <form class="mt-6 flex gap-6">
-                <Input type="email" class="w-full px-4 py-2 " placeholder="Entrez votre adresse e-mail" />
-                <Button>S'inscrire</Button>
+                <form class="mt-6 flex gap-6 items-center">
+                <Input type="email" class="w-full px-4 py-2 " placeholder="Entrez votre adresse e-mail" variant="test" />
+                <Button class="mt-0">S'inscrire</Button>
                 </form>
 
         </div>
