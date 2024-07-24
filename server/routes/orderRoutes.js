@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  generateInvoice,
   generateInvoices,
   getDashboardData,
   getOrders,
@@ -27,8 +28,14 @@ router.get("/all", checkAuth, checkRole(["Admin", "SuperAdmin"]), getOrders);
 router.post(
   "/invoice",
   checkAuth,
-  checkRole(["Admin", "SuperAdmin"]),
+  checkRole(["User", "Admin", "SuperAdmin"]),
   generateInvoices
+);
+router.post(
+  "/generate/invoice",
+  checkAuth,
+  checkRole(["User", "Admin", "SuperAdmin"]),
+  generateInvoice
 );
 
 export default router;

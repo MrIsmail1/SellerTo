@@ -1,9 +1,9 @@
 import Product from "../models/mongo/productModel.js";
 import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
-import {sendPriceChangeAlertEmail} from "../services/mailer/mailService.js";
-import { getUserByIdDiff} from "./userController.js";
 import UserAlert from "../models/postgres/userAlertsModel.js";
+import { sendPriceChangeAlertEmail } from "../services/mailer/mailService.js";
+import { getUserByIdDiff } from "./userController.js";
 export const getProducts = async (req, res) => {
   try {
     const filters = req.query;
@@ -34,12 +34,12 @@ export const getProduct = async (req, res) => {
 export const getProductById = async (productId) => {
   try {
     const product = await Product.findById(productId).select(
-      "_id product_title product_price product_description product_category"
+      "_id product_title product_price product_description product_category imageUrls"
     );
     if (!product) {
-     throw new Error("Product not found");
+      throw new Error("Product not found");
     }
-    return product
+    return product;
   } catch (error) {
     throw new Error("Error fetching product details");
   }

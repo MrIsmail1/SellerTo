@@ -129,5 +129,34 @@ export const useOrdersStore = defineStore("orders", {
         this.loading = false;
       }
     },
+    async downloadSingleInvoice(order) {
+      this.loading = true;
+      try {
+        // Extract the actual order from the proxy object, if necessary
+        const orderData = order.original || order;
+        console.log(order);
+
+        const factureOrderUnique = order.orderUnique;
+
+        const response = await axios.post(
+          "/orders/generate/invoice",
+          orderData,
+          {
+            responseType: "blob",
+          }
+        );
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `facture_${factureOrderUnique}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });
