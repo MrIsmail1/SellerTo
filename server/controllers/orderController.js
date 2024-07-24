@@ -383,28 +383,9 @@ export const getOrders = async (req, res) => {
     const detailedOrders = await Promise.all(
       orders.map(async (order) => {
         const productDetails = await getProductDetails(order.productId);
-        const userDetails = await Users.findByPk(order.userId, {
-          attributes: {
-            exclude: [
-              "password",
-              "resetPasswordToken",
-              "resetPasswordExpire",
-              "passwordChangedAt",
-              "role",
-              "confirmationToken",
-              "confirmationTokenExpires",
-              "isVerified",
-              "loginAttempts",
-              "lockUntil",
-              "createdAt",
-              "updatedAt",
-            ],
-          },
-        });
         return {
           ...order.toJSON(),
           product: productDetails,
-          user: userDetails,
         };
       })
     );
