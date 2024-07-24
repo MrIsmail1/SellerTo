@@ -12,6 +12,7 @@ import { createInvoicePDF } from "../services/invoiceService.js";
 import { getProductById } from "./productController.js";
 import { getUserById } from "./userController.js";
 
+// TODO : Check Restfull
 async function getProductDetails(productId) {
   return await getProductById(productId);
 }
@@ -121,6 +122,7 @@ export const getUserOrders = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const calculateData = async (widget) => {
   const now = new Date();
   let startDate;
@@ -208,8 +210,21 @@ export const calculateData = async (widget) => {
         ]);
         return responseData.length > 0 ? responseData[0].totalRevenue : 0;
       case "count_users":
-        responseData = await Users.countDocuments(matchCriteria);
-        return responseData;
+        responseData = await Order.aggregate([
+          { $match: matchCriteria },
+          {
+            $group: {
+              _id: "$userId",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalUsers: { $sum: 1 },
+            },
+          },
+        ]);
+        return responseData.length > 0 ? responseData[0].totalUsers : 0;
       default:
         throw new Error("Invalid data type");
     }
@@ -391,7 +406,9 @@ const updateDataMap = (dataMap, closestDate, dataType, order) => {
 
 export const getDashboardData = async (req, res) => {
   try {
-    const widgets = await Widget.find();
+    const userId = req.user.id;
+
+    const widgets = await Widget.find({ userId });
     const widgetDataPromises = widgets.map(async (widget) => {
       const data = await calculateData(widget);
 
