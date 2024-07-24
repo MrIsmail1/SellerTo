@@ -11,7 +11,7 @@ import { checkRole } from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-router.post("/", checkAuth, createWidget);
+router.post("/", checkAuth, checkRole(["Admin", "SuperAdmin"]), createWidget);
 router.put("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateWidget);
 router.delete(
   "/:id",
