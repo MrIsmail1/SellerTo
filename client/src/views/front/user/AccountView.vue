@@ -42,7 +42,7 @@ const openChangePasswordModal = () => {
 const updateNewsletterSubscription = async () => {
   const updates = {
     userId: authStore.user.id,
-    alertId: 1, // Assuming 4 is the ID for the newsletter alert
+    alertId: 1,
     isActive: newsletterSubscription.value,
   };
   await userAlertsStore.updateUserAlerts([updates]);

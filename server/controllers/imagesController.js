@@ -4,9 +4,9 @@ import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
 import UserAlert from "../models/postgres/userAlertsModel.js";
 import denormalizeProduct from "../services/denormalization/product.js";
-import { uploadFiles } from "../services/imageUploadService.js";
-import { sendNewProductAlertEmail } from "../services/mailer/mailService.js";
-import { getUserById } from "./userController.js";
+import {uploadFiles} from "../services/imageUploadService.js";
+import {sendNewProductAlertEmail} from "../services/mailer/mailService.js";
+import {getUserByIdDiff} from "./userController.js";
 
 // Controller function to handle product creation with image validation
 export const createProductWithImages = async (req, res) => {
@@ -55,13 +55,13 @@ export const createProductWithImages = async (req, res) => {
             alertId: 3,
             category: newProduct.product_category,
             isActive: true,
-          },
+          }
         });
 
         // TODO : Gérer mieux les erreurs
         for (const alert of userAlerts) {
           try {
-            const user = await getUserById(alert.userId);
+            const user = await getUserByIdDiff(alert.userId);
             if (user && user.email) {
               await sendNewProductAlertEmail(user.email, newProduct);
             }

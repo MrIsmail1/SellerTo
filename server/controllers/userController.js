@@ -19,6 +19,7 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+// TODO: Exclure plus de champs
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
@@ -38,6 +39,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
+// TODO: Exclure plus de champs
 export const getUserByIdDiff = async (userId) => {
   try {
     const user = await User.findByPk(userId, {

@@ -248,6 +248,12 @@ const routes = [
           import("@/views/back/promo-code/DeletePromoCodeView.vue"),
         meta: { requiresAuth: true, requiresAdmin: true },
       },
+      {
+        path: "newsletter",
+        name: "AddNewsletterView",
+        component: () => import("@/views/back/newsletter/AddNewsletterView.vue"),
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
     ],
   },
   {

@@ -1,5 +1,8 @@
 import UserAlert from '../models/postgres/userAlertsModel.js';
 
+import {sendNewsletterEmail} from "../services/mailer/mailService.js";
+import { getUserByIdDiff } from "./userController.js";
+
 export const addUserAlert = async (req, res) => {
     try {
         const { userId, alertId, productId, category } = req.body;
@@ -104,3 +107,33 @@ export const updateUserAlerts = async (req, res) => {
         res.status(500);
     }
 };
+
+export const sendNewsletter = async (req, res) => {
+    const { subject, message } = req.body;
+
+    try {
+
+        const userAlerts = await UserAlert.findAll({
+            where: {
+                alertId: 1,
+                isActive: true
+            },
+        });
+
+        for (const alert of userAlerts) {
+            try {
+                const user = await getUserByIdDiff(alert.userId);
+                if (user && user.email) {
+                    await sendNewsletterEmail(user.email, subject, message);
+                }
+            } catch (userError) {
+                console.error('Error fetching user:', userError.message);
+            }
+        }
+
+        res.status(200);
+    } catch (error) {
+        res.status(500);
+    }
+};
+
