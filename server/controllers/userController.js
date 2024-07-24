@@ -38,6 +38,23 @@ export const getUserById = async (req, res) => {
   }
 };
 
+export const getUserByIdDiff = async (userId) => {
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+    return user;
+  } catch (error) {
+    console.error('Échec de la récupération de l\'utilisateur par ID:', error);
+    throw error;
+  }
+};
+
 export const deleteUserAccount = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);

@@ -10,7 +10,7 @@ import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
 import Users from "../models/postgres/userModel.js";
 import { createInvoicePDF } from "../services/invoiceService.js";
 import { getProductById } from "./productController.js";
-import { getUserById } from "./userController.js";
+import {getUserById, getUserByIdDiff} from "./userController.js";
 
 // TODO : Check Restfull
 async function getProductDetails(productId) {
@@ -18,7 +18,7 @@ async function getProductDetails(productId) {
 }
 
 async function getUserDetails(userId) {
-  return await getUserById(userId);
+  return await getUserByIdDiff(userId);
 }
 
 export async function sendDeliveryConfirmationEmail(
@@ -87,41 +87,43 @@ export const getUserOrders = async (req, res) => {
     });
 
     const detailedOrders = await Promise.all(
-      orders.map(async (order) => {
-        const productDetails = await getProductDetails(order.productId);
-        const userDetails = await getUserDetails(order.userId);
+        orders.map(async (order) => {
+          const productDetails = await getProductDetails(order.productId);
+          const userDetails = await getUserDetails(order.userId);
 
-        // Find the payment record using paymentIntentId
-        const payment = await Payment.findOne({
-          where: {
-            paymentIntentId: order.paymentIntentId,
-          },
-        });
-
-        let paymentProducts = [];
-        if (payment) {
-          // Get PaymentProduct using paymentId
-          paymentProducts = await PaymentProduct.findAll({
+          // Find the payment record using paymentIntentId
+          const payment = await Payment.findOne({
             where: {
-              paymentId: payment.id,
+              paymentIntentId: order.paymentIntentId,
             },
           });
-        }
 
-        return {
-          ...order.toJSON(),
-          product: productDetails,
-          user: userDetails,
-          paymentProducts: paymentProducts,
-        };
-      })
+          let paymentProducts = [];
+          if (payment) {
+            // Get PaymentProduct using paymentId
+            paymentProducts = await PaymentProduct.findAll({
+              where: {
+                paymentId: payment.id,
+              },
+            });
+          }
+
+          return {
+            ...order.toJSON(),
+            product: productDetails,
+            user: userDetails,
+            paymentProducts: paymentProducts,
+          };
+        })
     );
 
     res.status(200).json(detailedOrders);
   } catch (error) {
+    console.error('Error fetching user orders:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const calculateData = async (widget) => {
   const now = new Date();
