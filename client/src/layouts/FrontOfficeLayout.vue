@@ -24,7 +24,7 @@ const AdminDashboard = "AdminDashboard";
     </Button>
   </div>
   <HeaderComponent />
-  <div class="flex flex-col px-6 md:gap-8 md:p-6">
+  <div class="px-6 md:px-0">
     <RouterView />
   </div>
 </template>
