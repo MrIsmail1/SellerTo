@@ -11,17 +11,14 @@ const Orders = sequelize.define('Orders', {
         autoIncrement: true,
         primaryKey: true,
     },
-
     orderUnique: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-
-    quantity : {
+    quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -30,7 +27,38 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
-
+    firstname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    lastname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    country: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    city: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    postalCode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -39,17 +67,14 @@ const Orders = sequelize.define('Orders', {
             key: 'id',
         },
     },
-
     amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-
     status: {
         type: DataTypes.STRING,
         allowNull: true,
     },
-
     paymentIntentId: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -62,7 +87,7 @@ const Orders = sequelize.define('Orders', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-},  {
+}, {
     timestamps: true,
     hooks: {
         afterCreate: async (order, options) => {

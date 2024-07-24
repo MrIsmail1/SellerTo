@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { getUserOrders, sendDeliveryConfirmationEmail, getDashboardData, getOrders, generateInvoices } from '../../controllers/orderController.js';
+import {describe, expect, it, vi} from 'vitest';
+import {getUserOrders} from '../../controllers/orderController.js';
 import Orders from '../../models/postgres/orderModel.js';
-import Users from '../../models/postgres/userModel.js';
-import { Payment, PaymentProduct } from '../../models/postgres/paymentModel.js';
+import {Payment, PaymentProduct} from '../../models/postgres/paymentModel.js';
 import * as productController from '../../controllers/productController.js';
 import * as userController from '../../controllers/userController.js';
 
