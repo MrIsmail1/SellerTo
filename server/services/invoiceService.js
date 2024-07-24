@@ -59,18 +59,18 @@ function generateCustomerInformation(doc, order) {
     .text(formatCurrency(order.amount), 150, customerInformationTop + 30)
 
     .font("Helvetica-Bold")
-    .text(`${user.firstname} ${user.lastname}`, 300, customerInformationTop)
+    .text(`${order.firstname} ${order.lastname}`, 300, customerInformationTop)
     .font("Helvetica")
-    .text(user.email, 300, customerInformationTop + 15)
+    .text(order.email, 300, customerInformationTop + 15)
     .text(
-      user.address ? user.address : "Adresse non fournie",
+        order.address ? order.address : "Adresse non fournie",
       300,
       customerInformationTop + 30
     )
     .text(
-      `${user.postalCode ? user.postalCode : ""} ${
-        user.city ? user.city : ""
-      }, ${user.country ? user.country : ""}`,
+      `${order.postalCode ? order.postalCode : ""} ${
+          order.city ? order.city : ""
+      }, ${order.country ? order.country : ""}`,
       300,
       customerInformationTop + 45
     )
