@@ -3,9 +3,7 @@ import DataTableRowActionsComponent from "@/components/common/DataTableRowAction
 import type { Stock } from "@/z-schemas/StockShema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
-import { useProductsStore } from "../../stores/productsStore";
-const productStore = useProductsStore();
-await productStore.fetchProducts();
+import { useProductsStore } from "@/stores/productsStore";
 
 export const columns: ColumnDef<Stock>[] = [
   {
@@ -16,9 +14,11 @@ export const columns: ColumnDef<Stock>[] = [
         title: "Produit",
         searchable: true,
       }),
-    cell: ({ row }) => {
+    cell: async ({row}) => {
+      const productStore = useProductsStore();
+      await productStore.fetchProducts();
       const product = productStore.products.find(
-        (product) => product._id === row.original.productId
+          (product) => product._id === row.original.productId
       );
 
       return product ? product.product_title : "Loading...";

@@ -1,18 +1,6 @@
 import Widget from "../models/mongo/widgetModel.js";
-import { calculateData } from "./orderController.js";
 
-// TODO: A enlever
-export const testCalculateData = async (req, res) => {
-  try {
-    const widget = req.body;
-    const data = await calculateData(widget);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
-// TODO: Restfull a faire
 export const createWidget = async (req, res) => {
   try {
     console.log(req.body);
@@ -26,7 +14,7 @@ export const createWidget = async (req, res) => {
     await widget.save();
     res.status(201).json(widget);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
   }
 };
 
@@ -36,7 +24,7 @@ export const getAllWidgets = async (req, res) => {
     const widgets = await Widget.find();
     res.status(200).json(widgets);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -44,19 +32,19 @@ export const updateWidget = async (req, res) => {
   try {
     console.log(req.body);
     const widget = await Widget.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!widget) return res.status(404).json({ message: "Widget not found" });
+    if (!widget) return res.status(404);
     res.status(200).json(widget);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
   }
 };
 
 export const deleteWidget = async (req, res) => {
   try {
     const widget = await Widget.findByIdAndDelete(req.params.id);
-    if (!widget) return res.status(404).json({ message: "Widget not found" });
-    res.status(200).json({ message: "Widget deleted" });
+    if (!widget) return res.status(404);
+    res.status(204);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };

@@ -1,18 +1,14 @@
 import archiver from "archiver";
 import fs from "fs";
-import nodemailer from "nodemailer";
 import path from "path";
 import Order from "../models/mongo/orderModel.js";
 import Widget from "../models/mongo/widgetModel.js"; // Import du modèle de widget
-
 import Orders from "../models/postgres/orderModel.js";
-import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
-import Users from "../models/postgres/userModel.js";
-import { createInvoicePDF } from "../services/invoiceService.js";
-import { getProductById } from "./productController.js";
-import {getUserById, getUserByIdDiff} from "./userController.js";
+import {Payment, PaymentProduct} from "../models/postgres/paymentModel.js";
+import {createInvoicePDF} from "../services/invoiceService.js";
+import {getProductById} from "./productController.js";
+import {getUserByIdDiff} from "./userController.js";
 
-// TODO : Check Restfull
 async function getProductDetails(productId) {
   return await getProductById(productId);
 }
@@ -64,13 +60,12 @@ export const getUserOrders = async (req, res) => {
 
     res.status(200).json(detailedOrders);
   } catch (error) {
-    console.error('Error fetching user orders:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
 
-export const calculateData = async (widget) => {
+const calculateData = async (widget) => {
   const now = new Date();
   let startDate;
 
@@ -372,7 +367,7 @@ export const getDashboardData = async (req, res) => {
     const widgetData = await Promise.all(widgetDataPromises);
     res.status(200).json(widgetData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -393,7 +388,7 @@ export const getOrders = async (req, res) => {
     res.status(200).json(detailedOrders);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur de récuperation des commandes." });
+    res.status(500);
   }
 };
 
@@ -401,7 +396,7 @@ export const generateInvoices = async (req, res) => {
   const orders = req.body;
 
   if (!orders || orders.length === 0) {
-    return res.status(400).json({ message: "No selected orders." });
+    return res.status(400);
   }
 
   try {
@@ -463,6 +458,6 @@ export const generateInvoices = async (req, res) => {
     await archive.finalize();
   } catch (error) {
     console.error("Error generating invoices:", error);
-    res.status(500).json({ message: "Error generating invoices" });
+    res.status(500);
   }
 };

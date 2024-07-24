@@ -12,7 +12,7 @@ import {getUserByIdDiff} from "./userController.js";
 export const createProductWithImages = async (req, res) => {
   uploadFiles(req, res, async (err, fileInfos) => {
     if (err) {
-      return res.status(400).json({ error: err.message });
+      return res.status(400);
     } else {
       const productData = JSON.parse(req.body.productData);
       try {
@@ -58,7 +58,6 @@ export const createProductWithImages = async (req, res) => {
           }
         });
 
-        // TODO : Gérer mieux les erreurs
         for (const alert of userAlerts) {
           try {
             const user = await getUserByIdDiff(alert.userId);
@@ -66,7 +65,7 @@ export const createProductWithImages = async (req, res) => {
               await sendNewProductAlertEmail(user.email, newProduct);
             }
           } catch (userError) {
-            console.error("Error fetching user:", userError.message);
+            throw new Error("Error fetching user:", userError.message);
           }
         }
 
@@ -94,7 +93,7 @@ export const addImagesToProduct = async (req, res) => {
 
     uploadFiles(req, res, async (err, fileInfos) => {
       if (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400);
       } else {
         try {
           const filePromises = fileInfos.map(async (file) => {
@@ -154,9 +153,8 @@ export const deleteProductImage = async (req, res) => {
       { $pull: { imageUrls: imageUrl } }
     );
 
-    // TODO : Retour incorrect
     await image.destroy();
-    return res.status(200).json({ message: "Image deleted successfully" });
+    return res.status(204);
   } catch (error) {
     return res.status(500);
   }
@@ -171,13 +169,12 @@ export const getImageId = async (req, res) => {
     });
 
     if (!image) {
-      return res.status(404).json({ message: "Image not found" });
+      return res.status(404);
     }
 
     const imageId = image.id;
     return res.status(200).json({ imageId });
   } catch (error) {
-    console.error("Failed to get image ID:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500);
   }
 };

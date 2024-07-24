@@ -127,7 +127,7 @@ export const sendNewsletter = async (req, res) => {
                     await sendNewsletterEmail(user.email, subject, message);
                 }
             } catch (userError) {
-                console.error('Error fetching user:', userError.message);
+                throw new Error(`Error sending news letter email: ${userError.message}`);
             }
         }
 

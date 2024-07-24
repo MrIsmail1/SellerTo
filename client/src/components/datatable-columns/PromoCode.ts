@@ -5,8 +5,7 @@ import { usePromoCodeStore } from "@/stores/promoCodeStore";
 import type { PromoCode } from "@/z-schemas/PromoCodeSchema";
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
-const productStore = useProductsStore();
-await productStore.fetchProducts();
+
 export const columns: ColumnDef<PromoCode>[] = [
   {
     accessorKey: "code",
@@ -41,12 +40,13 @@ export const columns: ColumnDef<PromoCode>[] = [
         title: "Produit",
         searchable: true,
       }),
-    cell: ({ row }) => {
-      const product = productStore.products.find(
-        (product) => product._id === row.original.product_id
-      );
-
-      return product ? product.product_title : "";
+    cell: async ({row}) => {
+        const productStore = useProductsStore();
+        await productStore.fetchProducts();
+        const product = productStore.products.find(
+            (product) => product._id === row.original.product_id
+        );
+        return product ? product.product_title : "";
     },
   },
   {

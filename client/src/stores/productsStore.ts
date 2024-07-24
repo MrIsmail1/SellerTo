@@ -70,7 +70,6 @@ export const useProductsStore = defineStore("products", {
         this.product = response.data;
         this.error = null;
       } catch (error) {
-        console.error("Failed to add product:", error);
         this.error = error.message;
       } finally {
         this.loading = false;
@@ -86,7 +85,6 @@ export const useProductsStore = defineStore("products", {
         return response.data;
       } catch (error) {
         this.error = error.message;
-        console.error("Failed to delete image:", error);
       } finally {
         this.loading = false;
       }
@@ -102,7 +100,6 @@ export const useProductsStore = defineStore("products", {
         return response.data;
       } catch (error) {
         this.error = error.message;
-        console.error("Failed to delete image:", error);
       } finally {
         this.loading = false;
       }
@@ -127,7 +124,6 @@ export const useProductsStore = defineStore("products", {
 
         return response.data;
       } catch (error) {
-        console.error("Failed to upload images:", error);
         this.imageUploadError = error.response?.data?.message || error.message;
       } finally {
         this.loading = false;
@@ -153,7 +149,6 @@ export const useProductsStore = defineStore("products", {
         this.product.images = response.data.files;
         this.error = null;
       } catch (error) {
-        console.error("Failed to add product with images:", error);
         this.error = error.response?.data?.message || error.message;
         if (error.response?.data?.message.includes("Only images are allowed")) {
           this.error = error.response.data.message;
@@ -256,7 +251,6 @@ export const useProductsStore = defineStore("products", {
         const response = await axios.patch(`/products/${id}`, product);
         this.error = null;
       } catch (error) {
-        console.error("Failed to update product:", error);
         this.error = error.message;
       } finally {
         this.loading = false;

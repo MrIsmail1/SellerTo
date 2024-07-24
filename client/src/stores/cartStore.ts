@@ -84,7 +84,6 @@ export const useCartStore = defineStore('cart', {
       }
 
       if (!productId) {
-        console.error("Product ID is required");
         return;
       }
 
@@ -178,7 +177,6 @@ export const useCartStore = defineStore('cart', {
 
         this.paymentLink = response.data.paymentUrl;
       } catch (error) {
-        console.error('Error generating payment link:', error);
         this.paymentLink = null;
       }
     },
@@ -201,7 +199,6 @@ export const useCartStore = defineStore('cart', {
           this.errorMessage = 'Code promo invalide ou expiré';
         }
       } catch (error) {
-        console.error('Error applying promo code:', error);
         this.promoCodeDetails = null;
         this.errorMessage = 'Code promo invalide ou expiré';
       }

@@ -12,10 +12,7 @@ export const getUserProfile = async (req, res) => {
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({
-      message: "Échec de la récupération du profil utilisateur.",
-      error,
-    });
+    res.status(500);
   }
 };
 
@@ -28,14 +25,11 @@ export const getUserById = async (req, res) => {
       },
     });
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
+      return res.status(404);
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({
-      message: "Échec de la récupération de l'utilisateur par ID.",
-      error,
-    });
+    res.status(500);
   }
 };
 
@@ -52,7 +46,6 @@ export const getUserByIdDiff = async (userId) => {
     }
     return user;
   } catch (error) {
-    console.error('Échec de la récupération de l\'utilisateur par ID:', error);
     throw error;
   }
 };
@@ -79,7 +72,7 @@ export const updateUser = async (req, res) => {
       returning: true,
     });
     if (!updated) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
+      return res.status(404);
     }
     const updatedUser = await User.findByPk(req.params.id);
     res.status(200).json(updatedUser);
@@ -89,6 +82,7 @@ export const updateUser = async (req, res) => {
       .json({ message: "Échec de la mise à jour de l'utilisateur.", error });
   }
 };
+
 export const updateUserProfile = async (req, res) => {
   try {
     const allowedFields = [
@@ -117,14 +111,12 @@ export const updateUserProfile = async (req, res) => {
     });
 
     if (!updated) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
+      return res.status(404);
     }
 
-    res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
+    res.status(200);
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Échec de la mise à jour de l'utilisateur." });
+    res.status(400)
   }
 };
 
@@ -147,9 +139,7 @@ export const getUsers = async (req, res) => {
     });
     res.status(200).json(users);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Échec de la récupération des utilisateurs.", error });
+    res.status(500);
   }
 };
 
@@ -158,8 +148,6 @@ export const createUser = async (req, res) => {
     const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Échec de la création de l'utilisateur.", error });
+    res.status(400);
   }
 };

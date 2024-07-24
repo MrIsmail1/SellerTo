@@ -55,7 +55,7 @@ export const addToCart = async (req, res) => {
     }, 3 * 60 * 1000); // 3 minutes
   } catch (error) {
     console.error('Error adding to cart:', error);
-    res.status(500).json({ message: 'Erreur interne du serveur' });
+    res.status(500);
   }
 };
 

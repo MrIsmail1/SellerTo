@@ -49,7 +49,6 @@ export const createProduct = async (req, res) => {
   try {
     const products = req.body;
 
-    // TODO : Je sais pas pourquoi il y a deux fois un create c'est bizarre faut peut-être en retiré
     if (Array.isArray(products)) {
       const newProducts = await Products.bulkCreate(products, {
         returning: true,
@@ -130,7 +129,6 @@ export const patchProduct = async (req, res) => {
         },
       });
 
-      // TODO : Gérer mieux les erreurs
       for (const alert of userAlerts) {
         try {
           const user = await getUserByIdDiff(alert.userId);
@@ -138,7 +136,7 @@ export const patchProduct = async (req, res) => {
             await sendPriceChangeAlertEmail(user.email, updatedProduct);
           }
         } catch (userError) {
-          console.error("Error fetching user:", userError.message);
+         throw new Error(`Error updating product: ${userError.message}`);
         }
       }
     }

@@ -38,7 +38,7 @@ async function updateOrderStatuses() {
 }
 
 const startCronJob = () => {
-    cron.schedule('*/10 * * * *', updateOrderStatuses);
+    cron.schedule('*/1 * * * *', updateOrderStatuses);
 };
 
 export default startCronJob;

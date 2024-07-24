@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { Sequelize, DataTypes } from 'sequelize';
+import {DataTypes, Sequelize} from 'sequelize';
 import sequelizeConfig from '../config/sequelize-config.js';
-import process from 'process';
 
 const basename = path.basename(import.meta.url);
 const db = {};

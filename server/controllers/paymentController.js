@@ -29,7 +29,7 @@ export const createPaymentSession = async (req, res) => {
     });
     res.status(200).json({ sessionId: session.id });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -59,7 +59,7 @@ export const createUniquePaymentLink = async (req, res) => {
     });
     res.status(200).json({ paymentUrl: session.url });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 
@@ -75,7 +75,7 @@ export const createRefund = async (req, res) => {
       }
     });
     if (!paymentProduct) {
-      return res.status(404).json({ message: 'Produit non trouvé pour ce paiement' });
+      return res.status(404);
     }
 
     // Calculate refund amount
@@ -89,7 +89,7 @@ export const createRefund = async (req, res) => {
     });
 
     if (!payment) {
-      return res.status(404).json({ message: 'Paiement non trouvé' });
+      return res.status(404);
     }
 
     // Create refund in Stripe
@@ -106,7 +106,7 @@ export const createRefund = async (req, res) => {
 
     res.status(200).json(refund);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500);
   }
 };
 

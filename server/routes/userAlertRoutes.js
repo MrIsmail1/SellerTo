@@ -11,11 +11,10 @@ import {checkRole} from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-// TODO: Faire du restfull ici
 router.post('/send-newsletter', checkAuth, checkRole(["Admin", "SuperAdmin"]), sendNewsletter);
-router.get('/user-alerts/:userId', checkAuth, getAlertsByUserId);
-router.get('/user-alerts/:userId/:productId', checkAuth, getAlertsByUserIdAndProductId);
-router.get('/user-alerts/category/:userId/:category', checkAuth, getAlertsByUserIdAndCategory);
-router.put('/user-alerts', checkAuth, updateUserAlerts);
+router.get('/:userId', checkAuth, getAlertsByUserId);
+router.get('/:userId/:productId', checkAuth, getAlertsByUserIdAndProductId);
+router.get('/category/:userId/:category', checkAuth, getAlertsByUserIdAndCategory);
+router.put('/', checkAuth, updateUserAlerts);
 
 export default router;
