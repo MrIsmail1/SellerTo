@@ -1,10 +1,5 @@
 import express from "express";
-import {
-  createWidget,
-  deleteWidget,
-  getAllWidgets,
-  updateWidget,
-} from "../controllers/widgetController.js";
+import {createWidget, deleteWidget, getAllWidgets, updateWidget,} from "../controllers/widgetController.js";
 import { checkAuth } from "../middlewares/checkAuth.js";
 import { checkRole } from "../middlewares/checkRole.js";
 
