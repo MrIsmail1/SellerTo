@@ -58,6 +58,11 @@ const createRefund = async (productId, paymentId, quantity) => {
     console.error('Error refunding product:', error);
   }
 };
+
+const getPaymentProduct = (productId: number) => {
+  const paymentProduct = orders.value?.flatMap(order => order.paymentProducts).find(pp => pp.productId === productId);
+  return paymentProduct || { refundStatus: 'unknown' }; // Default to unknown status if not found
+};
 </script>
 
 <template>
@@ -114,13 +119,13 @@ const createRefund = async (productId, paymentId, quantity) => {
                 </div>
                 <div class="mt-4">
                   <Button
-                    type="submit"
-                    variant="secondary"
-                    size="medium"
-                    @click="createRefund(product.product._id, groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).paymentId, product.quantity)"
-                    :disabled="groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).refundStatus === 'refunded'"
+                      type="submit"
+                      variant="secondary"
+                      size="medium"
+                      @click="createRefund(product.product._id, getPaymentProduct(product.productId).paymentId, product.quantity)"
+                      :disabled="getPaymentProduct(product.productId).refundStatus === 'refunded'"
                   >
-                    {{ groupedOrder.paymentProducts.find(pp => pp.productId === product.productId).refundStatus === 'refunded' ? 'Remboursement effectué' : 'Rembourser l\'article' }}
+                    {{ getPaymentProduct(product.productId).refundStatus === 'refunded' ? 'Remboursement effectué' : 'Rembourser l\'article' }}
                   </Button>
                 </div>
               </div>
