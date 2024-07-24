@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ConfirmModal from "@/components/modal/ConfirmModal.vue";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,18 +11,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Row } from "@tanstack/vue-table";
 import { Ellipsis } from "lucide-vue-next";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 interface DataTableRowActionsProps<T> {
   row: Row<T>;
-  viewRoute: string;
-  editRoute: string;
-  deleteRoute?: string; // Make deleteRoute optional
+  viewRoute?: string;
+  editRoute?: string;
   deleteFunction?: (id: string) => Promise<void>; // Make deleteFunction optional
 }
 
 const props = defineProps<DataTableRowActionsProps<any>>();
 const router = useRouter();
+const showModal = ref(false);
 
 const rowId = props.row.original._id
   ? props.row.original._id
@@ -30,10 +32,25 @@ const rowId = props.row.original._id
 const navigateTo = (route: string) => {
   router.push(route);
 };
+
 const deleteItem = async (rowId: string) => {
+  showModal.value = true;
+};
+
+const confirmDelete = async () => {
   if (props.deleteFunction) {
-    await props.deleteFunction(rowId);
+    try {
+      props.deleteFunction(rowId);
+      router.go(0);
+    } catch (error: any) {
+      console.error("Delete error:", error);
+    }
   }
+  showModal.value = false;
+};
+
+const cancelDelete = () => {
+  showModal.value = false;
 };
 </script>
 
@@ -49,20 +66,29 @@ const deleteItem = async (rowId: string) => {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-[160px]">
-      <DropdownMenuItem @click="navigateTo(props.viewRoute + '/' + rowId)">
+      <DropdownMenuItem
+        v-if="props.viewRoute"
+        @click="navigateTo(props.viewRoute + '/' + rowId)"
+      >
         Visualiser
       </DropdownMenuItem>
-      <DropdownMenuItem @click="navigateTo(props.editRoute + '/' + rowId)">
+      <DropdownMenuItem
+        v-if="props.editRoute"
+        @click="navigateTo(props.editRoute + '/' + rowId)"
+      >
         Modifier
       </DropdownMenuItem>
-      <DropdownMenuSeparator v-if="props.deleteRoute && props.deleteFunction" />
-      <DropdownMenuItem
-        v-if="props.deleteRoute && props.deleteFunction"
-        @click="deleteItem(rowId)"
-      >
+      <DropdownMenuSeparator v-if="props.deleteFunction && props.editRoute" />
+      <DropdownMenuItem v-if="props.deleteFunction" @click="deleteItem(rowId)">
         Supprimer
         <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
+
+  <ConfirmModal
+    v-if="showModal"
+    @confirm="confirmDelete"
+    @cancel="cancelDelete"
+  />
 </template>

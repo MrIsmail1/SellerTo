@@ -25,6 +25,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useProductsStore } from "@/stores/productsStore";
+import { watchOnce } from "@vueuse/core";
 import {
   Box,
   CreditCard,
@@ -33,7 +34,7 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-vue-next";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 const router = useRouter();
 
@@ -46,6 +47,29 @@ const productId = route.params.id;
 
 onMounted(async () => {
   await productsStore.getProductById(productId); // Fetch the product by ID
+});
+
+const emblaMainApi = ref<CarouselApi>();
+const emblaThumbnailApi = ref<CarouselApi>();
+const selectedIndex = ref(0);
+
+function onSelect() {
+  if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
+  selectedIndex.value = emblaMainApi.value.selectedScrollSnap();
+  emblaThumbnailApi.value.scrollTo(emblaMainApi.value.selectedScrollSnap());
+}
+
+function onThumbClick(index: number) {
+  if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
+  emblaMainApi.value.scrollTo(index);
+}
+
+watchOnce(emblaMainApi, (emblaMainApi) => {
+  if (!emblaMainApi) return;
+
+  onSelect();
+  emblaMainApi.on("select", onSelect);
+  emblaMainApi.on("reInit", onSelect);
 });
 
 const productDetails = computed(() => productsStore.product); // Get the product details

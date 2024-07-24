@@ -21,6 +21,7 @@ import SelectLabel from "@/components/ui/select/SelectLabel.vue";
 import SelectTrigger from "@/components/ui/select/SelectTrigger.vue";
 import SelectValue from "@/components/ui/select/SelectValue.vue";
 import { useForm } from "@/composables/useForm";
+import { watchOnce } from "@vueuse/core";
 import { Save } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -48,6 +49,28 @@ interface ProductField {
 
 const productId = route.params.id as string;
 const files = ref<File[]>([]);
+const emblaMainApi = ref<CarouselApi>();
+const emblaThumbnailApi = ref<CarouselApi>();
+const selectedIndex = ref(0);
+
+function onSelect() {
+  if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
+  selectedIndex.value = emblaMainApi.value.selectedScrollSnap();
+  emblaThumbnailApi.value.scrollTo(emblaMainApi.value.selectedScrollSnap());
+}
+
+function onThumbClick(index: number) {
+  if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
+  emblaMainApi.value.scrollTo(index);
+}
+
+watchOnce(emblaMainApi, (emblaMainApi) => {
+  if (!emblaMainApi) return;
+
+  onSelect();
+  emblaMainApi.on("select", onSelect);
+  emblaMainApi.on("reInit", onSelect);
+});
 
 const basicProductInfo = ref<Record<string, ProductField>>({
   product_photo: {
@@ -64,11 +87,6 @@ const basicProductInfo = ref<Record<string, ProductField>>({
     value: "",
     type: "number",
     placeholder: "Saisir le prix du produit...",
-  },
-  product_minimum_offer_price: {
-    value: "",
-    type: "number",
-    placeholder: "Saisir le prix minimum d'offre...",
   },
   product_category: {
     value: "",
@@ -280,7 +298,8 @@ const handleFileChange = (key: string, event: Event) => {
   files.value = Array.from(target.files || []);
 };
 const deleteImage = async (imageUrl: string) => {
-  await productsStore.deleteProductImage(productId, imageUrl);
+  const image = await productsStore.getImageId(imageUrl);
+  await productsStore.deleteProductImage(productId, image.imageId);
 };
 
 const getLabel = (key: string) => {
@@ -550,12 +569,12 @@ const getLabel = (key: string) => {
                           alt="Product Image"
                           class="w-full h-auto object-cover rounded-lg"
                         />
-                        <button
+                        <Button
                           @click="deleteImage(photo)"
                           class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
                         >
                           ✕
-                        </button>
+                        </Button>
                       </CarouselItem>
                     </CarouselContent>
                     <CarouselPrevious />
@@ -634,7 +653,6 @@ const getLabel = (key: string) => {
     <p v-if="httpError" class="text-red-500 text-xs mt-2">
       {{ httpError }}
     </p>
-    
   </form>
 </template>
 

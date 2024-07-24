@@ -87,6 +87,44 @@ export const updateUser = async (req, res) => {
       .json({ message: "Échec de la mise à jour de l'utilisateur.", error });
   }
 };
+export const updateUserProfile = async (req, res) => {
+  try {
+    const allowedFields = [
+      "id",
+      "firstname",
+      "lastname",
+      "email",
+      "address",
+      "country",
+      "phoneNumber",
+      "postalCode",
+      "city",
+      "phoneNumber",
+    ];
+
+    const updateData = {};
+    for (let key in req.body) {
+      if (allowedFields.includes(key)) {
+        updateData[key] = req.body[key];
+      }
+    }
+
+    const [updated] = await User.update(updateData, {
+      where: { id: updateData.id },
+      returning: true,
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Échec de la mise à jour de l'utilisateur." });
+  }
+};
 
 export const getUsers = async (req, res) => {
   try {

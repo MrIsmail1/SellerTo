@@ -9,7 +9,14 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import { Calculator, Store, Users, WalletMinimal, X } from "lucide-vue-next";
+import {
+  Calculator,
+  ShoppingCart,
+  Store,
+  Users,
+  WalletMinimal,
+  X,
+} from "lucide-vue-next";
 import { computed, defineProps, ref, watch } from "vue";
 import { Line } from "vue-chartjs";
 import Button from "../ui/button/Button.vue";
@@ -93,6 +100,7 @@ const iconComponents = {
   Store,
   WalletMinimal,
   Users,
+  ShoppingCart,
 };
 
 const IconComponent = computed(() => iconComponents[props.icon]);

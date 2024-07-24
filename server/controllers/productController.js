@@ -1,9 +1,9 @@
 import Product from "../models/mongo/productModel.js";
 import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
-import {sendPriceChangeAlertEmail} from "../services/mailer/mailService.js";
-import {getUserById} from "./userController.js";
 import UserAlert from "../models/postgres/userAlertsModel.js";
+import { sendPriceChangeAlertEmail } from "../services/mailer/mailService.js";
+import { getUserById } from "./userController.js";
 export const getProducts = async (req, res) => {
   try {
     const filters = req.query;
@@ -25,7 +25,7 @@ export const getProduct = async (req, res) => {
     if (!product) {
       return res.status(404);
     }
-    res.json(product);
+    res.status(200).json(product);
   } catch (error) {
     res.status(500);
   }
@@ -37,9 +37,9 @@ export const getProductById = async (productId) => {
       "_id product_title product_price product_description product_category"
     );
     if (!product) {
-      throw new Error("Product not found");
+      res.status(404);
     }
-    return product;
+    res.status(200).json(product);
   } catch (error) {
     throw new Error("Error fetching product details");
   }
@@ -121,16 +121,14 @@ export const patchProduct = async (req, res) => {
 
     const updatedProduct = await Products.findByPk(req.params.id);
 
-
     if (existingProduct.product_price !== updatedProduct.product_price) {
       const userAlerts = await UserAlert.findAll({
         where: {
           alertId: 4,
           productId: req.params.id,
           isActive: true,
-        }
+        },
       });
-
 
       // TODO : Gérer mieux les erreurs
       for (const alert of userAlerts) {
@@ -140,7 +138,7 @@ export const patchProduct = async (req, res) => {
             await sendPriceChangeAlertEmail(user.email, updatedProduct);
           }
         } catch (userError) {
-          console.error('Error fetching user:', userError.message);
+          console.error("Error fetching user:", userError.message);
         }
       }
     }

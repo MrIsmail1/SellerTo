@@ -57,7 +57,7 @@ const userInfo = ref<Record<string, UserField>>({
     options: ["SuperAdmin", "Admin", "Users"],
   },
   isVerified: {
-    value: false,
+    value: true,
     type: "boolean",
     placeholder: "Indiquer si vérifié...",
   },
@@ -196,9 +196,9 @@ const getLabel = (key: string) => {
               </Select>
               <div v-if="field.type === 'boolean'" class="flex items-center">
                 <Checkbox
-                  :id="key.toString()"
-                  v-model="values[key].value"
-                  :checked="values[key].value"
+                  :id="key"
+                  v-model:checked="values[key].value"
+                  :value="values[key].value"
                 />
                 <Label :for="key.toString()" class="ml-2">{{
                   getLabel(key.toString())

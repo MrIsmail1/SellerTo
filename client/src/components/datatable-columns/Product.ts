@@ -100,7 +100,6 @@ export const columns: ColumnDef<Product>[] = [
         row,
         viewRoute: "/admin/products/view",
         editRoute: "/admin/products/edit",
-        deleteRoute: "/admin/products/delete",
         deleteFunction: async (id: string) => {
           const productStore = useProductsStore();
           await productStore.deleteProduct(id);

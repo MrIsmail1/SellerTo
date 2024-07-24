@@ -1,11 +1,12 @@
+import ProductMongo from "../models/mongo/productModel.js";
 import Images from "../models/postgres/imagesModel.js";
 import Products from "../models/postgres/productModel.js";
 import Stock from "../models/postgres/stockModel.js";
+import UserAlert from "../models/postgres/userAlertsModel.js";
 import denormalizeProduct from "../services/denormalization/product.js";
 import { uploadFiles } from "../services/imageUploadService.js";
-import {sendNewProductAlertEmail} from "../services/mailer/mailService.js";
-import {getUserById} from "./userController.js";
-import UserAlert from "../models/postgres/userAlertsModel.js";
+import { sendNewProductAlertEmail } from "../services/mailer/mailService.js";
+import { getUserById } from "./userController.js";
 
 // Controller function to handle product creation with image validation
 export const createProductWithImages = async (req, res) => {
@@ -54,7 +55,7 @@ export const createProductWithImages = async (req, res) => {
             alertId: 3,
             category: newProduct.product_category,
             isActive: true,
-          }
+          },
         });
 
         // TODO : Gérer mieux les erreurs
@@ -65,18 +66,17 @@ export const createProductWithImages = async (req, res) => {
               await sendNewProductAlertEmail(user.email, newProduct);
             }
           } catch (userError) {
-            console.error('Error fetching user:', userError.message);
+            console.error("Error fetching user:", userError.message);
           }
         }
 
-        return res.json({ product: newProduct, files: savedFiles });
+        return res.status(200).json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
         return res.status(500);
       }
     }
   });
 };
-
 
 // Controller function to handle image creation for an existing product
 export const addImagesToProduct = async (req, res) => {
@@ -120,7 +120,7 @@ export const addImagesToProduct = async (req, res) => {
             Product: Products,
             Images: Images,
           });
-          return res.json({ files: savedFiles });
+          return res.status(200).json({ files: savedFiles });
         } catch (dbError) {
           return res.status(500);
         }
@@ -148,11 +148,36 @@ export const deleteProductImage = async (req, res) => {
     if (!image) {
       return res.status(404);
     }
+    const imageUrl = image.url;
+    await ProductMongo.updateOne(
+      { _id: productId },
+      { $pull: { imageUrls: imageUrl } }
+    );
 
     // TODO : Retour incorrect
     await image.destroy();
-    return res.json({ message: "Image deleted successfully" });
+    return res.status(200).json({ message: "Image deleted successfully" });
   } catch (error) {
     return res.status(500);
+  }
+};
+export const getImageId = async (req, res) => {
+  const { imageUrl } = req.params;
+  console.log(imageUrl);
+
+  try {
+    const image = await Images.findOne({
+      where: { url: "/uploads/" + imageUrl },
+    });
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    const imageId = image.id;
+    return res.status(200).json({ imageId });
+  } catch (error) {
+    console.error("Failed to get image ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

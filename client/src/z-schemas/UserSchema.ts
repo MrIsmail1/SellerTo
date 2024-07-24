@@ -59,7 +59,7 @@ export const EditUserSchema = z.object({
       },
     })
     .default("User"),
-  isVerified: z.string(),
+  isVerified: z.boolean(),
   address: z.string().optional().nullable(),
   country: z.string().optional().nullable(),
   phoneNumber: z.string().optional().nullable(),

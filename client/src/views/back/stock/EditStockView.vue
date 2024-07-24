@@ -13,17 +13,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "@/composables/useForm";
+import { useProductsStore } from "@/stores/productsStore";
 import { useStockStore } from "@/stores/stockStore";
 
+import { EditStockSchema } from "@/z-schemas/StockShema";
 import { Save } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import {EditStockSchema} from "@/z-schemas/StockShema";
 
 const router = useRouter();
 const route = useRoute();
 const stockStore = useStockStore();
 const stockId = route.params.id as string;
+const productStore = useProductsStore();
+const products = ref([]);
 
 type FieldType = "string" | "number" | "select";
 
@@ -37,13 +40,13 @@ interface StockField {
 const stockInfo = ref<Record<string, StockField>>({
   productId: {
     value: "",
-    type: "number",
-    placeholder: "Entrer un produit ID ...",
+    type: "select",
+    placeholder: "Choisir un produit...",
   },
   quantity: {
     value: 0,
     type: "number",
-    placeholder: "Entrer une quantité ...",
+    placeholder: "Entrer une quantité...",
   },
   operationType: {
     value: "ADD",
@@ -63,19 +66,18 @@ const flattenValues = (obj: Record<string, StockField>) => {
 };
 
 const { values, errors, isSubmitting, httpError, handleSubmit, setValues } =
-    useForm({
-      schema: EditStockSchema,
-      initialValues: {
-        ...flattenValues(stockInfo.value),
-      },
-      onSubmit: async (values) => {
-        values.productId = Number(values.productId);
-        await stockStore.updateStock(stockId, values);
-        if (!stockStore.error) {
-          await router.push({name: "AdminStocks"});
-        }
-      },
-    });
+  useForm({
+    schema: EditStockSchema,
+    initialValues: {
+      ...flattenValues(stockInfo.value),
+    },
+    onSubmit: async (values) => {
+      await stockStore.updateStock(stockId, values);
+      if (!stockStore.error) {
+        await router.push({ name: "AdminStocks" });
+      }
+    },
+  });
 
 const fetchStock = async () => {
   await stockStore.findStockById(stockId);
@@ -88,7 +90,11 @@ const fetchStock = async () => {
   setValues(flattenValues(stockInfo.value));
 };
 
-onMounted(fetchStock);
+onMounted(async () => {
+  fetchStock();
+  await productStore.fetchProducts();
+  products.value = productStore.products;
+});
 
 const getLabel = (key: string) => {
   switch (key) {
@@ -111,9 +117,9 @@ const getLabel = (key: string) => {
       <span class="text-md text-text-200">Modifier les détails de stock.</span>
     </span>
     <Button
-        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-        @click="handleSubmit"
-        :disabled="isSubmitting"
+      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+      @click="handleSubmit"
+      :disabled="isSubmitting"
     >
       <Save class="icon w-6 h-6 mr-2 text-primary-200" />
       Enregistrer
@@ -123,40 +129,67 @@ const getLabel = (key: string) => {
     <div class="flex w-full gap-x-2">
       <Card class="w-full p-4">
         <CardHeader class="p-2">
-          <CardTitle class="text-text-100 font-medium text-md mb-4">Information Stock</CardTitle>
+          <CardTitle class="text-text-100 font-medium text-md mb-4"
+            >Information Stock</CardTitle
+          >
         </CardHeader>
         <CardContent>
           <div class="grid gap-4">
-            <div v-for="(field, key) in stockInfo" :key="key" class="grid gap-2">
-              <Label :for="key.toString()">{{ getLabel(key.toString()) }}</Label>
+            <div
+              v-for="(field, key) in stockInfo"
+              :key="key"
+              class="grid gap-2"
+            >
+              <Label :for="key.toString()">{{
+                getLabel(key.toString())
+              }}</Label>
               <Input
-                  v-if="field.type === 'number'"
-                  :id="key"
-                  v-model.number="values[key]"
-                  :placeholder="field.placeholder"
-                  type="number"
+                v-if="field.type === 'number'"
+                :id="key"
+                v-model.number="values[key]"
+                :placeholder="field.placeholder"
+                type="number"
               />
               <Select
-                  v-if="field.type === 'select'"
-                  v-model="values[key]"
+                v-if="field.type === 'select' && key !== 'productId'"
+                v-model="values[key].value"
               >
                 <SelectTrigger>
-                  <SelectValue :placeholder="field.placeholder">{{ values[key].value }}</SelectValue>
+                  <SelectValue :placeholder="field.placeholder" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Operation Type</SelectLabel>
+                    <SelectLabel>Options</SelectLabel>
                     <SelectItem
-                        v-for="option in field.options"
-                        :key="option"
-                        :value="option"
+                      v-for="option in field.options"
+                      :key="option"
+                      :value="option"
                     >
                       {{ option }}
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <span v-if="errors[key]" class="text-red-500 text-sm">{{ errors[key] }}</span>
+              <Select v-if="key == 'productId'" v-model="values[key].value">
+                <SelectTrigger>
+                  <SelectValue :placeholder="field.placeholder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Options</SelectLabel>
+                    <SelectItem
+                      v-for="option in products"
+                      :key="option._id"
+                      :value="option._id"
+                    >
+                      {{ option.product_title }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <span v-if="errors[key]" class="text-red-500 text-sm">{{
+                errors[key]
+              }}</span>
             </div>
           </div>
         </CardContent>

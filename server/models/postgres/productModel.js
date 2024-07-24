@@ -32,10 +32,6 @@ const Products = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    product_minimum_offer_price: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-    },
     product_category: {
       type: DataTypes.STRING,
       allowNull: true,
