@@ -43,8 +43,6 @@ const stripeWebhookHandler = async (req, res) => {
                 // Calculate the total amount from the metadata products
                 const totalAmount = products.reduce((sum, item) => sum + item.amount * item.quantity, 0);
 
-                // Log totalAmount for debugging
-
                 // Create the payment record
                 const payment = await Payment.create({
                     userId: session.client_reference_id,
@@ -55,16 +53,24 @@ const stripeWebhookHandler = async (req, res) => {
                 });
 
                 const trackingNumber = generateTrackingNumber();
-
                 const orderUnique = generateUniqueOrderID();
 
                 const orderDetails = [];
+                const user = await User.findByPk(session.client_reference_id);
 
                 for (const item of products) {
                     const productId = item.productId;
 
                     await Orders.create({
                         userId: session.client_reference_id,
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        email: user.email,
+                        address: user.address,
+                        country: user.country,
+                        city: user.city,
+                        postalCode: user.postalCode,
+                        phoneNumber: user.phoneNumber,
                         orderUnique: orderUnique,
                         quantity: item.quantity,
                         productId: productId,
@@ -102,8 +108,6 @@ const stripeWebhookHandler = async (req, res) => {
 
                 // Vider le panier de l'utilisateur
                 await Cart.destroy({ where: { userId: session.client_reference_id } });
-
-                const user = await User.findByPk(session.client_reference_id);
 
                 if (user && orderDetails.length > 0) {
                     const userName = `${user.firstname} ${user.lastname}`;
