@@ -103,6 +103,11 @@ const Users = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    acceptLegal: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     timestamps: true,

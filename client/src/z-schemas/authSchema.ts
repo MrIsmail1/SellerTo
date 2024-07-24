@@ -7,7 +7,8 @@ export const registerSchema = z.object({
   email: z.string().email('Email invalide'),
   password: z.string()
     .min(12, 'Le mot de passe doit contenir au moins 12 caractères')
-    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/, 'Le mot de passe doit inclure une combinaison de chiffres, de lettres et de caractères spéciaux')
+    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/, 'Le mot de passe doit inclure une combinaison de chiffres, de lettres et de caractères spéciaux'),
+  acceptLegal: z.boolean().refine(val => val === true, 'Vous devez accepter les mentions légales')
 });
 
 // Schéma de validation pour la connexion

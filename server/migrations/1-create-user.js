@@ -92,6 +92,11 @@ export const up = async ({ context: queryInterface }) => {
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
+    acceptLegal: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   });
 };
 

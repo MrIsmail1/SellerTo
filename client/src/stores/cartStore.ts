@@ -108,7 +108,8 @@ export const useCartStore = defineStore('cart', {
     async removeFromCart(cartItemId) {
       try {
         await axios.delete('/cart', { data: { cartItemId } });
-        this.cart = this.cart.filter(item => item.id !== cartItemId);
+        this.cart = this.cart.filter(item => item.id !== cartItemId); // Mise à jour locale immédiate
+        this.fetchCart(); // Actualiser le panier après suppression
       } catch (error) {
         console.error(error);
       }
