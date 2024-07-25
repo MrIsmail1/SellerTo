@@ -143,7 +143,7 @@ export const resetPassword = async (req, res) => {
 
 export const logout = (req, res) => {
   res.clearCookie('JWT');
-  res.status(200).json({ message: 'Déconnexion réussie' });
+  res.status(200).send();
 };
 
 const generateToken = (id) => {
@@ -208,7 +208,54 @@ export const confirmEmail = async (req, res) => {
     user.confirmationTokenExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
+    res.status(200).send(`
+      <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+          }
+          .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #333;
+          }
+          p {
+            font-size: 1.2em;
+          }
+          a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: black;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+          }
+          a:hover {
+            background-color: black;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Email confirmé avec succès</h1>
+          <p>Votre email a été confirmé avec succès. Vous pouvez maintenant vous connecter.</p>
+          <a href="${process.env.APP_BASE_URL_CLIENT}/login">Se connecter</a>
+        </div>
+      </body>
+      </html>
+    `);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la confirmation de l\'email' });
   }

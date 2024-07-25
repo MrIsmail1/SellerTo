@@ -20,8 +20,5 @@
     .rotate270 {
         transform: rotate(270deg);
     }
-    td, th {
-        border: 1px solid black;
-        padding: 2px;
-    }
+    
   }

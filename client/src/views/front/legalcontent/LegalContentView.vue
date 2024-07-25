@@ -591,3 +591,10 @@ watch(route, loadContent);
   </div>
   </main>
 </template>
+
+<style>
+td, th {
+        border: 1px solid black;
+        padding: 2px;
+    }
+</style>

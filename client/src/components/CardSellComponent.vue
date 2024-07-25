@@ -34,18 +34,8 @@ console.log(props.product);
 </script>
 
 <template>
-  <RouterLink
-    :to="{
-      name: 'Product',
-      params: { id: product._id || product.id },
-    }"
-  >
-    <Card
-      :class="[
-        'w-96 md:w-64 h-[18rem] md:h-[22.75rem] p-0 mb-2 md:mb-8',
-        cardClass,
-      ]"
-    >
+  <RouterLink class="hover:bg-inherit" :to="{ name: 'Product', params: { id: product._id || product.id } } ">
+    <Card :class="['w-96 md:w-64 h-[18rem] md:h-[22.75rem] p-0 mb-2 md:mb-8', cardClass]">
       <CardImage>
         <img
           :class="['p-8 rounded-t-lg h-32', cardImageClass]"

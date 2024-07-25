@@ -1,5 +1,11 @@
 @import './base.css';
 
+*,:before,:after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+}
+
 #app {
   margin: 0 auto;
   font-weight: normal;

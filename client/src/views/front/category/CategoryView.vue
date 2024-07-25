@@ -81,13 +81,13 @@ watch(() => route.query, (newQuery) => {
         </SheetHeader>
       </SheetContent>
     </Sheet>
-    <div class="mt-2 md:mt-6 grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+    <div class="mt-14 lg:mt-2 md:mt-6 grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div class="hidden border-r bg-muted/40 md:block">
         <div class="flex h-full max-h-screen flex-col gap-2">
           <FilterComponent :filteredProducts="filteredProducts"/>
         </div>
       </div>
-      <div class="relative flex flex-wrap justify-between -mt-4 p-4">
+      <div class="relative flex flex-wrap justify-between -mt-4 p-0 lg:p-4">
         <!-- Notification Icon -->
         <div class="notification-icon ps-5" @click="showAlertModal = true">
           <span class="material-symbols-outlined text-gray-700">notifications</span>
@@ -134,7 +134,7 @@ watch(() => route.query, (newQuery) => {
 .notification-icon {
   position: absolute;
   top: 1rem; /* Adjusted for a bit lower position */
-  right: 1rem; /* Adjusted to move more to the right */
+  right: -4rem; /* Adjusted to move more to the right */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -144,6 +144,13 @@ watch(() => route.query, (newQuery) => {
   border-radius: 9999px; /* Full rounding */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Small shadow */
   transition: background-color 0.2s;
+}
+
+@media (max-width: 768px) {
+  .notification-icon {
+    right: 0rem; /* Adjusted for smaller screens */
+    top: -2rem; /* Adjusted for smaller screens */
+  }
 }
 
 .notification-icon:hover {

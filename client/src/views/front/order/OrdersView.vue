@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
+import toast from '@/plugins/toast';  // Import the toast plugin
 import { useAuthStore } from "@/stores/authStore";
 import { useOrdersStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
@@ -54,6 +55,7 @@ const createRefund = async (productId, paymentId, quantity) => {
   try {
     await ordersStore.createRefund({ productId, paymentId, quantity });
     await ordersStore.fetchOrders();
+    toast.success('Le remboursement a été effectué avec succès', { position: 'top-right', timeout: 3000 });
   } catch (error) {
     console.error("Error refunding product:", error);
   }
@@ -71,6 +73,7 @@ const downloadInvoice = async (order) => {
 </script>
 
 <template>
+  <main>
   <div class="container mx-auto p-4">
     <h1 class="font-bold text-5xl my-4 mb-6">Mes Commandes</h1>
     <div v-if="loading" class="text-center">Loading...</div>
@@ -215,6 +218,7 @@ const downloadInvoice = async (order) => {
       </li>
     </ul>
   </div>
+  </main>
 </template>
 
 <style scoped>
