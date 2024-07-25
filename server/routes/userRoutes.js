@@ -7,7 +7,7 @@ const router = Router();
 
 router.get("/profile", checkAuth, checkRole(["User", "Admin", "SuperAdmin"]), getUserProfile);
 router.get("/:id", checkAuth, checkRole(["User", "Admin", "SuperAdmin"]), getUserById);
-router.delete("/:id", checkAuth, checkRole(["Admin"]), deleteUserAccount);
+router.delete("/:id", checkAuth, checkRole(["User", "Admin", "SuperAdmin"]), deleteUserAccount);
 router.put("/update", checkAuth, checkRole(["User", "Admin", "SuperAdmin"]), updateUserProfile);
 router.patch("/:id", checkAuth, checkRole(["Admin", "SuperAdmin"]), updateUser);
 router.get("/", checkAuth, checkRole(["Admin", "SuperAdmin"]), getUsers);
