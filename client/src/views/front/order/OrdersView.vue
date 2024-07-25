@@ -5,6 +5,7 @@ import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from '@/stores/authStore';
+import toast from '@/plugins/toast';  // Import the toast plugin
 
 const ordersStore = useOrdersStore();
 const { orders, loading, error } = storeToRefs(ordersStore);
@@ -54,6 +55,7 @@ const createRefund = async (productId, paymentId, quantity) => {
   try {
     await ordersStore.createRefund({ productId, paymentId, quantity });
     await ordersStore.fetchOrders();
+    toast.success('Le remboursement a été effectué avec succès', { position: 'top-right', timeout: 3000 });
   } catch (error) {
     console.error('Error refunding product:', error);
   }
@@ -66,6 +68,7 @@ const getPaymentProduct = (productId: number) => {
 </script>
 
 <template>
+  <main>
   <div class="container mx-auto p-4">
     <h1 class="font-bold text-5xl my-4 mb-6">Mes Commandes</h1>
     <div v-if="loading" class="text-center">Loading...</div>
@@ -135,6 +138,7 @@ const getPaymentProduct = (productId: number) => {
       </li>
     </ul>
   </div>
+  </main>
 </template>
 
 <style scoped>
