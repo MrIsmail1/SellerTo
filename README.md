@@ -15,9 +15,13 @@ Follow these steps to launch the SellerTo project:
 
 ### 1. Clone the Repository
 
-`git clone https://github.com/MrIsmail1/SellerTo.git`
+```bash
+    git clone https://github.com/MrIsmail1/SellerTo.git
+```
 
-`cd SellerTo`
+```bash
+    cd SellerTo
+```
 
 ### 2. Create Environment Variables
 
@@ -83,7 +87,9 @@ Create a `.env` file in the `client` directory with the following content:
 
 Use Docker Compose to build and run the containers.
 
-`docker compose up -d --build`
+```bash
+    docker compose up -d --build
+```
 
 This command will:
 
@@ -107,19 +113,27 @@ The following services will be running:
 
 To create and migrate the PostgreSQL database using Sequelize, run the following commands:
 
-`docker compose exec server npm run db:create`
+```bash
+    docker compose exec server npm run db:create
+```
 
-`docker compose exec server npm run db:migrate`
+```bash
+    docker compose exec server npm run db:migrate
+```
 
 To drop the PostgreSQL database, run:
 
-`docker compose exec server npm run db:drop`
+```bash
+    docker compose exec server npm run db:drop
+```
 
 ## Stopping the Application
 
 To stop the application, run:
 
-`docker compose down`
+```bash
+    docker compose down
+```
 
 This command will stop the containers, networks, and volumes defined in `docker-compose.yml`.
 
