@@ -54,7 +54,7 @@ const userInfo = ref<Record<string, UserField>>({
     value: "users",
     type: "select",
     placeholder: "Choisir le rôle",
-    options: ["SuperAdmin", "Admin", "Users"],
+    options: ["SuperAdmin", "Admin", "User"],
   },
   isVerified: {
     value: true,
