@@ -10,7 +10,7 @@ import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
 import Users from "../models/postgres/userModel.js";
 import { createInvoicePDF } from "../services/invoiceService.js";
 import { getProductById } from "./productController.js";
-import {getUserById, getUserByIdDiff} from "./userController.js";
+import { getUserById, getUserByIdDiff } from "./userController.js";
 
 // TODO : Check Restfull
 async function getProductDetails(productId) {
@@ -32,43 +32,42 @@ export const getUserOrders = async (req, res) => {
     });
 
     const detailedOrders = await Promise.all(
-        orders.map(async (order) => {
-          const productDetails = await getProductDetails(order.productId);
-          const userDetails = await getUserDetails(order.userId);
+      orders.map(async (order) => {
+        const productDetails = await getProductDetails(order.productId);
+        const userDetails = await getUserDetails(order.userId);
 
-          // Find the payment record using paymentIntentId
-          const payment = await Payment.findOne({
+        // Find the payment record using paymentIntentId
+        const payment = await Payment.findOne({
+          where: {
+            paymentIntentId: order.paymentIntentId,
+          },
+        });
+
+        let paymentProducts = [];
+        if (payment) {
+          // Get PaymentProduct using paymentId
+          paymentProducts = await PaymentProduct.findAll({
             where: {
-              paymentIntentId: order.paymentIntentId,
+              paymentId: payment.id,
             },
           });
+        }
 
-          let paymentProducts = [];
-          if (payment) {
-            // Get PaymentProduct using paymentId
-            paymentProducts = await PaymentProduct.findAll({
-              where: {
-                paymentId: payment.id,
-              },
-            });
-          }
-
-          return {
-            ...order.toJSON(),
-            product: productDetails,
-            user: userDetails,
-            paymentProducts: paymentProducts,
-          };
-        })
+        return {
+          ...order.toJSON(),
+          product: productDetails,
+          user: userDetails,
+          paymentProducts: paymentProducts,
+        };
+      })
     );
 
     res.status(200).json(detailedOrders);
   } catch (error) {
-    console.error('Error fetching user orders:', error);
+    console.error("Error fetching user orders:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const calculateData = async (widget) => {
   const now = new Date();
@@ -178,7 +177,12 @@ export const calculateData = async (widget) => {
   } else {
     const groupInterval = getGroupInterval(widget.selectedStep);
     const orders = await Order.find(matchCriteria);
-    const xAxisDates = generateXAxisDates(startDate, now, widget.timeFrame, widget.selectedStep);
+    const xAxisDates = generateXAxisDates(
+      startDate,
+      now,
+      widget.timeFrame,
+      widget.selectedStep
+    );
     const dataMap = new Map(xAxisDates.map((date) => [date, 0]));
 
     orders.forEach((order) => {
@@ -350,7 +354,6 @@ const updateDataMap = (dataMap, closestDate, dataType, order) => {
   }
 };
 
-
 export const getDashboardData = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -464,5 +467,27 @@ export const generateInvoices = async (req, res) => {
   } catch (error) {
     console.error("Error generating invoices:", error);
     res.status(500).json({ message: "Error generating invoices" });
+  }
+};
+
+export const generateInvoice = async (req, res) => {
+  const order = req.body;
+
+  if (!order) {
+    return res.status(400).json({ message: "No order provided." });
+  }
+
+  try {
+    // Generate a single PDF for the provided order
+    const pdfBuffer = await createInvoicePDF(order);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=facture_${order.orderUnique}.pdf`
+    );
+    return res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Error generating invoice:", error);
+    res.status(500).json({ message: "Error generating invoice" });
   }
 };
