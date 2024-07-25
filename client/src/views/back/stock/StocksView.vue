@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DataTable from "@/components/common/DataTableComponent.vue";
-import { columns } from "@/components/datatable-columns/Stock";
+import { getColumns } from "@/components/datatable-columns/Stock";
 import Button from "@/components/ui/button/Button.vue";
 import { useStockStore } from "@/stores/stockStore";
 import type { Stock } from "@/z-schemas/StockShema";
@@ -11,10 +11,12 @@ import { useRouter } from "vue-router";
 const data = ref<Stock[]>([]);
 const stockStore = useStockStore();
 const router = useRouter();
+const columns = ref([]);
 
 onMounted(async () => {
   await stockStore.fetchStocks();
   data.value = stockStore.stocks;
+  columns.value = await getColumns();
 });
 </script>
 
@@ -25,8 +27,8 @@ onMounted(async () => {
       <span class="text-md text-text-200">Gérer vos stocks ici.</span>
     </span>
     <Button
-      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="router.push({ name: 'AdminAddStock' })"
+        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+        @click="router.push({ name: 'AdminAddStock' })"
     >
       <Plus class="icon w-6 h-6 mr-2 text-primary-200" />
       Stock

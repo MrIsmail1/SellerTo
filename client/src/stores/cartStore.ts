@@ -84,7 +84,6 @@ export const useCartStore = defineStore('cart', {
       }
 
       if (!productId) {
-        console.error("Product ID is required");
         return;
       }
 
@@ -99,10 +98,8 @@ export const useCartStore = defineStore('cart', {
             this.cart.push(cartItem);
           }
         } else {
-          console.error("Invalid response data", response.data);
         }
       } catch (error) {
-        console.error(error);
       }
     },
     async removeFromCart(cartItemId) {
@@ -123,7 +120,6 @@ export const useCartStore = defineStore('cart', {
           this.cart = [...this.cart];
         }
       } catch (error) {
-        console.error(error);
       }
     },
     async confirmPurchase() {
@@ -150,12 +146,10 @@ export const useCartStore = defineStore('cart', {
         const result = await stripe.redirectToCheckout({ sessionId });
 
         if (result.error) {
-          console.error(result.error.message);
         } else {
           this.clearCart();
         }
       } catch (error) {
-        console.error(error);
       }
     },
     async clearCart() {
@@ -179,7 +173,6 @@ export const useCartStore = defineStore('cart', {
 
         this.paymentLink = response.data.paymentUrl;
       } catch (error) {
-        console.error('Error generating payment link:', error);
         this.paymentLink = null;
       }
     },

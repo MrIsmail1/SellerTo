@@ -15,7 +15,7 @@ export const getProducts = async (req, res) => {
     const products = await Product.find(query);
     res.status(200).json(products);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -23,11 +23,11 @@ export const getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
     res.status(200).json(product);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -49,7 +49,6 @@ export const createProduct = async (req, res) => {
   try {
     const products = req.body;
 
-    // TODO : Je sais pas pourquoi il y a deux fois un create c'est bizarre faut peut-être en retiré
     if (Array.isArray(products)) {
       const newProducts = await Products.bulkCreate(products, {
         returning: true,
@@ -82,7 +81,7 @@ export const createProduct = async (req, res) => {
       res.status(201).json(newProduct);
     }
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -90,7 +89,7 @@ export const updateProduct = async (req, res) => {
   try {
     const product = await Products.findByPk(req.params.id);
     if (!product) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     Object.assign(product, req.body);
@@ -98,7 +97,7 @@ export const updateProduct = async (req, res) => {
 
     res.status(200).json(product);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -107,7 +106,7 @@ export const patchProduct = async (req, res) => {
     // Récupérer le produit avant la mise à jour
     const existingProduct = await Products.findByPk(req.params.id);
     if (!existingProduct) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     const [updated] = await Products.update(req.body, {
@@ -116,7 +115,7 @@ export const patchProduct = async (req, res) => {
     });
 
     if (!updated) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     const updatedProduct = await Products.findByPk(req.params.id);
@@ -130,7 +129,6 @@ export const patchProduct = async (req, res) => {
         },
       });
 
-      // TODO : Gérer mieux les erreurs
       for (const alert of userAlerts) {
         try {
           const user = await getUserByIdDiff(alert.userId);
@@ -138,14 +136,13 @@ export const patchProduct = async (req, res) => {
             await sendPriceChangeAlertEmail(user.email, updatedProduct);
           }
         } catch (userError) {
-          console.error("Error fetching user:", userError.message);
         }
       }
     }
 
     res.status(200).json(updatedProduct);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -153,13 +150,13 @@ export const deleteProduct = async (req, res) => {
   try {
     const product = await Products.findByPk(req.params.id);
     if (!product) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
     await product.destroy({ individualHooks: true });
 
-    res.status(204);
+    res.sendStatus(204);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -217,7 +214,7 @@ export const searchProductByTitleOrDescription = async (req, res) => {
 
     res.status(200).json(products);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 

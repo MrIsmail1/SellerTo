@@ -1,18 +1,14 @@
 import archiver from "archiver";
 import fs from "fs";
-import nodemailer from "nodemailer";
 import path from "path";
 import Order from "../models/mongo/orderModel.js";
 import Widget from "../models/mongo/widgetModel.js"; // Import du modèle de widget
-
 import Orders from "../models/postgres/orderModel.js";
-import { Payment, PaymentProduct } from "../models/postgres/paymentModel.js";
-import Users from "../models/postgres/userModel.js";
-import { createInvoicePDF } from "../services/invoiceService.js";
-import { getProductById } from "./productController.js";
-import { getUserById, getUserByIdDiff } from "./userController.js";
+import {Payment, PaymentProduct} from "../models/postgres/paymentModel.js";
+import {createInvoicePDF} from "../services/invoiceService.js";
+import {getProductById} from "./productController.js";
+import {getUserByIdDiff} from "./userController.js";
 
-// TODO : Check Restfull
 async function getProductDetails(productId) {
   return await getProductById(productId);
 }
@@ -64,8 +60,7 @@ export const getUserOrders = async (req, res) => {
 
     res.status(200).json(detailedOrders);
   } catch (error) {
-    console.error("Error fetching user orders:", error);
-    res.status(500).json({ message: error.message });
+    res.sendStatus(500);
   }
 };
 
@@ -177,12 +172,7 @@ export const calculateData = async (widget) => {
   } else {
     const groupInterval = getGroupInterval(widget.selectedStep);
     const orders = await Order.find(matchCriteria);
-    const xAxisDates = generateXAxisDates(
-      startDate,
-      now,
-      widget.timeFrame,
-      widget.selectedStep
-    );
+    const xAxisDates = generateXAxisDates(startDate, now, widget.timeFrame, widget.selectedStep);
     const dataMap = new Map(xAxisDates.map((date) => [date, 0]));
 
     orders.forEach((order) => {
@@ -375,7 +365,7 @@ export const getDashboardData = async (req, res) => {
     const widgetData = await Promise.all(widgetDataPromises);
     res.status(200).json(widgetData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.sendStatus(500);
   }
 };
 
@@ -396,7 +386,7 @@ export const getOrders = async (req, res) => {
     res.status(200).json(detailedOrders);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur de récuperation des commandes." });
+    res.sendStatus(500);
   }
 };
 
@@ -404,7 +394,7 @@ export const generateInvoices = async (req, res) => {
   const orders = req.body;
 
   if (!orders || orders.length === 0) {
-    return res.status(400).json({ message: "No selected orders." });
+    return res.sendStatus(400);
   }
 
   try {
@@ -445,7 +435,7 @@ export const generateInvoices = async (req, res) => {
       res.sendFile(zipFilePath, (err) => {
         if (err) {
           console.error(err);
-          res.status(500).send("Error occurred while sending the zip file");
+          res.sendStatus(500);
         }
         // Cleanup the temporary zip file after sending it
         fs.unlinkSync(zipFilePath);
@@ -465,8 +455,7 @@ export const generateInvoices = async (req, res) => {
 
     await archive.finalize();
   } catch (error) {
-    console.error("Error generating invoices:", error);
-    res.status(500).json({ message: "Error generating invoices" });
+    res.sendStatus(500);
   }
 };
 
@@ -474,7 +463,7 @@ export const generateInvoice = async (req, res) => {
   const order = req.body;
 
   if (!order) {
-    return res.status(400).json({ message: "No order provided." });
+    return res.sendStatus(400);
   }
 
   try {
@@ -488,6 +477,6 @@ export const generateInvoice = async (req, res) => {
     return res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating invoice:", error);
-    res.status(500).json({ message: "Error generating invoice" });
+    res.sendStatus(500);
   }
 };

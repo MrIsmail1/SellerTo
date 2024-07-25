@@ -33,16 +33,13 @@ const updateProductStock = async () => {
                     }
                 });
 
-                // TODO : Gérer mieux les erreurs
                 for (const alert of userAlerts) {
                     try {
                         const user = await getUserByIdDiff({ params: { id: alert.userId } });
                         if (user && user.email) {
                             await sendRestockAlertEmail(user.email, product);
-                            console.log('Restock email sent to:', user.email);
                         }
                     } catch (userError) {
-                        console.error('Error fetching user:', userError.message);
                     }
                 }
             }
@@ -51,15 +48,12 @@ const updateProductStock = async () => {
                 await sendLowStockAlertEmail(product);
             }
         }
-        // TODO : Gérer mieux les erreurs
     } catch (error) {
-        console.error('Error updating stocks:', error);
     }
 };
 
 const startStockUpdateCronJob = () => {
-    cron.schedule('*/5 * * * *', updateProductStock);
-    console.log('Cron job scheduled: Product stock update every 5 minutes');
+    cron.schedule('*/1 * * * *', updateProductStock);
 };
 
 export default startStockUpdateCronJob;
