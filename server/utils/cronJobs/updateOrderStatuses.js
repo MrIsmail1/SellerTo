@@ -29,16 +29,14 @@ async function updateOrderStatuses() {
                 order.status = nextStatus;
                 await order.save();
             } else {
-                console.log(`Order ${order.id} has reached the final status ${order.status}`);
             }
         }
     } catch (error) {
-        console.error('Error updating order statuses:', error);
     }
 }
 
 const startCronJob = () => {
-    cron.schedule('*/10 * * * *', updateOrderStatuses);
+    cron.schedule('*/1 * * * *', updateOrderStatuses);
 };
 
 export default startCronJob;

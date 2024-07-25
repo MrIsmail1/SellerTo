@@ -8,7 +8,7 @@ export const addUserAlert = async (req, res) => {
         const { userId, alertId, productId, category } = req.body;
 
         if (!userId || !alertId) {
-            return res.status(400);
+            return res.sendStatus(400);
         }
 
         const userAlert = await UserAlert.create({
@@ -20,7 +20,7 @@ export const addUserAlert = async (req, res) => {
 
         res.status(201).json(userAlert);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 
@@ -34,7 +34,7 @@ export const getAlertsByUserId = async (req, res) => {
 
         res.status(200).json(userAlerts);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 
@@ -48,7 +48,7 @@ export const getAlertsByUserIdAndProductId = async (req, res) => {
 
         res.status(200).json(userAlerts);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 
@@ -62,7 +62,7 @@ export const getAlertsByUserIdAndCategory = async (req, res) => {
 
         res.status(200).json(userAlerts);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 
@@ -74,7 +74,7 @@ export const updateUserAlerts = async (req, res) => {
             const { userId, alertId, productId, category, isActive } = update;
 
             if (!userId || !alertId || isActive === undefined) {
-                return res.status(400);
+                return res.sendStatus(400);
             }
 
             const whereClause = { userId, alertId };
@@ -104,7 +104,7 @@ export const updateUserAlerts = async (req, res) => {
 
         res.status(200);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 
@@ -127,13 +127,12 @@ export const sendNewsletter = async (req, res) => {
                     await sendNewsletterEmail(user.email, subject, message);
                 }
             } catch (userError) {
-                console.error('Error fetching user:', userError.message);
             }
         }
 
-        res.status(200);
+        res.sendStatus(200);
     } catch (error) {
-        res.status(500);
+        res.sendStatus(500);
     }
 };
 

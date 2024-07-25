@@ -192,12 +192,6 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
-        path: "orders/view/:id",
-        name: "AdminViewOrder",
-        component: () => import("@/views/back/order/SingleOrderView.vue"),
-        meta: { requiresAuth: true, requiresAdmin: true },
-      },
-      {
         path: "stocks",
         name: "AdminStocks",
         component: () => import("@/views/back/stock/StocksView.vue"),

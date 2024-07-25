@@ -4,19 +4,21 @@ import DataTable from "@/components/common/DataTableComponent.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { usePromoCodeStore } from "@/stores/promoCodeStore";
 
-import { columns } from "@/components/datatable-columns/PromoCode";
+import { getPromoCodeColumns } from "@/components/datatable-columns/PromoCode";
 import type { PromoCode } from "@/z-schemas/PromoCodeSchema";
 import { Plus } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const data = ref<PromoCode[]>([]);
+const columns = ref([]);
 const promoCodeStore = usePromoCodeStore();
 const router = useRouter();
 
 onMounted(async () => {
   await promoCodeStore.fetchPromoCodes();
   data.value = promoCodeStore.promoCodes;
+  columns.value = await getPromoCodeColumns();
 });
 </script>
 
@@ -27,8 +29,8 @@ onMounted(async () => {
       <span class="text-md text-text-200">Gérer vos codes promo ici.</span>
     </span>
     <Button
-      class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
-      @click="router.push({ name: 'AdminAddPromoCode' })"
+        class="button border bg-transparent text-text-100 border-accent-200 text-md font-medium hover:bg-primary-200 hover:text-white"
+        @click="router.push({ name: 'AdminAddPromoCode' })"
     >
       <Plus class="icon w-6 h-6 mr-2 text-primary-200" />
       Code

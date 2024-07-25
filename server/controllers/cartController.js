@@ -8,7 +8,7 @@ export const addToCart = async (req, res) => {
   try {
     const product = await Product.findByPk(productId);
     if (!product || product.product_stock <= 0) {
-      return res.status(404).json({ message: 'Product not found or out of stock' });
+      return res.sendStatus(404);
     }
 
     let cartItem = await Cart.findOne({ where: { productId, userId } });
@@ -53,8 +53,7 @@ export const addToCart = async (req, res) => {
       }
     }, 3 * 60 * 100); // 30 secondes
   } catch (error) {
-    console.error('Error adding to cart:', error);
-    res.status(500).json({ message: 'Erreur interne du serveur' });
+    res.sendStatus(500);
   }
 };
 
@@ -75,12 +74,11 @@ export const removeFromCart = async (req, res) => {
 
     await Cart.destroy({ where: { id: cartItem.id } });
 
-    res.status(204).send();
+    res.sendStatus(204);
   } catch (error) {
-    res.status(500)
+    res.sendStatus(500);
   }
 };
-
 
 export const getCart = async (req, res) => {
   const userId = req.user.id;
@@ -95,7 +93,7 @@ export const getCart = async (req, res) => {
     });
     res.status(200).json(carts);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -106,7 +104,7 @@ export const updateCartQuantity = async (req, res) => {
   try {
     const cartItem = await Cart.findOne({ where: { id: cartItemId, userId }, include: [{ model: Product, as: 'Product' }] });
     if (!cartItem) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     cartItem.quantity = quantity;
@@ -114,6 +112,6 @@ export const updateCartQuantity = async (req, res) => {
 
     res.status(200).json(cartItem);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };

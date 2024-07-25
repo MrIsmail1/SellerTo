@@ -12,7 +12,7 @@ import {getUserByIdDiff} from "./userController.js";
 export const createProductWithImages = async (req, res) => {
   uploadFiles(req, res, async (err, fileInfos) => {
     if (err) {
-      return res.status(400).json({ error: err.message });
+      return res.sendStatus(400);
     } else {
       const productData = JSON.parse(req.body.productData);
       try {
@@ -72,7 +72,7 @@ export const createProductWithImages = async (req, res) => {
 
         return res.status(200).json({ product: newProduct, files: savedFiles });
       } catch (dbError) {
-        return res.status(500);
+        return res.sendStatus(500);
       }
     }
   });
@@ -83,18 +83,18 @@ export const addImagesToProduct = async (req, res) => {
   const { productId } = req.body;
 
   if (!productId) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
 
   try {
     const product = await Products.findByPk(productId);
     if (!product) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     uploadFiles(req, res, async (err, fileInfos) => {
       if (err) {
-        return res.status(400).json({ message: err.message });
+        return res.sendStatus(400);
       } else {
         try {
           const filePromises = fileInfos.map(async (file) => {
@@ -122,12 +122,12 @@ export const addImagesToProduct = async (req, res) => {
           });
           return res.status(200).json({ files: savedFiles });
         } catch (dbError) {
-          return res.status(500);
+          return res.sendStatus(500);
         }
       }
     });
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -135,18 +135,18 @@ export const deleteProductImage = async (req, res) => {
   const { productId, imageId } = req.params;
 
   if (!productId || !imageId) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
 
   try {
     const product = await Products.findByPk(productId);
     if (!product) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     const image = await Images.findByPk(imageId);
     if (!image) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
     const imageUrl = image.url;
     await ProductMongo.updateOne(
@@ -154,11 +154,10 @@ export const deleteProductImage = async (req, res) => {
       { $pull: { imageUrls: imageUrl } }
     );
 
-    // TODO : Retour incorrect
     await image.destroy();
-    return res.status(200).json({ message: "Image deleted successfully" });
+    return res.sendStatus(204);
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 export const getImageId = async (req, res) => {
@@ -171,13 +170,12 @@ export const getImageId = async (req, res) => {
     });
 
     if (!image) {
-      return res.status(404).json({ message: "Image not found" });
+      return res.sendStatus(404);
     }
 
     const imageId = image.id;
     return res.status(200).json({ imageId });
   } catch (error) {
-    console.error("Failed to get image ID:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.sendStatus(500);
   }
 };

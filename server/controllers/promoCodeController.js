@@ -14,16 +14,16 @@ export const validatePromoCode = async (req, res) => {
     const promoCode = await PromoCodes.findOne({ where: { code } });
 
     if (!promoCode) {
-      return res.status(404).json({ message: "Code promo non trouvé." });
+      return res.sendStatus(404);
     }
 
     if (new Date(promoCode.expiry_date) < new Date()) {
-      return res.status(400).json({ message: "Le code promo a expiré." });
+      return res.sendStatus(400);
     }
 
     return res.status(200).json(promoCode);
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -41,7 +41,7 @@ export const createPromoCode = async (req, res) => {
     return res.status(201).json(newPromoCode);
   } catch (error) {
     console.log(error);
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -53,7 +53,7 @@ export const updatePromoCode = async (req, res) => {
     const promoCode = await PromoCodes.findByPk(id);
 
     if (!promoCode) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     await promoCode.update({
@@ -65,7 +65,7 @@ export const updatePromoCode = async (req, res) => {
     });
     return res.status(200).json(promoCode);
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -76,13 +76,13 @@ export const deletePromoCode = async (req, res) => {
     const promoCode = await PromoCodes.findByPk(id);
 
     if (!promoCode) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     await promoCode.destroy();
-    return res.status(204);
+    return res.sendStatus(204);
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -91,7 +91,7 @@ export const getAllPromoCodes = async (req, res) => {
     const promoCodes = await PromoCodes.findAll();
     return res.status(200).json(promoCodes);
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -101,12 +101,12 @@ export const findPromoCodeById = async (req, res) => {
   try {
     const stock = await PromoCodes.findByPk(id);
     if (!stock) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     res.status(200).json(stock);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
 
@@ -117,7 +117,7 @@ export const patchPromoCode = async (req, res) => {
   try {
     const promoCode = await PromoCodes.findByPk(id);
     if (!promoCode) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     if (code !== undefined) {
@@ -139,6 +139,6 @@ export const patchPromoCode = async (req, res) => {
     await promoCode.save();
     res.status(200).json(promoCode);
   } catch (error) {
-    res.status(500);
+    res.sendStatus(500);
   }
 };
